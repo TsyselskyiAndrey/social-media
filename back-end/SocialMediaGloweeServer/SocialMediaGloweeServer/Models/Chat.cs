@@ -1,5 +1,8 @@
 ﻿namespace SocialMediaGloweeServer.Models
 {
+    /// <summary>
+    /// Represents social network chat
+    /// </summary>
     public class Chat
     {
         public int Id { get; set; }
