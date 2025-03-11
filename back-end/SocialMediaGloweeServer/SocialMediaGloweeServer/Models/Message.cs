@@ -10,6 +10,7 @@
         public User? Recipient { get; set; }
         public int ChatId { get; set; }
         public Chat Chat { get; set; }
+        public DateTime CreatedAt { get; set; }
         public ICollection<MessageAttachment> MessageAttachments { get; set; } = new List<MessageAttachment>();
     }
 }

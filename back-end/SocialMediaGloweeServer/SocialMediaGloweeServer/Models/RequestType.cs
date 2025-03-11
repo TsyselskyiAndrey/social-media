@@ -4,6 +4,6 @@
     {
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
-        public ICollection<Request> Request { get; set; } = new List<Request>();
+        public ICollection<Request> Requests { get; set; } = new List<Request>();
     }
 }

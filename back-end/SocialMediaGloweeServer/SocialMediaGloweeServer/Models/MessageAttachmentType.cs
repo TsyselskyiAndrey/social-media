@@ -1,6 +1,6 @@
 ﻿namespace SocialMediaGloweeServer.Models
 {
-    public class MessageType
+    public class MessageAttachmentType
     {
         public int Id { get; set; }
         public string Name { get; set; } = String.Empty;
