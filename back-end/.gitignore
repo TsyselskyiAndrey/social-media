@@ -397,7 +397,8 @@ FodyWeavers.xsd
 *.msp
 
 # JetBrains Rider
-*.sln.iml
+#*.sln.iml
 
 #Project preferences 
+**/Migrations/
 #**/*.sln

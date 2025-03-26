@@ -1,0 +1,27 @@
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+
+namespace Glowee.Persistence.Configurations
+{
+    public class IdentityRoleConfiguration : IEntityTypeConfiguration<IdentityRole<long>>
+    {
+        public void Configure(EntityTypeBuilder<IdentityRole<long>> builder)
+        {
+            builder.HasData(
+                new IdentityRole<long>
+                {
+                    Id = -1,
+                    Name = "admin",
+                    NormalizedName = "admin"
+                },
+                new IdentityRole<long>
+                {
+                    Id = -2,
+                    Name = "moderator",
+                    NormalizedName = "moderator"
+                }
+            );
+        }
+    }
+}

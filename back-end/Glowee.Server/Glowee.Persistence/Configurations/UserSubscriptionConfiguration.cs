@@ -1,0 +1,43 @@
+﻿using Glowee.Domain.Common;
+using Glowee.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace Glowee.Persistence.Configurations
+{
+    public class UserSubscriptionConfiguration : IEntityTypeConfiguration<UserSubscription>
+    {
+        public void Configure(EntityTypeBuilder<UserSubscription> builder)
+        {
+            builder.HasKey(us => us.Id);
+
+            builder.Property(us => us.CreatedAt)
+                   .IsRequired()
+                   .HasDefaultValueSql("getdate()");
+
+            builder.Property(us => us.ModifiedAt)
+                   .IsRequired()
+                   .HasDefaultValueSql("getdate()");
+
+            builder.Property(us => us.UserId)
+                   .IsRequired();
+            builder.HasOne(us => us.User)
+                   .WithMany(u => u.UserSubscriptions)
+                   .HasForeignKey(us => us.UserId)
+                   .OnDelete(DeleteBehavior.Cascade)
+                   .IsRequired();
+
+            builder.Property(us => us.SubscriptionId)
+                   .IsRequired();
+            builder.HasOne(us => us.Subscription)
+                   .WithMany(s => s.UserSubscriptions)
+                   .HasForeignKey(us => us.SubscriptionId)
+                   .OnDelete(DeleteBehavior.Cascade)
+                   .IsRequired();
+
+            builder.Property(us => us.ActivationDate)
+                   .IsRequired()
+                   .HasDefaultValueSql("getdate()");
+        }
+    }
+}
