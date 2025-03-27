@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Glowee.Domain\Glowee.Domain.csproj" />
+    <ProjectReference Include="..\Glowee.Application\Glowee.Application.csproj" />
   </ItemGroup>
 
 </Project>
