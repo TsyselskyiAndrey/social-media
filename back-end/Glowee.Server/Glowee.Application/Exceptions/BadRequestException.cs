@@ -1,7 +1,16 @@
-﻿namespace Glowee.Application.Exceptions
+﻿using FluentValidation.Results;
+
+namespace Glowee.Application.Exceptions
 {
-    class BadRequestException : Exception
+    public class BadRequestException : Exception
     {
         public BadRequestException(string message) : base(message) { }
+
+        public BadRequestException(string message, ValidationResult validationResult) : base(message)
+        {
+            ValidationErrors = validationResult.ToDictionary();
+        }
+
+        public IDictionary<string, string[]> ValidationErrors { get; set; }
     }
 }
