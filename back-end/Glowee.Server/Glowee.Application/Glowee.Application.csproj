@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Contracts\Email\" />
+    <Folder Include="Contracts\Logging\" />
+    <Folder Include="Exceptions\" />
     <Folder Include="Contracts\Persistence\" />
     <Folder Include="Features\" />
   </ItemGroup>
