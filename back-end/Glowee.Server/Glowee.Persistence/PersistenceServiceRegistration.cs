@@ -1,4 +1,6 @@
-﻿using Glowee.Domain.Entities;
+﻿using Glowee.Application.Contracts.Persistence;
+using Glowee.Domain.Entities;
+using Glowee.Persistence.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +18,8 @@ namespace Glowee.Persistence
                                            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             services.AddDbContext<SqlDbContext>(options => options.UseSqlServer(connectionString));
-
+            services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
+            
             services.AddIdentity<User, IdentityRole<long>>(options => {
                 options.SignIn.RequireConfirmedEmail = true;
                 options.Password.RequireDigit = false;
