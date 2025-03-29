@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="Contracts\Email\" />
     <Folder Include="Contracts\Logging\" />
-    <Folder Include="Contracts\Persistence\" />
     <Folder Include="Exceptions\" />
     <Folder Include="Features\" />
     <Folder Include="Models\Email\" />
@@ -18,6 +17,10 @@
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Glowee.Domain\Glowee.Domain.csproj" />
   </ItemGroup>
 
 </Project>
