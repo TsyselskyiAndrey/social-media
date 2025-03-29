@@ -1,4 +1,4 @@
-﻿using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasKey(u => u.Id);
+
+            builder.Property(u => u.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(u => u.CreatedAt)
                    .IsRequired()
@@ -26,11 +29,15 @@ namespace Glowee.Persistence.Configurations
                    .IsRequired()
                    .HasMaxLength(255);
 
-            builder.Property(c => c.Handle)
+            builder.Property(u => u.Email)
+                   .IsRequired()
+                   .HasMaxLength(511);
+
+            builder.Property(c => c.UserName)
                    .IsRequired()
                    .HasMaxLength(50);
 
-            builder.HasIndex(c => c.Handle, "IX_Users_Handle")
+            builder.HasIndex(c => c.UserName, "IX_Users_Handle")
                    .IsUnique();
 
             builder.Property(c => c.Biography)
@@ -47,14 +54,6 @@ namespace Glowee.Persistence.Configurations
 
             builder.Property(c => c.BirthDate)
                    .IsRequired(false);
-
-            builder.Property(c => c.EmailConfirmationCode)
-                   .IsRequired(false)
-                   .HasMaxLength(15);
-
-            builder.Property(u => u.EmailConfirmationCodeExpiryTime)
-                   .IsRequired()
-                   .HasDefaultValueSql("'0001-01-01T00:00:00.000'");
         }
     }
 }

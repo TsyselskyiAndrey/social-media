@@ -1,5 +1,4 @@
-﻿using Glowee.Domain.Common;
-using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.CommentStatuses;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<CommentStatus> builder)
         {
             builder.HasKey(cs => cs.Id);
+
+            builder.Property(cs => cs.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(cs => cs.CreatedAt)
                    .IsRequired()

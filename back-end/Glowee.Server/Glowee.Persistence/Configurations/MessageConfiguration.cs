@@ -1,5 +1,4 @@
-﻿using Glowee.Domain.Common;
-using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Message> builder)
         {
             builder.HasKey(m => m.Id);
+
+            builder.Property(m => m.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(m => m.CreatedAt)
                    .IsRequired()
