@@ -1,3 +1,4 @@
+using Glowee.Api.Middleware;
 using Glowee.Application;
 using Glowee.Infrastructure;
 using Glowee.Persistence;
@@ -36,6 +37,8 @@ namespace Glowee.Api
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 

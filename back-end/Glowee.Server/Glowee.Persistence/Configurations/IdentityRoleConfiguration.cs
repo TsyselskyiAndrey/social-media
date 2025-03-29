@@ -12,14 +12,14 @@ namespace Glowee.Persistence.Configurations
                 new IdentityRole<long>
                 {
                     Id = -1,
-                    Name = "admin",
-                    NormalizedName = "admin"
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
                 },
                 new IdentityRole<long>
                 {
                     Id = -2,
-                    Name = "moderator",
-                    NormalizedName = "moderator"
+                    Name = "Moderator",
+                    NormalizedName = "MODERATOR"
                 }
             );
         }
