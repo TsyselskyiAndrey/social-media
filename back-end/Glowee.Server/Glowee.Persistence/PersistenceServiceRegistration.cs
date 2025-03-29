@@ -1,7 +1,5 @@
 ﻿using Glowee.Application.Contracts.Persistence;
-using Glowee.Domain.Entities;
 using Glowee.Persistence.Repositories;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,18 +17,7 @@ namespace Glowee.Persistence
 
             services.AddDbContext<SqlDbContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
-            
-            services.AddIdentity<User, IdentityRole<long>>(options => {
-                options.SignIn.RequireConfirmedEmail = true;
-                options.Password.RequireDigit = false;
-                options.Password.RequireLowercase = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequiredLength = 6;
-                options.Password.RequiredUniqueChars = 0;
-            })
-            .AddEntityFrameworkStores<SqlDbContext>()
-            .AddDefaultTokenProviders();
+
             return services;
         }
     }

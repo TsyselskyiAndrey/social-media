@@ -1,5 +1,4 @@
-﻿using Glowee.Domain.Common;
-using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.UninterestingPosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<UninterestingPost> builder)
         {
             builder.HasKey(up => up.Id);
+
+            builder.Property(up => up.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(up => up.CreatedAt)
                    .IsRequired()

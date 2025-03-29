@@ -1,5 +1,4 @@
-﻿using Glowee.Domain.Common;
-using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.UserChats;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<UserChat> builder)
         {
             builder.HasKey(uc => uc.Id);
+
+            builder.Property(uc => uc.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(uc => uc.CreatedAt)
                    .IsRequired()

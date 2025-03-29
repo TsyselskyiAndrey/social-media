@@ -1,5 +1,4 @@
-﻿using Glowee.Domain.Common;
-using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.UserSubscriptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<UserSubscription> builder)
         {
             builder.HasKey(us => us.Id);
+
+            builder.Property(us => us.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(us => us.CreatedAt)
                    .IsRequired()

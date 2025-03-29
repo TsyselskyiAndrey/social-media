@@ -1,5 +1,4 @@
-﻿using Glowee.Domain.Common;
-using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.LikedPosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<LikedPost> builder)
         {
             builder.HasKey(lp => lp.Id);
+
+            builder.Property(lp => lp.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(lp => lp.CreatedAt)
                    .IsRequired()

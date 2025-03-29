@@ -1,5 +1,4 @@
-﻿using Glowee.Domain.Common;
-using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.RequestTypes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<RequestType> builder)
         {
             builder.HasKey(rt => rt.Id);
+
+            builder.Property(rt => rt.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(rt => rt.CreatedAt)
                    .IsRequired()
