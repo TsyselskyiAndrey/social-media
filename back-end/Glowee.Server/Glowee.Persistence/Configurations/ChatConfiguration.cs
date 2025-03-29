@@ -1,4 +1,4 @@
-﻿using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.Chats;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Chat> builder)
         {
             builder.HasKey(c => c.Id);
+
+            builder.Property(c => c.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(c => c.CreatedAt)
                    .IsRequired()

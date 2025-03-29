@@ -1,12 +1,37 @@
 ﻿using Glowee.Domain.Common;
-using Glowee.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Glowee.Domain.Entities.Chats;
+using Glowee.Domain.Entities.Comments;
+using Glowee.Domain.Entities.CommentStatuses;
+using Glowee.Domain.Entities.Follows;
+using Glowee.Domain.Entities.GeneralSettings;
+using Glowee.Domain.Entities.Histories;
+using Glowee.Domain.Entities.LikedPosts;
+using Glowee.Domain.Entities.MessageAttachments;
+using Glowee.Domain.Entities.MessageAttachmentTypes;
+using Glowee.Domain.Entities.Messages;
+using Glowee.Domain.Entities.Notifications;
+using Glowee.Domain.Entities.NotificationSettings;
+using Glowee.Domain.Entities.NotificationTypes;
+using Glowee.Domain.Entities.PostMedias;
+using Glowee.Domain.Entities.PostMediaTypes;
+using Glowee.Domain.Entities.Posts;
+using Glowee.Domain.Entities.PostTypes;
+using Glowee.Domain.Entities.Reports;
+using Glowee.Domain.Entities.ReportTypes;
+using Glowee.Domain.Entities.Requests;
+using Glowee.Domain.Entities.RequestTypes;
+using Glowee.Domain.Entities.SavedPosts;
+using Glowee.Domain.Entities.Subscriptions;
+using Glowee.Domain.Entities.Tags;
+using Glowee.Domain.Entities.UninterestingPostCauses;
+using Glowee.Domain.Entities.UninterestingPosts;
+using Glowee.Domain.Entities.UserChats;
+using Glowee.Domain.Entities.UserSubscriptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace SocialMediaGloweeServer.Data
 {
-    public class SqlDbContext : IdentityDbContext<User, IdentityRole<long>, long>
+    public class SqlDbContext : DbContext
     {
         public SqlDbContext(DbContextOptions<SqlDbContext> options) : base(options)
         {
@@ -30,7 +55,6 @@ namespace SocialMediaGloweeServer.Data
         public DbSet<PostMedia> PostMedias { get; set; }
         public DbSet<PostMediaType> PostMediaTypes { get; set; }
         public DbSet<PostType> PostTypes { get; set; }
-        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<ReportType> ReportTypes { get; set; }
         public DbSet<Request> Requests { get; set; }

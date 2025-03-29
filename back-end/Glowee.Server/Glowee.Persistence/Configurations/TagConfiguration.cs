@@ -1,5 +1,4 @@
-﻿using Glowee.Domain.Common;
-using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.Tags;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Tag> builder)
         {
             builder.HasKey(t => t.Id);
+
+            builder.Property(t => t.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(t => t.CreatedAt)
                    .IsRequired()

@@ -1,5 +1,4 @@
-﻿using Glowee.Domain.Common;
-using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.SavedPosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<SavedPost> builder)
         {
             builder.HasKey(sp => sp.Id);
+
+            builder.Property(sp => sp.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(sp => sp.CreatedAt)
                    .IsRequired()

@@ -1,4 +1,4 @@
-﻿using Glowee.Domain.Entities;
+﻿using Glowee.Domain.Entities.NotificationSettings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,6 +9,9 @@ namespace Glowee.Persistence.Configurations
         public void Configure(EntityTypeBuilder<NotificationSetting> builder)
         {
             builder.HasKey(ns => ns.Id);
+
+            builder.Property(ns => ns.Id)
+                   .HasConversion(id => id.Value, value => new(value));
 
             builder.Property(ns => ns.CreatedAt)
                    .IsRequired()
