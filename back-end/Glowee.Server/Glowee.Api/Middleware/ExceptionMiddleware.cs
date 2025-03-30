@@ -53,6 +53,16 @@ namespace Glowee.Api.Middleware
                         Detail = notFound.InnerException?.Message
                     };
                     break;
+                case InternalServerException internalServer:
+                    statusCode = HttpStatusCode.InternalServerError;
+                    problem = new CustomProblemDetails
+                    {
+                        Title = internalServer.Message,
+                        Status = (int)statusCode,
+                        Type = nameof(InternalServerException),
+                        Detail = internalServer.InnerException?.Message
+                    };
+                    break;
                 default:
                     problem = new CustomProblemDetails
                     {

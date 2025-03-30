@@ -33,7 +33,8 @@ namespace SocialMediaGloweeServer.Data
 {
     public class SqlDbContext : DbContext
     {
-        public SqlDbContext(DbContextOptions<SqlDbContext> options) : base(options)
+        public SqlDbContext(DbContextOptions<SqlDbContext> options)
+            : base(options)
         {
 
         }
@@ -69,8 +70,10 @@ namespace SocialMediaGloweeServer.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(SqlDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(SqlDbContext).Assembly);
+            modelBuilder.HasDefaultSchema("business_schema");
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
