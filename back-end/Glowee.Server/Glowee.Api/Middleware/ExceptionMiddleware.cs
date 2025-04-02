@@ -63,6 +63,16 @@ namespace Glowee.Api.Middleware
                         Detail = internalServer.InnerException?.Message
                     };
                     break;
+                case ForbiddenException forbidden:
+                    statusCode = HttpStatusCode.Forbidden;
+                    problem = new CustomProblemDetails
+                    {
+                        Title = forbidden.Message,
+                        Status = (int)statusCode,
+                        Type = nameof(ForbiddenException),
+                        Detail = forbidden.InnerException?.Message
+                    };
+                    break;
                 default:
                     problem = new CustomProblemDetails
                     {

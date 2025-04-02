@@ -2,6 +2,10 @@
 {
     public interface IUserService
     {
+        //UserRepository
+        //UserManager
 
+        //CreateUser
+        //UpdateProfile
     }
 }

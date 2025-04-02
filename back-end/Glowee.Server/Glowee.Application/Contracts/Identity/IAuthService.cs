@@ -1,4 +1,4 @@
-﻿using Glowee.Application.Models.Identity;
+﻿using Glowee.Application.Models.Identity.LogIn;
 
 namespace Glowee.Application.Contracts.Identity
 {

@@ -1,0 +1,10 @@
+﻿namespace Glowee.Application.Models.Identity.Registration
+{
+    public class RegistrationStep1Request
+    {
+        public string Email { get; set; } = String.Empty;
+        public string UserName { get; set; } = String.Empty;
+        public string Password { get; set; } = String.Empty;
+        public string RePassword { get; set; } = String.Empty;
+    }
+}

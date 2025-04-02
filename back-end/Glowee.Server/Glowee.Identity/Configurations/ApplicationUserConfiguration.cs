@@ -20,7 +20,7 @@ namespace Glowee.Identity.Configurations
                      LastName = "Admin",
                      UserName = "AdminProMax",
                      NormalizedUserName = "ADMINPROMAX",
-                     PasswordHash = hasher.HashPassword(null, "qwerty123"),
+                     PasswordHash = hasher.HashPassword(null, "Q1w2e3r4t5y6"),
                      EmailConfirmed = true
                  }
             );

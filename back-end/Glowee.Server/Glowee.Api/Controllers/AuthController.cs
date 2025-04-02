@@ -1,5 +1,5 @@
 ﻿using Glowee.Application.Contracts.Identity;
-using Glowee.Application.Models.Identity;
+using Glowee.Application.Models.Identity.LogIn;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Glowee.Api.Controllers
