@@ -1,0 +1,11 @@
+﻿namespace Glowee.Application.Models.Identity
+{
+    public class JwtSettings
+    {
+        public string Key { get; set; } = String.Empty;
+        public string Issuer { get; set; } = String.Empty;
+        public string Audience { get; set; } = String.Empty;
+        public double AccessTokenValidityInMinutes { get; set; }
+        public double RefreshTokenValidityInDays { get; set; }
+    }
+}

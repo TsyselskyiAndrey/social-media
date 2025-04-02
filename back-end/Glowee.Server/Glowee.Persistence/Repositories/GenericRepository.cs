@@ -10,42 +10,41 @@ namespace Glowee.Persistence.Repositories;
 /// </summary>
 /// <typeparam name="TEntity">Entity of repository</typeparam>
 /// <typeparam name="TKey">Identifier of entity</typeparam>
-public class GenericRepository<TEntity, TKey> : 
+public class GenericRepository<TEntity, TKey> :
     IGenericRepository<TEntity, TKey> where TEntity : BaseEntity<TKey>
 {
-    protected readonly SqlDbContext Context;
+    protected readonly SqlDbContext _context;
 
     public GenericRepository(SqlDbContext context)
     {
-        Context = context;
+        _context = context;
     }
 
     public async Task<IReadOnlyList<TEntity>> GetAsync()
     {
-        return await Context.Set<TEntity>().ToListAsync();
+        return await _context.Set<TEntity>().AsNoTracking().ToListAsync();
     }
 
     public async Task<TEntity?> GetByIdAsync(TKey id)
     {
-        return await Context.Set<TEntity>().FindAsync(id);
+        return await _context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(q => q.Id.Equals(id));
     }
 
     public async Task CreateAsync(TEntity entity)
     {
-        await Context.AddAsync(entity);
-        await Context.SaveChangesAsync();
+        await _context.AddAsync(entity);
+        await _context.SaveChangesAsync();
     }
 
     public async Task UpdateAsync(TEntity entity)
     {
-        Context.Update(entity);
-        await Context.SaveChangesAsync();
+        _context.Entry(entity).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteAsync(TEntity entity)
     {
-        Context.Remove(entity);
-        Context.Entry(entity).State = EntityState.Modified;
-        await Context.SaveChangesAsync();
+        _context.Remove(entity);
+        await _context.SaveChangesAsync();
     }
 }
