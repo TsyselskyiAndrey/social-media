@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glowee.Api", "Glowee.Api\Gl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glowee.Identity", "Glowee.Identity\Glowee.Identity.csproj", "{1FD715BB-438B-4CE4-9EDC-64957563F9AF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glowee.Application.Tests", "Glowee.Application.Tests\Glowee.Application.Tests.csproj", "{BFC0B336-944D-4A11-95C6-D6F4A58AAD99}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{1FD715BB-438B-4CE4-9EDC-64957563F9AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1FD715BB-438B-4CE4-9EDC-64957563F9AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1FD715BB-438B-4CE4-9EDC-64957563F9AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFC0B336-944D-4A11-95C6-D6F4A58AAD99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFC0B336-944D-4A11-95C6-D6F4A58AAD99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFC0B336-944D-4A11-95C6-D6F4A58AAD99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFC0B336-944D-4A11-95C6-D6F4A58AAD99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +75,7 @@ Global
 		{5BCF4B29-B74E-466C-941C-36FC13FA535D} = {A7FC9A09-C933-4E22-A310-60FEFB16D24D}
 		{F4C8BCAF-4466-4517-B140-3B74E03A956E} = {A6B4F778-F1FD-4F62-A794-F658CE074D40}
 		{1FD715BB-438B-4CE4-9EDC-64957563F9AF} = {A7FC9A09-C933-4E22-A310-60FEFB16D24D}
+		{BFC0B336-944D-4A11-95C6-D6F4A58AAD99} = {AEA1E2C6-EF7C-40F2-BBC3-BE311D1D3154}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1323CADD-07BC-4030-812A-3C35A690D1F3}

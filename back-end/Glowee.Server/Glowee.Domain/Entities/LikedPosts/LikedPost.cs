@@ -10,6 +10,5 @@ namespace Glowee.Domain.Entities.LikedPosts
         public Post Post { get; set; }
         public UserId UserId { get; set; }
         public User User { get; set; }
-
     }
 }
