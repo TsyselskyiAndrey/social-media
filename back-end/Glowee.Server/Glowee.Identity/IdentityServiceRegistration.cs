@@ -24,7 +24,7 @@ namespace Glowee.Identity
 
             services.AddDbContext<AuthenticationDbContext>(options => options.UseSqlServer(connectionString));
 
-            services.AddIdentity<ApplicationUser, IdentityRole<long>>(options =>
+            services.AddIdentity<AuthUser, IdentityRole<long>>(options =>
             {
                 options.SignIn.RequireConfirmedEmail = true;
                 options.User.RequireUniqueEmail = true;

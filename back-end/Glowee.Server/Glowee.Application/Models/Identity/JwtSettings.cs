@@ -6,6 +6,7 @@
         public string Issuer { get; set; } = String.Empty;
         public string Audience { get; set; } = String.Empty;
         public double AccessTokenValidityInMinutes { get; set; }
+        public double RegistrationTokenValidityInMinutes { get; set; }
         public double RefreshTokenValidityInDays { get; set; }
     }
 }

@@ -6,6 +6,7 @@
         //UserManager
 
         //CreateUser
-        //UpdateProfile
+        //UpdateEmail
+        //UpdateUserName
     }
 }

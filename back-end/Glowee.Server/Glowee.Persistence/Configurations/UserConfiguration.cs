@@ -44,10 +44,6 @@ namespace Glowee.Persistence.Configurations
                    .IsRequired(false)
                    .HasMaxLength(1024);
 
-            builder.Property(u => u.BannedUntil)
-                   .IsRequired()
-                   .HasDefaultValueSql("'0001-01-01T00:00:00.000'");
-
             builder.Property(c => c.ProfileImageUrl)
                    .IsRequired(false)
                    .HasMaxLength(512);

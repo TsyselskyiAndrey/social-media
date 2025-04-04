@@ -1,4 +1,4 @@
-﻿namespace Glowee.Application.Models.Identity.LogIn
+﻿namespace Glowee.Application.Models.Identity
 {
     public class AuthResponse
     {

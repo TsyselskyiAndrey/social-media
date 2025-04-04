@@ -1,9 +1,14 @@
 ﻿using FluentValidation.Results;
+using Glowee.Application.Contracts.Email;
 using Glowee.Application.Contracts.Identity;
+using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Exceptions;
+using Glowee.Application.Models.Email;
 using Glowee.Application.Models.Identity;
 using Glowee.Application.Models.Identity.LogIn;
+using Glowee.Application.Models.Identity.RefreshToken;
 using Glowee.Application.Models.Identity.Registration;
+using Glowee.Domain.Entities.Users;
 using Glowee.Identity.DbContext;
 using Glowee.Identity.Models;
 using Glowee.Identity.Validators;
@@ -11,30 +16,33 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
+using UnauthorizedAccessException = Glowee.Application.Exceptions.UnauthorizedAccessException;
 using ValidationFailure = FluentValidation.Results.ValidationFailure;
 
 namespace Glowee.Identity.Services
 {
-    /// <summary>
-    /// 
-    /// </summary>
     public class AuthService : IAuthService
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<AuthUser> _userManager;
+        private readonly SignInManager<AuthUser> _signInManager;
         private readonly JwtSettings _jwtSettings;
         private readonly AuthenticationDbContext _context;
+        private readonly IUserRepository _userRepository;
+        private readonly IEmailSender _emailSender;
+        private readonly int codeDuration = 5;
 
-        public AuthService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IOptions<JwtSettings> jwtSettings, AuthenticationDbContext context)
+        public AuthService(UserManager<AuthUser> userManager, SignInManager<AuthUser> signInManager, IOptions<JwtSettings> jwtSettings, AuthenticationDbContext context, IUserRepository userRepository, IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtSettings = jwtSettings.Value;
             _context = context;
+            _userRepository = userRepository;
+            _emailSender = emailSender;
         }
 
         public async Task<LogInResponse> Login(LogInRequest request)
@@ -46,20 +54,20 @@ namespace Glowee.Identity.Services
                 throw new BadRequestException("Invalid login", validationResult);
             }
 
-            var user = request.Login.Contains('@')
+            var authUser = request.Login.Contains('@')
                             ? await _userManager.FindByEmailAsync(request.Login)
                             : await _userManager.FindByNameAsync(request.Login);
 
-            if (user == null)
+            if (authUser == null)
             {
                 throw new NotFoundException($"The user ({request.Login}) was not found.");
             }
-            if (user.EmailConfirmed == false)
+            if (authUser.EmailConfirmed == false)
             {
-                throw new ForbiddenException("The user hasn't confirmed their email.");
+                throw new ForbiddenException("The email is not confirmed. Finish your registration");
             }
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+            var result = await _signInManager.CheckPasswordSignInAsync(authUser, request.Password, false);
 
             if (result.Succeeded == false)
             {
@@ -71,18 +79,24 @@ namespace Glowee.Identity.Services
                 throw new BadRequestException("Invalid login", passwordValidationResult);
             }
 
-            var accessToken = await GenerateAccessToken(user);
-            var refreshToken = await GenerateRefreshToken(user, request.DeviceId);
+            var accessToken = await GenerateJwtToken(authUser, _jwtSettings.AccessTokenValidityInMinutes, request.DeviceId);
+            var refreshToken = await GenerateRefreshToken(authUser, request.DeviceId);
+            var user = await _userRepository.GetByIdAsync(new UserId(authUser.Id));
+
+            if (user == null)
+            {
+                throw new InternalServerException();
+            }
 
             var authResponse = new AuthResponse
             {
-                Id = user.Id,
+                Id = authUser.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                UserName = user.UserName ?? "",
-                Email = user.Email ?? "",
+                UserName = authUser.UserName ?? "",
+                Email = authUser.Email ?? "",
                 ProfileImageUrl = user.ProfileImageUrl,
-                Roles = await _userManager.GetRolesAsync(user),
+                Roles = await _userManager.GetRolesAsync(authUser),
                 Token = accessToken
             };
             var refreshTokenResponse = new RefreshTokenResponse
@@ -100,10 +114,347 @@ namespace Glowee.Identity.Services
 
         public async Task<RegistrationStep1Response> RegistrationStep1(RegistrationStep1Request request)
         {
-            throw new NotImplementedException();
+            var validationResult = await new RegistrationStep1Validator().ValidateAsync(request);
+
+            if (validationResult.Errors.Any())
+            {
+                throw new BadRequestException("Invalid registration", validationResult);
+            }
+
+            var existingUser = await _userManager.FindByNameAsync(request.UserName);
+
+            if (existingUser != null && existingUser.EmailConfirmed)
+            {
+                var userNameValidationResult = new ValidationResult(new List<ValidationFailure>
+                {
+                    new ValidationFailure("UserName", "This username has been taken.")
+                });
+
+                throw new BadRequestException("Invalid registration", userNameValidationResult);
+            }
+
+            existingUser = await _userManager.FindByEmailAsync(request.Email);
+
+            if (existingUser != null && existingUser.EmailConfirmed)
+            {
+                var emailValidationResult = new ValidationResult(new List<ValidationFailure>
+                {
+                    new ValidationFailure("Email", "This email has been taken.")
+                });
+
+                throw new BadRequestException("Invalid registration", emailValidationResult);
+            }
+
+            string registrationToken = "";
+
+            if (existingUser != null)
+            {
+                existingUser.Email = request.Email;
+                existingUser.UserName = request.UserName;
+                var passwordResetToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+                var setPasswordResult = await _userManager.ResetPasswordAsync(existingUser, passwordResetToken, request.Password);
+                if (!setPasswordResult.Succeeded)
+                {
+                    throw new InternalServerException();
+                }
+
+                var updateResult = await _userManager.UpdateAsync(existingUser);
+                if (!updateResult.Succeeded)
+                {
+                    throw new InternalServerException();
+                }
+
+                registrationToken = await GenerateJwtToken(existingUser, _jwtSettings.RegistrationTokenValidityInMinutes);
+            }
+            else
+            {
+                var newUser = new AuthUser()
+                {
+                    UserName = request.UserName,
+                    Email = request.Email
+                };
+
+                var createResult = await _userManager.CreateAsync(newUser, request.Password);
+
+                if (createResult.Succeeded == false)
+                {
+                    throw new InternalServerException();
+                }
+
+                registrationToken = await GenerateJwtToken(newUser, _jwtSettings.RegistrationTokenValidityInMinutes);
+            }
+
+            return new RegistrationStep1Response
+            {
+                Token = registrationToken,
+                ExpiryTime = DateTime.UtcNow.AddMinutes(_jwtSettings.RegistrationTokenValidityInMinutes),
+            };
         }
 
-        private async Task<string> GenerateAccessToken(ApplicationUser user)
+        public async Task RegistrationStep2(RegistrationStep2Request request, string? registrationToken)
+        {
+            var validationResult = await new RegistrationStep2Validator().ValidateAsync(request);
+
+            if (validationResult.Errors.Any())
+            {
+                throw new BadRequestException("Invalid registration", validationResult);
+            }
+
+            if (string.IsNullOrEmpty(registrationToken))
+            {
+                throw new UnauthorizedAccessException("Token is missing");
+            }
+            var principal = ExtractUserPrincipalFromToken(registrationToken);
+
+            string? email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new UnauthorizedAccessException("Invalid registration token");
+            }
+
+            var authUser = await _userManager.FindByEmailAsync(email);
+
+            if (authUser == null)
+            {
+                throw new NotFoundException($"The user ('{email}') wasn't found.");
+            }
+            if (authUser.EmailConfirmed)
+            {
+                throw new InternalServerException();
+            }
+
+            var user = await _userRepository.GetByIdAsync(new UserId(authUser.Id));
+
+            if (user == null)
+            {
+                var newUser = new User()
+                {
+                    Id = new UserId(authUser.Id),
+                    Email = authUser.Email ?? "",
+                    UserName = authUser.UserName ?? "",
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    BirthDate = DateTime.ParseExact(request.BirthDate, "MM/dd/yyyy", CultureInfo.InvariantCulture),
+                    ProfileImageUrl = "DefaultImage.png" // TODO Добавить ссылку на дефолтную аватарку когда Azure подключим.
+                };
+
+                try
+                {
+                    await _userRepository.CreateAsync(newUser);
+                }
+                catch (Exception)
+                {
+                    throw new InternalServerException();
+                }
+            }
+            else
+            {
+                user.FirstName = request.FirstName;
+                user.LastName = request.LastName;
+                user.BirthDate = DateTime.ParseExact(request.BirthDate, "MM/dd/yyyy", CultureInfo.InvariantCulture);
+
+                try
+                {
+                    await _userRepository.UpdateAsync(user);
+                }
+                catch (Exception)
+                {
+                    throw new InternalServerException();
+                }
+            }
+
+            string code = GenerateConfirmationCode();
+            var expirationDate = DateTime.UtcNow.AddMinutes(codeDuration);
+
+            authUser.EmailConfirmationCode = code;
+            authUser.EmailConfirmationCodeExpiryTime = expirationDate;
+
+            var updateResult = await _userManager.UpdateAsync(authUser);
+            if (!updateResult.Succeeded)
+            {
+                throw new InternalServerException();
+            }
+
+            await SendConfirmationCodeByEmail(authUser.Email, code);
+        }
+
+        public async Task RegistrationStep3(RegistrationStep3Request request, string? registrationToken)
+        {
+            var validationResult = await new RegistrationStep3Validator().ValidateAsync(request);
+
+            if (validationResult.Errors.Any())
+            {
+                throw new BadRequestException("Invalid registration", validationResult);
+            }
+
+            if (string.IsNullOrEmpty(registrationToken))
+            {
+                throw new UnauthorizedAccessException("Token is missing");
+            }
+            var principal = ExtractUserPrincipalFromToken(registrationToken);
+
+            string? email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new UnauthorizedAccessException("Invalid registration token");
+            }
+
+            var authUser = await _userManager.FindByEmailAsync(email);
+
+            if (authUser == null)
+            {
+                throw new NotFoundException($"The user ('{email}') wasn't found.");
+            }
+            if (authUser.EmailConfirmed)
+            {
+                throw new InternalServerException();
+            }
+
+            if (authUser.EmailConfirmationCodeExpiryTime <= DateTime.UtcNow || authUser.EmailConfirmationCode == null)
+            {
+                var expiredCodeValidationResult = new ValidationResult(new List<ValidationFailure>
+                {
+                    new ValidationFailure("Code", "The code is expired. Try again.")
+                });
+
+                throw new BadRequestException("Invalid registration", expiredCodeValidationResult);
+            }
+
+            if (request.Code == authUser.EmailConfirmationCode)
+            {
+                authUser.EmailConfirmed = true;
+                authUser.EmailConfirmationCode = null;
+                authUser.EmailConfirmationCodeExpiryTime = DateTime.MinValue;
+                var updateResult = await _userManager.UpdateAsync(authUser);
+                if (!updateResult.Succeeded)
+                {
+                    throw new InternalServerException();
+                }
+            }
+            else
+            {
+                var incorrectCodeValidationResult = new ValidationResult(new List<ValidationFailure>
+                {
+                    new ValidationFailure("Code", "The code is incorrect.")
+                });
+
+                throw new BadRequestException("Invalid registration", incorrectCodeValidationResult);
+            }
+        }
+
+        public async Task<CompleteRefreshTokenResponse> RefreshToken(RefreshTokenRequest request, string? refreshToken)
+        {
+            if (string.IsNullOrEmpty(request.AccessToken))
+            {
+                throw new BadRequestException("Invalid client request.");
+            }
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                throw new UnauthorizedAccessException("Refresh token is missing");
+            }
+
+            string accessToken = request.AccessToken;
+
+            var principal = ExtractPrincipalFromExpiredToken(accessToken);
+            string? email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            string? deviceId = principal.FindFirst("device_id")?.Value;
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(deviceId))
+            {
+                throw new UnauthorizedAccessException("Invalid access token.");
+            }
+
+            var authUser = await _userManager.FindByEmailAsync(email);
+
+            if (authUser == null)
+            {
+                throw new NotFoundException($"The user ('{email}') wasn't found.");
+            }
+
+            var existingRefreshToken = await _context.RefreshTokens
+                    .FirstOrDefaultAsync(rt => rt.DeviceId == deviceId && rt.UserId == authUser.Id);
+
+            if (existingRefreshToken == null)
+            {
+                throw new UnauthorizedAccessException("Invalid access token or refresh token.");
+            }
+
+            if (existingRefreshToken.Token != refreshToken || existingRefreshToken.ExpiryTime <= DateTime.UtcNow)
+            {
+                throw new UnauthorizedAccessException("Refresh token is invalid or expired.");
+            }
+
+            var newAccessToken = await GenerateJwtToken(authUser, _jwtSettings.AccessTokenValidityInMinutes, deviceId);
+            var newRefreshToken = await GenerateRefreshToken(authUser, deviceId);
+
+            var user = await _userRepository.GetByIdAsync(new UserId(authUser.Id));
+
+            if (user == null)
+            {
+                throw new InternalServerException();
+            }
+
+            var authResponse = new AuthResponse
+            {
+                Id = authUser.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserName = authUser.UserName ?? "",
+                Email = authUser.Email ?? "",
+                ProfileImageUrl = user.ProfileImageUrl,
+                Roles = await _userManager.GetRolesAsync(authUser),
+                Token = newAccessToken
+            };
+            var refreshTokenResponse = new RefreshTokenResponse
+            {
+                Token = newRefreshToken.Token,
+                ExpiryTime = newRefreshToken.ExpiryTime
+            };
+
+            return new CompleteRefreshTokenResponse
+            {
+                AuthResponse = authResponse,
+                RefreshTokenResponse = refreshTokenResponse
+            };
+        }
+
+        public async Task Logout(ClaimsPrincipal userPrincipal)
+        {
+            string? email = userPrincipal.FindFirst(ClaimTypes.Email)?.Value;
+            string? deviceId = userPrincipal.FindFirst("device_id")?.Value;
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(deviceId))
+            {
+                throw new UnauthorizedAccessException("Invalid access token.");
+            }
+
+            var authUser = await _userManager.FindByEmailAsync(email);
+            if (authUser == null)
+            {
+                throw new NotFoundException($"The user ('{email}') wasn't found.");
+            }
+
+            var existingRefreshToken = await _context.RefreshTokens
+                    .FirstOrDefaultAsync(rt => rt.DeviceId == deviceId && rt.UserId == authUser.Id);
+
+            if (existingRefreshToken == null)
+            {
+                throw new UnauthorizedAccessException("Invalid access token or refresh token.");
+            }
+
+            try
+            {
+                _context.RefreshTokens.Remove(existingRefreshToken);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw new InternalServerException();
+            }
+
+
+        }
+
+        private async Task<string> GenerateJwtToken(AuthUser user, double durationInMinutes, string deviceId = "")
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = _jwtSettings.Key;
@@ -126,7 +477,8 @@ namespace Glowee.Identity.Services
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.UserName)
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim("device_id", deviceId)
             }
             .Union(userClaims)
             .Union(roleClaims);
@@ -135,7 +487,7 @@ namespace Glowee.Identity.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(authClaims),
-                Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenValidityInMinutes),
+                Expires = DateTime.UtcNow.AddMinutes(durationInMinutes),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256),
                 Issuer = _jwtSettings.Issuer,
                 Audience = _jwtSettings.Audience
@@ -144,10 +496,10 @@ namespace Glowee.Identity.Services
             return tokenHandler.WriteToken(token);
         }
 
-        private async Task<RefreshToken> GenerateRefreshToken(ApplicationUser user, string deviceId)
+        private async Task<RefreshToken> GenerateRefreshToken(AuthUser user, string deviceId)
         {
-            var existingRefreshToken = _context.RefreshTokens
-                    .FirstOrDefault(rt => rt.DeviceId == deviceId && rt.UserId == user.Id);
+            var existingRefreshToken = await _context.RefreshTokens
+                    .FirstOrDefaultAsync(rt => rt.DeviceId == deviceId && rt.UserId == user.Id);
 
             var randomNumber = new byte[64];
             using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
@@ -175,8 +527,7 @@ namespace Glowee.Identity.Services
                         Token = Convert.ToBase64String(randomNumber),
                         ExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenValidityInDays)
                     };
-                    await _context.Entry(user).Collection(u => u.RefreshTokens).LoadAsync();
-                    user.RefreshTokens.Add(refreshToken);
+                    await _context.RefreshTokens.AddAsync(refreshToken);
                     await _context.SaveChangesAsync();
                     return refreshToken;
                 }
@@ -187,7 +538,39 @@ namespace Glowee.Identity.Services
             }
         }
 
-        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+        public ClaimsPrincipal ExtractUserPrincipalFromToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = _jwtSettings.Issuer,
+                ValidAudience = _jwtSettings.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(key)
+            };
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+                var jwtSecurityToken = validatedToken as JwtSecurityToken;
+                if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    throw new UnauthorizedAccessException("Token validation failed");
+                }
+                return principal;
+            }
+            catch (Exception)
+            {
+                throw new UnauthorizedAccessException("Token validation failed");
+            }
+        }
+
+        private ClaimsPrincipal ExtractPrincipalFromExpiredToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);
@@ -201,17 +584,52 @@ namespace Glowee.Identity.Services
                     ValidateLifetime = false,
                     IssuerSigningKey = new SymmetricSecurityKey(key)
                 };
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out var securityToken);
-                var jwtSecurityToken = securityToken as JwtSecurityToken;
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+                var jwtSecurityToken = validatedToken as JwtSecurityToken;
                 if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                    throw new SecurityTokenException("Invalid token");
-
+                {
+                    throw new UnauthorizedAccessException("Token validation failed");
+                }
                 return principal;
             }
             catch
             {
-                return null;
+                throw new UnauthorizedAccessException("Token validation failed");
             }
+        }
+
+        private string GenerateConfirmationCode()
+        {
+            var random = new Random();
+            return random.Next(100000, 999999).ToString();
+        }
+
+        private async Task SendConfirmationCodeByEmail(string toEmail, string confirmationCode)
+        {
+            string subject = "Email Confirmation Code";
+
+            string htmlBody = $@"
+            <html>
+                <body style='font-family: Arial, sans-serif;'>
+                    <div style='max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc;'>
+                        <h2 style='color: #333;'>Confirm Your Email Address</h2>
+                        <p style='font-size: 16px; color: #555;'>Thank you for registering! Please use the following code to complete your registration:</p>
+                        <div style='padding: 15px; background-color: #f7f7f7; text-align: center; border-radius: 5px;'>
+                            <h3 style='color: #444;'>{confirmationCode}</h3>
+                        </div>
+                        <p style='font-size: 16px; color: #555;'>If you didn't request this, please ignore this email.</p>
+                        <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Application Team</p>
+                    </div>
+                </body>
+            </html>";
+
+            await _emailSender.SendEmailAsync(new EmailMessage()
+            {
+                To = toEmail,
+                Body = htmlBody,
+                Subject = subject,
+                IsBodyHtml = true
+            });
         }
     }
 }
