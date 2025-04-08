@@ -25,7 +25,7 @@ public class LikeCommandTest
 
     [Theory]
     [MemberData(nameof(GetLikeCommandTestData))]
-    public async Task CreateLikeCommand_CreatesLikeTest(long postId, long userId, object expectedResult)
+    public async Task LikeCommand_CreatesLikeTest(long postId, long userId, object expectedResult)
     {
         var handler = new LikeCommandHandler(_mockLikeRepo.Object, _mockPostRepo.Object, _mockUserRepo.Object);
         var command = new LikeCommand(new PostId(postId), new UserId(userId));
@@ -38,7 +38,7 @@ public class LikeCommandTest
         {
             var result = await handler.Handle(command, CancellationToken.None);
             bool expected = (bool)expectedResult;
-            result.Result.ShouldBe(expected);
+            result.ShouldBe(expected);
         }
     }
 

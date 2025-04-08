@@ -1,42 +1,42 @@
 ﻿using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Exceptions;
-using Glowee.Domain.Entities.LikedPosts;
+using Glowee.Domain.Entities.SavedPosts;
 using MediatR;
 
 namespace Glowee.Application.Features.Post.Commands.Likes;
 
 /// <summary>
-/// Handles the like/unlike action for a post. 
-/// If the post is not liked yet, it creates a new like record; otherwise, it removes the like.
+/// Handles the save/unsaved action for a post. 
+/// If the post is not saved yet, it creates a new saved post record; otherwise, it removes the existed saved post.
 /// </summary>
-public class LikeCommandHandler : IRequestHandler<LikeCommand, bool>
+public class SavedPostHandlerCommand : IRequestHandler<SavedPostCommand, bool>
 {
-    private readonly ILikeRepository _likedPostsRepository;
-    private readonly IPostRepository _postRepository;
+    private readonly ISavedPostRepository _savedPostRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IPostRepository _postRepository;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="LikeCommandHandler"/> class.
+    /// Initializes a new instance of the <see cref="SavedPostHandlerCommand"/> class.
     /// </summary>
-    /// <param name="likeRepository">Repository for accessing liked posts.</param>
+    /// <param name="savedPostRepository">Repository for accessing saved posts.</param>
     /// <param name="postRepository">Repository for accessing posts.</param>
     /// <param name="userRepository">Repository for accessing users.</param>
-    public LikeCommandHandler(ILikeRepository likeRepository, 
-     IPostRepository postRepository, IUserRepository userRepository)
+    public SavedPostHandlerCommand(IPostRepository postRepository
+        , IUserRepository userRepository, ISavedPostRepository savedPostRepository)
     {
-        _likedPostsRepository = likeRepository;
+        _savedPostRepository = savedPostRepository;
         _postRepository = postRepository;
         _userRepository = userRepository;
     }
-
+    
     /// <summary>
-    /// Handles the like/unlike logic.
+    /// Handles the save/unsaved post logic.
     /// </summary>
     /// <param name="request">Command containing <c>UserId</c> and <c>PostId</c>.</param>
     /// <param name="cancellationToken">Token to cancel the operation.</param>
     /// <returns>True if a like was added, false if it was removed.</returns>
     /// <exception cref="NotFoundException">Thrown if the post or user is not found.</exception>
-    public async Task<bool> Handle(LikeCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(SavedPostCommand request, CancellationToken cancellationToken)
     {
         var post = await _postRepository.GetByIdAsync(request.PostId);
         if (post == null)
@@ -50,12 +50,12 @@ public class LikeCommandHandler : IRequestHandler<LikeCommand, bool>
             throw new NotFoundException("User not found");
         }
 
-        var posts = await _likedPostsRepository.GetAsync();
+        var posts = await _savedPostRepository.GetAsync();
         var postLike = posts.FirstOrDefault(x => x.PostId == request.PostId && x.UserId == request.UserId);
 
         if (postLike == null)
         {
-            await _likedPostsRepository.CreateAsync(new LikedPost()
+            await _savedPostRepository.CreateAsync(new SavedPost()
             {
                 PostId = request.PostId,
                 UserId = request.UserId,
@@ -63,7 +63,7 @@ public class LikeCommandHandler : IRequestHandler<LikeCommand, bool>
             
             return true;
         }
-        await _likedPostsRepository.DeleteAsync(postLike);
+        await _savedPostRepository.DeleteAsync(postLike);
         
         return false;
     }
