@@ -5,10 +5,13 @@ using Glowee.Application.Models.Identity.UserService;
 using Glowee.Domain.Entities.Users;
 using Glowee.Identity.DbContext;
 using Glowee.Identity.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using SocialMediaGloweeServer.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Glowee.Identity.Services
 {
@@ -18,14 +21,18 @@ namespace Glowee.Identity.Services
         private readonly IUserRepository _userRepository;
         private readonly AuthenticationDbContext _authContext;
         private readonly SqlDbContext _businessContext;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public UserService(UserManager<AuthUser> userManager, IUserRepository userRepository, AuthenticationDbContext authContext, SqlDbContext businessContext)
+        public UserService(UserManager<AuthUser> userManager, IUserRepository userRepository, AuthenticationDbContext authContext, SqlDbContext businessContext, IHttpContextAccessor contextAccessor)
         {
             _userManager = userManager;
             _userRepository = userRepository;
             _authContext = authContext;
             _businessContext = businessContext;
+            _contextAccessor = contextAccessor;
         }
+
+        public string? UserId => _contextAccessor.HttpContext?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
         public async Task<UserId> CreateAsync(UserModel userModel)
         {
