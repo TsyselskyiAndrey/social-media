@@ -35,7 +35,7 @@ namespace Glowee.Persistence.Configurations
 
             builder.Property(c => c.UserName)
                    .IsRequired()
-                   .HasMaxLength(50);
+                   .HasMaxLength(511);
 
             builder.HasIndex(c => c.UserName, "IX_Users_Handle")
                    .IsUnique();

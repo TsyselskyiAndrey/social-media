@@ -40,7 +40,7 @@ namespace Glowee.Identity.Configurations
 
             builder.Property(c => c.UserName)
                    .IsRequired()
-                   .HasMaxLength(50);
+                   .HasMaxLength(511);
 
             builder.Property(u => u.BannedUntil)
                    .IsRequired()

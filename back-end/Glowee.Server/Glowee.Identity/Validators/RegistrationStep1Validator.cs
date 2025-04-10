@@ -10,6 +10,7 @@ namespace Glowee.Identity.Validators
             RuleFor(r => r.Email)
                    .Cascade(CascadeMode.Stop)
                    .NotEmpty().WithMessage("Email is required")
+                   .MaximumLength(511).WithMessage("Email must be at most 511 characters long")
                    .EmailAddress().WithMessage("The email address is invalid.")
                    .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$").WithMessage("The email address is invalid.");
 

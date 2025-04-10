@@ -4,10 +4,14 @@ using Glowee.Application.Contracts.Identity;
 using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Exceptions;
 using Glowee.Application.Models.Email;
-using Glowee.Application.Models.Identity;
+using Glowee.Application.Models.Identity.FacebookAuth;
+using Glowee.Application.Models.Identity.General;
+using Glowee.Application.Models.Identity.GoogleAuth;
 using Glowee.Application.Models.Identity.LogIn;
 using Glowee.Application.Models.Identity.RefreshToken;
 using Glowee.Application.Models.Identity.Registration;
+using Glowee.Application.Models.Identity.Settings;
+using Glowee.Application.Models.Identity.UserService;
 using Glowee.Domain.Entities.Users;
 using Glowee.Identity.DbContext;
 using Glowee.Identity.Models;
@@ -33,9 +37,12 @@ namespace Glowee.Identity.Services
         private readonly AuthenticationDbContext _context;
         private readonly IUserRepository _userRepository;
         private readonly IEmailSender _emailSender;
+        private readonly IUserService _userService;
+        private readonly IGoogleAuthService _googleAuthService;
+        private readonly IFacebookAuthService _facebookAuthService;
         private readonly int codeDuration = 5;
 
-        public AuthService(UserManager<AuthUser> userManager, SignInManager<AuthUser> signInManager, IOptions<JwtSettings> jwtSettings, AuthenticationDbContext context, IUserRepository userRepository, IEmailSender emailSender)
+        public AuthService(UserManager<AuthUser> userManager, SignInManager<AuthUser> signInManager, IOptions<JwtSettings> jwtSettings, AuthenticationDbContext context, IUserRepository userRepository, IEmailSender emailSender, IUserService userService, IGoogleAuthService googleAuthService, IFacebookAuthService facebookAuthService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -43,13 +50,181 @@ namespace Glowee.Identity.Services
             _context = context;
             _userRepository = userRepository;
             _emailSender = emailSender;
+            _userService = userService;
+            _googleAuthService = googleAuthService;
+            _facebookAuthService = facebookAuthService;
         }
 
-        public async Task<LogInResponse> Login(LogInRequest request)
+        public async Task<CompleteAuthResponse> FacebookLogin(FacebookAuthRequest request)
+        {
+            var validationResult = await new FacebookLoginValidator().ValidateAsync(request);
+
+            if (validationResult.Errors.Count != 0)
+            {
+                throw new BadRequestException("Invalid facebook login.", validationResult);
+            }
+
+            var validatedTokenResult = await _facebookAuthService.VerifyFacebookToken(request.AccessToken);
+
+            if (validatedTokenResult.Data.IsValid == false)
+            {
+                throw new BadRequestException("Access token is invalid.");
+            }
+
+            var userInfo = await _facebookAuthService.GetUserInfoAsync(request.AccessToken);
+
+            if (string.IsNullOrWhiteSpace(userInfo.Email))
+            {
+                throw new BadRequestException("Facebook account has no accessible email address.");
+            }
+
+            var info = new UserLoginInfo("Facebook", userInfo.Id, "Facebook");
+            var authUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+
+            if (authUser == null)
+            {
+                authUser = await _userManager.FindByEmailAsync(userInfo.Email);
+                if (authUser == null)
+                {
+                    var userModel = new UserModel
+                    {
+                        Email = userInfo.Email,
+                        UserName = userInfo.Email,
+                        EmailConfirmed = true,
+                        FirstName = userInfo.FirstName,
+                        LastName = userInfo.LastName,
+                        BirthDate = null,
+                        Biography = null,
+                        ProfileImageUrl = "DefaultImage.png" // TODO Скачать фотку из файсбука на Ажур или Добавить ссылку на дефолтную аватарку когда Azure подключим.
+                    };
+
+                    var userId = await _userService.CreateAsync(userModel);
+
+                    authUser = await _userManager.FindByIdAsync(userId.Value.ToString());
+
+                    if (authUser == null)
+                    {
+                        throw new InternalServerException();
+                    }
+
+                    await _userManager.AddLoginAsync(authUser, info);
+                }
+                else if (authUser.EmailConfirmed == false)
+                {
+                    var userModel = new UserModel
+                    {
+                        Email = userInfo.Email,
+                        UserName = userInfo.Email,
+                        EmailConfirmed = true,
+                        FirstName = userInfo.FirstName,
+                        LastName = userInfo.LastName,
+                        BirthDate = null,
+                        Biography = null,
+                        ProfileImageUrl = "DefaultImage.png" // TODO Скачать фотку из Фейсбука на Ажур или Добавить ссылку на дефолтную аватарку когда Azure подключим.
+                    };
+
+                    await _userService.UpdateAsync(userModel, new UserId(authUser.Id));
+
+                    await _userManager.AddLoginAsync(authUser, info);
+                }
+                else
+                {
+                    await _userManager.AddLoginAsync(authUser, info);
+                }
+            }
+            if (authUser == null)
+            {
+                throw new BadRequestException("Invalid External Authentication.");
+            }
+
+            return await GenerateAuthResponse(authUser, request.DeviceId);
+        }
+
+        public async Task<CompleteAuthResponse> GoogleLogin(GoogleAuthRequest request)
+        {
+            var validationResult = await new GoogleLoginValidator().ValidateAsync(request);
+
+            if (validationResult.Errors.Count != 0)
+            {
+                throw new BadRequestException("Invalid google login.", validationResult);
+            }
+
+            var payload = await _googleAuthService.VerifyGoogleToken(request);
+            if (payload == null)
+            {
+                throw new BadRequestException("Invalid External Authentication.");
+            }
+            if (payload.EmailVerified == false)
+            {
+                throw new BadRequestException("Google email is not verified.");
+            }
+            var info = new UserLoginInfo(request.Provider, payload.Subject, request.Provider);
+            var authUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+
+            if (authUser == null)
+            {
+                authUser = await _userManager.FindByEmailAsync(payload.Email);
+                if (authUser == null)
+                {
+                    var userModel = new UserModel
+                    {
+                        Email = payload.Email,
+                        UserName = payload.Email,
+                        EmailConfirmed = true,
+                        FirstName = payload.GivenName,
+                        LastName = payload.FamilyName,
+                        BirthDate = null,
+                        Biography = null,
+                        ProfileImageUrl = "DefaultImage.png" // TODO Скачать фотку из гугл на Ажур или Добавить ссылку на дефолтную аватарку когда Azure подключим.
+                    };
+
+                    var userId = await _userService.CreateAsync(userModel);
+
+                    authUser = await _userManager.FindByIdAsync(userId.Value.ToString());
+
+                    if (authUser == null)
+                    {
+                        throw new InternalServerException();
+                    }
+
+                    await _userManager.AddLoginAsync(authUser, info);
+                }
+                else if (authUser.EmailConfirmed == false)
+                {
+                    var userModel = new UserModel
+                    {
+                        Email = payload.Email,
+                        UserName = payload.Email,
+                        EmailConfirmed = true,
+                        FirstName = payload.GivenName,
+                        LastName = payload.FamilyName,
+                        BirthDate = null,
+                        Biography = null,
+                        ProfileImageUrl = "DefaultImage.png" // TODO Скачать фотку из гугл на Ажур или Добавить ссылку на дефолтную аватарку когда Azure подключим.
+                    };
+
+                    await _userService.UpdateAsync(userModel, new UserId(authUser.Id));
+
+                    await _userManager.AddLoginAsync(authUser, info);
+                }
+                else
+                {
+                    await _userManager.AddLoginAsync(authUser, info);
+                }
+            }
+            if (authUser == null)
+            {
+                throw new BadRequestException("Invalid External Authentication.");
+            }
+
+            return await GenerateAuthResponse(authUser, request.DeviceId);
+        }
+
+        public async Task<CompleteAuthResponse> Login(LogInRequest request)
         {
             var validationResult = await new LogInValidator().ValidateAsync(request);
 
-            if (validationResult.Errors.Any())
+            if (validationResult.Errors.Count != 0)
             {
                 throw new BadRequestException("Invalid login", validationResult);
             }
@@ -66,6 +241,15 @@ namespace Glowee.Identity.Services
             {
                 throw new ForbiddenException("The email is not confirmed. Finish your registration");
             }
+            if (string.IsNullOrWhiteSpace(authUser.PasswordHash))
+            {
+                var passwordValidationResult = new ValidationResult(new List<ValidationFailure>
+                {
+                    new ValidationFailure("Password", "The account was registered with no password. Try another way")
+                });
+
+                throw new BadRequestException("Invalid login", passwordValidationResult);
+            }
 
             var result = await _signInManager.CheckPasswordSignInAsync(authUser, request.Password, false);
 
@@ -79,44 +263,14 @@ namespace Glowee.Identity.Services
                 throw new BadRequestException("Invalid login", passwordValidationResult);
             }
 
-            var accessToken = await GenerateJwtToken(authUser, _jwtSettings.AccessTokenValidityInMinutes, request.DeviceId);
-            var refreshToken = await GenerateRefreshToken(authUser, request.DeviceId);
-            var user = await _userRepository.GetByIdAsync(new UserId(authUser.Id));
-
-            if (user == null)
-            {
-                throw new InternalServerException();
-            }
-
-            var authResponse = new AuthResponse
-            {
-                Id = authUser.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                UserName = authUser.UserName ?? "",
-                Email = authUser.Email ?? "",
-                ProfileImageUrl = user.ProfileImageUrl,
-                Roles = await _userManager.GetRolesAsync(authUser),
-                Token = accessToken
-            };
-            var refreshTokenResponse = new RefreshTokenResponse
-            {
-                Token = refreshToken.Token,
-                ExpiryTime = refreshToken.ExpiryTime
-            };
-
-            return new LogInResponse
-            {
-                AuthResponse = authResponse,
-                RefreshTokenResponse = refreshTokenResponse
-            };
+            return await GenerateAuthResponse(authUser, request.DeviceId);
         }
 
         public async Task<RegistrationStep1Response> RegistrationStep1(RegistrationStep1Request request)
         {
             var validationResult = await new RegistrationStep1Validator().ValidateAsync(request);
 
-            if (validationResult.Errors.Any())
+            if (validationResult.Errors.Count != 0)
             {
                 throw new BadRequestException("Invalid registration", validationResult);
             }
@@ -195,12 +349,12 @@ namespace Glowee.Identity.Services
         {
             var validationResult = await new RegistrationStep2Validator().ValidateAsync(request);
 
-            if (validationResult.Errors.Any())
+            if (validationResult.Errors.Count != 0)
             {
                 throw new BadRequestException("Invalid registration", validationResult);
             }
 
-            if (string.IsNullOrEmpty(registrationToken))
+            if (string.IsNullOrWhiteSpace(registrationToken))
             {
                 throw new UnauthorizedAccessException("Token is missing");
             }
@@ -282,12 +436,12 @@ namespace Glowee.Identity.Services
         {
             var validationResult = await new RegistrationStep3Validator().ValidateAsync(request);
 
-            if (validationResult.Errors.Any())
+            if (validationResult.Errors.Count != 0)
             {
                 throw new BadRequestException("Invalid registration", validationResult);
             }
 
-            if (string.IsNullOrEmpty(registrationToken))
+            if (string.IsNullOrWhiteSpace(registrationToken))
             {
                 throw new UnauthorizedAccessException("Token is missing");
             }
@@ -342,15 +496,18 @@ namespace Glowee.Identity.Services
             }
         }
 
-        public async Task<CompleteRefreshTokenResponse> RefreshToken(RefreshTokenRequest request, string? refreshToken)
+        public async Task<CompleteAuthResponse> RefreshToken(RefreshTokenRequest request, string? refreshToken)
         {
-            if (string.IsNullOrEmpty(request.AccessToken))
+            var validationResult = await new RefreshValidator().ValidateAsync(request);
+
+            if (validationResult.Errors.Count != 0)
             {
-                throw new BadRequestException("Invalid client request.");
+                throw new BadRequestException("Invalid refresh request.", validationResult);
             }
-            if (string.IsNullOrEmpty(refreshToken))
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
             {
-                throw new UnauthorizedAccessException("Refresh token is missing");
+                throw new UnauthorizedAccessException("Refresh token is missing.");
             }
 
             string accessToken = request.AccessToken;
@@ -383,38 +540,7 @@ namespace Glowee.Identity.Services
                 throw new UnauthorizedAccessException("Refresh token is invalid or expired.");
             }
 
-            var newAccessToken = await GenerateJwtToken(authUser, _jwtSettings.AccessTokenValidityInMinutes, deviceId);
-            var newRefreshToken = await GenerateRefreshToken(authUser, deviceId);
-
-            var user = await _userRepository.GetByIdAsync(new UserId(authUser.Id));
-
-            if (user == null)
-            {
-                throw new InternalServerException();
-            }
-
-            var authResponse = new AuthResponse
-            {
-                Id = authUser.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                UserName = authUser.UserName ?? "",
-                Email = authUser.Email ?? "",
-                ProfileImageUrl = user.ProfileImageUrl,
-                Roles = await _userManager.GetRolesAsync(authUser),
-                Token = newAccessToken
-            };
-            var refreshTokenResponse = new RefreshTokenResponse
-            {
-                Token = newRefreshToken.Token,
-                ExpiryTime = newRefreshToken.ExpiryTime
-            };
-
-            return new CompleteRefreshTokenResponse
-            {
-                AuthResponse = authResponse,
-                RefreshTokenResponse = refreshTokenResponse
-            };
+            return await GenerateAuthResponse(authUser, deviceId);
         }
 
         public async Task Logout(ClaimsPrincipal userPrincipal)
@@ -454,15 +580,50 @@ namespace Glowee.Identity.Services
 
         }
 
+        private async Task<CompleteAuthResponse> GenerateAuthResponse(AuthUser authUser, string deviceId)
+        {
+            var accessToken = await GenerateJwtToken(authUser, _jwtSettings.AccessTokenValidityInMinutes, deviceId);
+            var refreshToken = await GenerateRefreshToken(authUser, deviceId);
+            var user = await _userRepository.GetByIdAsync(new UserId(authUser.Id));
+
+            if (user == null)
+            {
+                throw new InternalServerException();
+            }
+
+            var authResponse = new AuthResponse
+            {
+                Id = authUser.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                UserName = authUser.UserName ?? "",
+                Email = authUser.Email ?? "",
+                ProfileImageUrl = user.ProfileImageUrl,
+                Roles = await _userManager.GetRolesAsync(authUser),
+                Token = accessToken
+            };
+            var refreshTokenResponse = new RefreshTokenResponse
+            {
+                Token = refreshToken.Token,
+                ExpiryTime = refreshToken.ExpiryTime
+            };
+
+            return new CompleteAuthResponse
+            {
+                AuthResponse = authResponse,
+                RefreshTokenResponse = refreshTokenResponse
+            };
+        }
+
         private async Task<string> GenerateJwtToken(AuthUser user, double durationInMinutes, string deviceId = "")
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = _jwtSettings.Key;
-            if (string.IsNullOrEmpty(key))
+            if (string.IsNullOrWhiteSpace(key))
             {
                 throw new InvalidOperationException("JWT Key is missing from configuration.");
             }
-            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.UserName))
+            if (string.IsNullOrWhiteSpace(user.Email) || string.IsNullOrWhiteSpace(user.UserName))
             {
                 throw new InvalidOperationException("User's credentials are missing, cannot generate a JWT token.");
             }
@@ -538,7 +699,7 @@ namespace Glowee.Identity.Services
             }
         }
 
-        public ClaimsPrincipal ExtractUserPrincipalFromToken(string token)
+        private ClaimsPrincipal ExtractUserPrincipalFromToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(_jwtSettings.Key);

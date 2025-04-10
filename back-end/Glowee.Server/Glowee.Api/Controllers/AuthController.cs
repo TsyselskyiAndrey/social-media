@@ -1,4 +1,6 @@
 ﻿using Glowee.Application.Contracts.Identity;
+using Glowee.Application.Models.Identity.FacebookAuth;
+using Glowee.Application.Models.Identity.GoogleAuth;
 using Glowee.Application.Models.Identity.LogIn;
 using Glowee.Application.Models.Identity.RefreshToken;
 using Glowee.Application.Models.Identity.Registration;
@@ -19,21 +21,55 @@ namespace Glowee.Api.Controllers
             _authService = authService;
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(LogInRequest logInRequest)
+        [HttpPost("facebook-login")]
+        public async Task<IActionResult> FacebookLogin(FacebookAuthRequest facebookRequest)
         {
-            var logInResponse = await _authService.Login(logInRequest);
+            var completeAuthResponse = await _authService.FacebookLogin(facebookRequest);
 
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Expires = logInResponse.RefreshTokenResponse.ExpiryTime
+                Expires = completeAuthResponse.RefreshTokenResponse.ExpiryTime
             };
-            Response.Cookies.Append("refreshToken", logInResponse.RefreshTokenResponse.Token, cookieOptions);
+            Response.Cookies.Append("refreshToken", completeAuthResponse.RefreshTokenResponse.Token, cookieOptions);
 
-            return Ok(logInResponse.AuthResponse);
+            return Ok(completeAuthResponse.AuthResponse);
+        }
+
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin(GoogleAuthRequest googleRequest)
+        {
+            var completeAuthResponse = await _authService.GoogleLogin(googleRequest);
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = completeAuthResponse.RefreshTokenResponse.ExpiryTime
+            };
+            Response.Cookies.Append("refreshToken", completeAuthResponse.RefreshTokenResponse.Token, cookieOptions);
+
+            return Ok(completeAuthResponse.AuthResponse);
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LogInRequest logInRequest)
+        {
+            var completeAuthResponse = await _authService.Login(logInRequest);
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = completeAuthResponse.RefreshTokenResponse.ExpiryTime
+            };
+            Response.Cookies.Append("refreshToken", completeAuthResponse.RefreshTokenResponse.Token, cookieOptions);
+
+            return Ok(completeAuthResponse.AuthResponse);
         }
 
         [HttpPost("registration-step-1")]
@@ -81,18 +117,18 @@ namespace Glowee.Api.Controllers
         public async Task<IActionResult> RefreshToken(RefreshTokenRequest refreshTokenRequest)
         {
             var refreshToken = Request.Cookies["refreshToken"];
-            var completeRefreshTokenResponse = await _authService.RefreshToken(refreshTokenRequest, refreshToken);
+            var completeAuthResponse = await _authService.RefreshToken(refreshTokenRequest, refreshToken);
 
             var cookieOptions = new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Expires = completeRefreshTokenResponse.RefreshTokenResponse.ExpiryTime
+                Expires = completeAuthResponse.RefreshTokenResponse.ExpiryTime
             };
-            Response.Cookies.Append("refreshToken", completeRefreshTokenResponse.RefreshTokenResponse.Token, cookieOptions);
+            Response.Cookies.Append("refreshToken", completeAuthResponse.RefreshTokenResponse.Token, cookieOptions);
 
-            return Ok(completeRefreshTokenResponse.AuthResponse);
+            return Ok(completeAuthResponse.AuthResponse);
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

@@ -18,6 +18,8 @@ namespace Glowee.Identity.Validators
                    .When(r => !r.Login.Contains('@'))
                    .Must(username => !username.Contains("..") && !username.Contains("__")).WithMessage("Username is incorrect.")
                    .When(r => !r.Login.Contains('@'))
+                   .MaximumLength(511).WithMessage("The email address is invalid.")
+                   .When(r => r.Login.Contains('@'))
                    .EmailAddress().WithMessage("The email address is invalid.")
                    .When(r => r.Login.Contains('@'))
                    .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$").WithMessage("The email address is invalid.")

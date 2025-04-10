@@ -2,8 +2,8 @@
 {
     public class LogInRequest
     {
-        public string Login { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string DeviceId { get; set; } = string.Empty;
+        public string Login { get; set; } = String.Empty;
+        public string Password { get; set; } = String.Empty;
+        public string DeviceId { get; set; } = String.Empty;
     }
 }
