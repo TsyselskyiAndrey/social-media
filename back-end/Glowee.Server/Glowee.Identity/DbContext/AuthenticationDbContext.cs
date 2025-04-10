@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Glowee.Identity.DbContext
 {
-    public class AuthenticationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<long>, long>
+    public class AuthenticationDbContext : IdentityDbContext<AuthUser, IdentityRole<long>, long>
     {
         public AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options)
             : base(options)
@@ -28,12 +28,12 @@ namespace Glowee.Identity.DbContext
         {
             foreach (var entry in base.ChangeTracker.Entries<IEntity>().Where(q => q.State == EntityState.Added || q.State == EntityState.Modified))
             {
-                entry.Entity.ModifiedAt = DateTime.UtcNow;
-
                 if (entry.State == EntityState.Added)
                 {
                     entry.Entity.CreatedAt = DateTime.UtcNow;
                 }
+
+                entry.Entity.ModifiedAt = DateTime.UtcNow;
             }
 
             return base.SaveChangesAsync(cancellationToken);

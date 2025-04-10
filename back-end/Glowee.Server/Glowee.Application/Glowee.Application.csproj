@@ -9,15 +9,17 @@
   <ItemGroup>
     <Folder Include="Contracts\Email\" />
     <Folder Include="Contracts\Logging\" />
-    <Folder Include="Contracts\Persistence\" />
+    <Folder Include="Contracts\Storage\" />
     <Folder Include="Features\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
     <PackageReference Include="MediatR" Version="12.4.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <ItemGroup>

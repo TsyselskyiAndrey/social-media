@@ -1,6 +1,7 @@
 ﻿using Glowee.Api.Models;
 using Glowee.Application.Exceptions;
 using System.Net;
+using UnauthorizedAccessException = Glowee.Application.Exceptions.UnauthorizedAccessException;
 
 namespace Glowee.Api.Middleware
 {
@@ -71,6 +72,16 @@ namespace Glowee.Api.Middleware
                         Status = (int)statusCode,
                         Type = nameof(ForbiddenException),
                         Detail = forbidden.InnerException?.Message
+                    };
+                    break;
+                case UnauthorizedAccessException unauthorized:
+                    statusCode = HttpStatusCode.Unauthorized;
+                    problem = new CustomProblemDetails
+                    {
+                        Title = unauthorized.Message,
+                        Status = (int)statusCode,
+                        Type = nameof(UnauthorizedAccessException),
+                        Detail = unauthorized.InnerException?.Message
                     };
                     break;
                 default:

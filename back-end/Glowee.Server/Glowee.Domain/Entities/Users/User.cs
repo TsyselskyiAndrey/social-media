@@ -25,7 +25,6 @@ namespace Glowee.Domain.Entities.Users
         public string Email { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string? Biography { get; set; }
-        public DateTime BannedUntil { get; set; }
         public string? ProfileImageUrl { get; set; }
         public DateTime? BirthDate { get; set; }
         public GeneralSetting GeneralSettings { get; set; }
