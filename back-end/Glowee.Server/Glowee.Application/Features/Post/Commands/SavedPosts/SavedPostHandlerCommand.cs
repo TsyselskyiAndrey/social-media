@@ -38,11 +38,7 @@ public class SavedPostHandlerCommand : IRequestHandler<SavedPostCommand, bool>
     /// <exception cref="NotFoundException">Thrown if the post or user is not found.</exception>
     public async Task<bool> Handle(SavedPostCommand request, CancellationToken cancellationToken)
     {
-        var post = await _postRepository.GetByIdAsync(request.PostId);
-        if (post == null)
-        {
-            throw new NotFoundException("Post not found");
-        }
+        _postRepository.PostExists(request.PostId);
         
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)

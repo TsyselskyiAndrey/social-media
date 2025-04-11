@@ -18,24 +18,18 @@ public class MockSavedPostRepository
                 Id = new SavedPostId(1),
                 PostId = new PostId(1),
                 UserId = new UserId(1),
-                Post = new Post { Id = new PostId(1), Caption = "C# Post", UserId = new UserId(1) },
-                User = new User { Id = new UserId(1), UserName = "johndoe" }
             },
             new SavedPost
             {
                 Id = new SavedPostId(2),
                 PostId = new PostId(2),
                 UserId = new UserId(2),
-                Post = new Post { Id = new PostId(2), Caption = ".NET 8 News", UserId = new UserId(2) },
-                User = new User { Id = new UserId(2), UserName = "janesmith" }
             },
             new SavedPost
             {
                 Id = new SavedPostId(3),
                 PostId = new PostId(3),
                 UserId = new UserId(3),
-                Post = new Post { Id = new PostId(3), Caption = "EF Core Guide", UserId = new UserId(3) },
-                User = new User { Id = new UserId(3), UserName = "alicej" }
             }
         };
 

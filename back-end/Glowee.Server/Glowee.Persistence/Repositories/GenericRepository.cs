@@ -27,7 +27,7 @@ public class GenericRepository<TEntity, TKey> :
 
     public async Task<TEntity?> GetByIdAsync(TKey id)
     {
-        return await _context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(q => q.Id.Equals(id));
+        return await _context.Set<TEntity>().AsNoTracking().FirstOrDefaultAsync(q => q.Id!.Equals(id));
     }
 
     public async Task CreateAsync(TEntity entity)

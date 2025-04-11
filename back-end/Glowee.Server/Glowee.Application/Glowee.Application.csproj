@@ -11,7 +11,7 @@
     <Folder Include="Contracts\Logging\" />
     <Folder Include="Features\Message\Commands\" />
     <Folder Include="Features\Message\Queries\" />
-    <Folder Include="Features\Post\Queries\" />
+    <Folder Include="Features\Post\Commands\Comments\" />
   </ItemGroup>
 
   <ItemGroup>
