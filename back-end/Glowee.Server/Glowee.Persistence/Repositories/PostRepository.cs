@@ -1,7 +1,8 @@
 ﻿using Glowee.Application.Contracts.Persistence;
+using Glowee.Application.Exceptions;
 using Glowee.Domain.Entities.Posts;
+using Glowee.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
-using SocialMediaGloweeServer.Data;
 
 namespace Glowee.Persistence.Repositories;
 
@@ -12,7 +13,7 @@ public class PostRepository : GenericRepository<Post, PostId>, IPostRepository
     {
         if (!_context.Posts.Any(p => p.Id == id))
         {
-            throw new ArgumentException($"Post with id {id} does not exist");
+            throw new NotFoundException($"Post with id {id} does not exist");
         }
     }
 
@@ -21,6 +22,7 @@ public class PostRepository : GenericRepository<Post, PostId>, IPostRepository
         return await _context.Posts
                 .Include(x => x.LikedPosts)
                 .Include(x => x.Tags)
+                .Include(x => x.PostType)
                 .Include(x => x.UninterestingPosts)
                 .Include(x => x.PostMedias)
                     .ThenInclude(x => x.PostMediaType)

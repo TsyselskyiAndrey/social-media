@@ -1,7 +1,7 @@
 ﻿using Glowee.Application.Contracts.Persistence;
 using Glowee.Domain.Common;
+using Glowee.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
-using SocialMediaGloweeServer.Data;
 
 namespace Glowee.Persistence.Repositories;
 
@@ -44,7 +44,11 @@ public class GenericRepository<TEntity, TKey> :
 
     public async Task DeleteAsync(TEntity entity)
     {
-        _context.Remove(entity);
-        await _context.SaveChangesAsync();
+        var trackedEntity = await _context.Set<TEntity>().FindAsync(entity.Id);
+        if (trackedEntity is not null)
+        {
+            _context.Remove(trackedEntity);
+            await _context.SaveChangesAsync();
+        }
     }
 }

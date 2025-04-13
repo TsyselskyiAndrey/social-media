@@ -1,6 +1,6 @@
 ﻿using Glowee.Application.Contracts.Persistence;
 using Glowee.Domain.Entities.Tags;
-using SocialMediaGloweeServer.Data;
+using Glowee.Persistence.DbContext;
 
 namespace Glowee.Persistence.Repositories;
 

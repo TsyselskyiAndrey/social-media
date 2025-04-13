@@ -2,8 +2,8 @@
 using Glowee.Domain.Entities.Comments;
 using Glowee.Domain.Entities.Posts;
 using Glowee.Domain.Entities.Users;
+using Glowee.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
-using SocialMediaGloweeServer.Data;
 
 namespace Glowee.Persistence.Repositories;
 

@@ -36,6 +36,10 @@ namespace Glowee.Persistence.Configurations
                    .HasForeignKey(lp => lp.UserId)
                    .OnDelete(DeleteBehavior.Cascade)
                    .IsRequired();
+            
+            builder.Property(lp => lp.Id)
+                   .HasConversion(id => id.Value, value => new(value))
+                   .ValueGeneratedOnAdd();
         }
     }
 }

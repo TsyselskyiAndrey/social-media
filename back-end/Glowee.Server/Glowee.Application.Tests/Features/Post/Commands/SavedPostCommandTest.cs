@@ -1,32 +1,38 @@
 ﻿using Glowee.Application.Contracts.Persistence;
-using Glowee.Application.Exceptions;
 using Glowee.Application.Features.Post.Commands.Likes;
+using Glowee.Application.Tests.Data;
 using Glowee.Application.Tests.Mocks;
+using Glowee.Application.Tests.TestDbConfigs;
 using Glowee.Domain.Entities.Posts;
 using Glowee.Domain.Entities.Users;
+using Glowee.Persistence.DbContext;
+using Glowee.Persistence.Repositories;
 using Moq;
 using Shouldly;
 
 namespace Glowee.Application.Tests.Features.Post.Commands;
 
-public class SavedPostCommandTest
+public class SavedPostCommandTest : IClassFixture<TestContext>
 {
-    private readonly Mock<ISavedPostRepository> _mockSavedPostRepo;
+    private readonly SqlDbContext _context;
+    private readonly ISavedPostRepository _savedPostRepository;
     private readonly Mock<IUserRepository> _mockUserRepo;
-    private readonly Mock<IPostRepository> _mockPostRepo;
+    private readonly IPostRepository _postRepository;
 
-    public SavedPostCommandTest()
+    public SavedPostCommandTest(TestContext fixture)
     {
+        _context = fixture.Context;
+        _context.SeedData();
         _mockUserRepo = MockUserRepository.GetMockUsersRepository();
-        _mockPostRepo = MockPostRepository.GetMockPostRepository();
-        _mockSavedPostRepo = MockSavedPostRepository.GetMockSavedPostRepository();
+        _savedPostRepository = new SavedPostRepository(_context);
+        _postRepository = new PostRepository(_context);
     }
 
     [Theory]
-    [MemberData(nameof(GetSavedPostsTestData))]
-    public async Task SavedPostCommand_Test(long userId, long postId, object expectedResult)
+    [MemberData(nameof(TestData.GetSavedPostsTestData), MemberType = typeof(TestData))]
+    public async Task SavedPostCommand_Test(long postId, long userId, object expectedResult)
     {
-        var handler = new SavedPostHandlerCommand(_mockPostRepo.Object, _mockUserRepo.Object, _mockSavedPostRepo.Object);
+        var handler = new SavedPostHandlerCommand(_postRepository, _mockUserRepo.Object, _savedPostRepository);
         var command = new SavedPostCommand(new UserId(userId), new PostId(postId));
 
         if (expectedResult is Type expectedException)
@@ -39,18 +45,5 @@ public class SavedPostCommandTest
             bool expected = (bool)expectedResult;
             result.ShouldBe(expected);
         }
-    }
-
-    public static IEnumerable<object[]> GetSavedPostsTestData()
-    {
-        yield return [1L, 1L, false];
-        yield return [2L, 2L, false];
-        yield return [3L, 3L, false];
-        yield return [4L, 1L, true];
-        yield return [5L, 2L, true];
-        yield return [6L, 6L, true];
-        yield return [999L, 1L, typeof(NotFoundException)];
-        yield return [1L, 999L, typeof(NotFoundException)];
-        yield return [999L, 999L, typeof(NotFoundException)];
     }
 }

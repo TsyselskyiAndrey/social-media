@@ -29,9 +29,9 @@ using Glowee.Domain.Entities.UserChats;
 using Glowee.Domain.Entities.UserSubscriptions;
 using Microsoft.EntityFrameworkCore;
 
-namespace SocialMediaGloweeServer.Data
+namespace Glowee.Persistence.DbContext
 {
-    public class SqlDbContext : DbContext
+    public class SqlDbContext : Microsoft.EntityFrameworkCore.DbContext
     {
         public SqlDbContext(DbContextOptions<SqlDbContext> options)
             : base(options)

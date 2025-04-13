@@ -1,35 +1,42 @@
 ﻿using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Exceptions;
 using Glowee.Application.Features.Post.Commands.Likes;
+using Glowee.Application.Tests.Data;
 using Glowee.Application.Tests.Mocks;
+using Glowee.Application.Tests.TestDbConfigs;
 using Glowee.Domain.Entities.LikedPosts;
 using Glowee.Domain.Entities.Posts;
 using Glowee.Domain.Entities.Users;
+using Glowee.Persistence.DbContext;
+using Glowee.Persistence.Repositories;
 using Moq;
 using Shouldly;
 
 namespace Glowee.Application.Tests.Features.Post.Commands;
 
-public class LikeCommandTest
+public class LikeCommandTest : IClassFixture<TestContext>
 {
-    private readonly Mock<ILikeRepository> _mockLikeRepo;
-    private readonly Mock<IPostRepository> _mockPostRepo;
+    private readonly SqlDbContext _context;
+    private readonly IPostRepository _postRepository;
+    private readonly ILikeRepository _likeRepository;
     private readonly Mock<IUserRepository> _mockUserRepo;
 
-    public LikeCommandTest()
+    public LikeCommandTest(TestContext fixture)
     {
-        _mockLikeRepo = MockLikeRepository.GetMockRepository();
-        _mockPostRepo = MockPostRepository.GetMockPostRepository();
+        _context = fixture.Context;       
+        _context.SeedData();
+        _postRepository = new PostRepository(_context);
+        _likeRepository = new LikeRepository(_context);
         _mockUserRepo = MockUserRepository.GetMockUsersRepository();
     }
 
     [Theory]
-    [MemberData(nameof(GetLikeCommandTestData))]
+    [MemberData(nameof(TestData.GetLikeCommandTestData), MemberType = typeof(TestData))]
     public async Task LikeCommand_Test(long postId, long userId, object expectedResult)
     {
-        var handler = new LikeCommandHandler(_mockLikeRepo.Object, _mockPostRepo.Object, _mockUserRepo.Object);
+        var handler = new LikeCommandHandler(_likeRepository, _postRepository, _mockUserRepo.Object);
         var command = new LikeCommand(new PostId(postId), new UserId(userId));
-
+        
         if (expectedResult is Type expectedException)
         {
             await Should.ThrowAsync(() => handler.Handle(command, CancellationToken.None), expectedException);
@@ -40,18 +47,5 @@ public class LikeCommandTest
             bool expected = (bool)expectedResult;
             result.ShouldBe(expected);
         }
-    }
-
-
-    public static IEnumerable<object[]> GetLikeCommandTestData()
-    {
-        yield return [1, 1, false];
-        yield return [2, 2, false];
-        yield return [3, 3, false];
-        yield return [4, 4, false];
-        yield return [5, 5, true]; 
-        yield return [6, 6, true];
-        yield return [1, 999, typeof(NotFoundException)];
-        yield return [999, 999, typeof(NotFoundException)];
     }
 }

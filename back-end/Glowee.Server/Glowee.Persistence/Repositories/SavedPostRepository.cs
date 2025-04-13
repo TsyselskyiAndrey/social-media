@@ -3,8 +3,8 @@ using Glowee.Application.Features.Post.Queries.SavedPosts;
 using Glowee.Domain.Entities.Posts;
 using Glowee.Domain.Entities.SavedPosts;
 using Glowee.Domain.Entities.Users;
+using Glowee.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
-using SocialMediaGloweeServer.Data;
 
 namespace Glowee.Persistence.Repositories;
 
@@ -19,6 +19,8 @@ public class SavedPostRepository : GenericRepository<SavedPost, SavedPostId>, IS
         return await _context.SavedPosts
             .Where(x => x.UserId == userId)
             .AsNoTracking()
+            .Include(x => x.Post)
+                .ThenInclude(x => x.PostType)
             .Include(x => x.Post)
                 .ThenInclude(x => x.LikedPosts)
             .Include(x => x.Post)
