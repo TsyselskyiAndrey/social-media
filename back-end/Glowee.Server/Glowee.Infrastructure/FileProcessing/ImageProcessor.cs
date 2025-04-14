@@ -1,0 +1,40 @@
+﻿using Glowee.Application.Contracts.FileProcessing;
+using Glowee.Application.Exceptions;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+
+namespace Glowee.Infrastructure.FileProcessing
+{
+    public class ImageProcessor : IImageProcessor
+    {
+        public async Task<MemoryStream> ProcessSmallImageAsync(Stream stream, int size = 256)
+        {
+            try
+            {
+                using var image = await Image.LoadAsync(stream);
+
+                int cropSize = Math.Min(image.Width, image.Height);
+                var cropRect = new Rectangle(
+                    (image.Width - cropSize) / 2,
+                    (image.Height - cropSize) / 2,
+                    cropSize,
+                    cropSize
+                );
+
+                image.Mutate(x => x
+                    .Crop(cropRect)
+                    .Resize(size, size));
+
+                var outputStream = new MemoryStream();
+                await image.SaveAsJpegAsync(outputStream);
+                outputStream.Position = 0;
+
+                return outputStream;
+            }
+            catch (UnknownImageFormatException)
+            {
+                throw new BadRequestException("The uploaded file is not a valid image.");
+            }
+        }
+    }
+}

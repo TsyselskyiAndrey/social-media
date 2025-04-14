@@ -44,7 +44,7 @@ namespace Glowee.Persistence.Configurations
                    .IsRequired(false)
                    .HasMaxLength(1024);
 
-            builder.Property(c => c.ProfileImageUrl)
+            builder.Property(c => c.ProfileImagePath)
                    .IsRequired(false)
                    .HasMaxLength(512);
 

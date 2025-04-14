@@ -65,7 +65,7 @@ namespace Glowee.Identity.Services
                     LastName = userModel.LastName,
                     BirthDate = userModel.BirthDate,
                     Biography = userModel.Biography,
-                    ProfileImageUrl = userModel.ProfileImageUrl
+                    ProfileImagePath = userModel.ProfileImageUrl
                 };
 
                 await _userRepository.CreateAsync(newUser);
@@ -120,7 +120,7 @@ namespace Glowee.Identity.Services
                         LastName = userModel.LastName,
                         Biography = userModel.Biography,
                         BirthDate = userModel.BirthDate,
-                        ProfileImageUrl = userModel.ProfileImageUrl
+                        ProfileImagePath = userModel.ProfileImageUrl
                     };
 
                     await _userRepository.CreateAsync(businessUser);
@@ -133,7 +133,7 @@ namespace Glowee.Identity.Services
                     businessUser.LastName = userModel.LastName;
                     businessUser.Biography = userModel.Biography;
                     businessUser.BirthDate = userModel.BirthDate;
-                    businessUser.ProfileImageUrl = userModel.ProfileImageUrl;
+                    businessUser.ProfileImagePath = userModel.ProfileImageUrl;
 
                     await _userRepository.UpdateAsync(businessUser);
                 }

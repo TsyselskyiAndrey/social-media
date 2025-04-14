@@ -25,7 +25,7 @@ namespace Glowee.Persistence.Configurations
                    .IsRequired(false)
                    .HasMaxLength(50);
 
-            builder.Property(c => c.LogoUrl)
+            builder.Property(c => c.LogoPath)
                    .IsRequired(false)
                    .HasMaxLength(512);
 

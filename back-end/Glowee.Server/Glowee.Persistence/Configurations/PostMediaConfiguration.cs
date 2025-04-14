@@ -29,7 +29,7 @@ namespace Glowee.Persistence.Configurations
                    .OnDelete(DeleteBehavior.Cascade)
                    .IsRequired();
 
-            builder.Property(pm => pm.MediaUrl)
+            builder.Property(pm => pm.MediaPath)
                    .IsRequired()
                    .HasMaxLength(512);
 
@@ -41,7 +41,7 @@ namespace Glowee.Persistence.Configurations
                    .OnDelete(DeleteBehavior.Restrict) // We can't delete a PostMedia instance if its type has been deleted
                    .IsRequired();
 
-            builder.Property(pm => pm.ThumbnailUrl)
+            builder.Property(pm => pm.ThumbnailPath)
                    .IsRequired(false)
                    .HasMaxLength(512);
 

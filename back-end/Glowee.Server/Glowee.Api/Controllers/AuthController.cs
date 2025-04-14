@@ -97,6 +97,14 @@ namespace Glowee.Api.Controllers
             return Ok();
         }
 
+        [HttpPost("upload-profile-image")]
+        public async Task<IActionResult> UploadProfileImage(ProfilePictureUploadRequest profilePictureUploadRequest)
+        {
+            var registrationToken = Request.Cookies["registrationToken"];
+            var profilePictureUrl = await _authService.UploadProfilePicture(profilePictureUploadRequest, registrationToken);
+            return Ok(profilePictureUrl);
+        }
+
         [HttpPost("registration-step-3")]
         public async Task<IActionResult> RegistrationStep3(RegistrationStep3Request registrationStep3Request)
         {

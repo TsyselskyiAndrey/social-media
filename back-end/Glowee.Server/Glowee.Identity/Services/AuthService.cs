@@ -2,6 +2,7 @@
 using Glowee.Application.Contracts.Email;
 using Glowee.Application.Contracts.Identity;
 using Glowee.Application.Contracts.Persistence;
+using Glowee.Application.Contracts.Storage;
 using Glowee.Application.Exceptions;
 using Glowee.Application.Models.Email;
 using Glowee.Application.Models.Identity.FacebookAuth;
@@ -12,6 +13,7 @@ using Glowee.Application.Models.Identity.RefreshToken;
 using Glowee.Application.Models.Identity.Registration;
 using Glowee.Application.Models.Identity.Settings;
 using Glowee.Application.Models.Identity.UserService;
+using Glowee.Application.Models.Storage;
 using Glowee.Domain.Entities.Users;
 using Glowee.Identity.DbContext;
 using Glowee.Identity.Models;
@@ -34,25 +36,30 @@ namespace Glowee.Identity.Services
         private readonly UserManager<AuthUser> _userManager;
         private readonly SignInManager<AuthUser> _signInManager;
         private readonly JwtSettings _jwtSettings;
+        private readonly AuthSettings _authSettings;
+        private readonly DefaultFiles _defaultFiles;
         private readonly AuthenticationDbContext _context;
         private readonly IUserRepository _userRepository;
         private readonly IEmailSender _emailSender;
         private readonly IUserService _userService;
         private readonly IGoogleAuthService _googleAuthService;
         private readonly IFacebookAuthService _facebookAuthService;
-        private readonly int codeDuration = 5;
+        private readonly IProfileImageStorageService _profileImageStorageService;
 
-        public AuthService(UserManager<AuthUser> userManager, SignInManager<AuthUser> signInManager, IOptions<JwtSettings> jwtSettings, AuthenticationDbContext context, IUserRepository userRepository, IEmailSender emailSender, IUserService userService, IGoogleAuthService googleAuthService, IFacebookAuthService facebookAuthService)
+        public AuthService(UserManager<AuthUser> userManager, SignInManager<AuthUser> signInManager, IOptions<JwtSettings> jwtSettings, IOptions<AuthSettings> authSettings, IOptions<DefaultFiles> defaultFiles, AuthenticationDbContext context, IUserRepository userRepository, IEmailSender emailSender, IUserService userService, IGoogleAuthService googleAuthService, IFacebookAuthService facebookAuthService, IProfileImageStorageService profileImageStorageService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _jwtSettings = jwtSettings.Value;
+            _authSettings = authSettings.Value;
+            _defaultFiles = defaultFiles.Value;
             _context = context;
             _userRepository = userRepository;
             _emailSender = emailSender;
             _userService = userService;
             _googleAuthService = googleAuthService;
             _facebookAuthService = facebookAuthService;
+            _profileImageStorageService = profileImageStorageService;
         }
 
         public async Task<CompleteAuthResponse> FacebookLogin(FacebookAuthRequest request)
@@ -389,7 +396,7 @@ namespace Glowee.Identity.Services
                     FirstName = request.FirstName,
                     LastName = request.LastName,
                     BirthDate = DateTime.ParseExact(request.BirthDate, "MM/dd/yyyy", CultureInfo.InvariantCulture),
-                    ProfileImageUrl = "DefaultImage.png" // TODO Добавить ссылку на дефолтную аватарку когда Azure подключим.
+                    ProfileImagePath = _defaultFiles.DefaultProfilePicture
                 };
 
                 try
@@ -418,7 +425,7 @@ namespace Glowee.Identity.Services
             }
 
             string code = GenerateConfirmationCode();
-            var expirationDate = DateTime.UtcNow.AddMinutes(codeDuration);
+            var expirationDate = DateTime.UtcNow.AddMinutes(_authSettings.CodeDurationInMinutes);
 
             authUser.EmailConfirmationCode = code;
             authUser.EmailConfirmationCodeExpiryTime = expirationDate;
@@ -430,6 +437,81 @@ namespace Glowee.Identity.Services
             }
 
             await SendConfirmationCodeByEmail(authUser.Email, code);
+        }
+
+        public async Task<ProfilePictureUploadResponse> UploadProfilePicture(ProfilePictureUploadRequest request, string? registrationToken)
+        {
+            var validationResult = await new ProfilePictureUploadValidator().ValidateAsync(request);
+
+            if (validationResult.Errors.Count != 0)
+            {
+                throw new BadRequestException("Invalid registration", validationResult);
+            }
+
+            if (string.IsNullOrWhiteSpace(registrationToken))
+            {
+                throw new UnauthorizedAccessException("Token is missing");
+            }
+            var principal = ExtractUserPrincipalFromToken(registrationToken);
+
+            string? email = principal.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new UnauthorizedAccessException("Invalid registration token");
+            }
+
+            var authUser = await _userManager.FindByEmailAsync(email);
+
+            if (authUser == null)
+            {
+                throw new NotFoundException($"The user ('{email}') wasn't found.");
+            }
+            if (authUser.EmailConfirmed)
+            {
+                throw new InternalServerException();
+            }
+
+            var user = await _userRepository.GetByIdAsync(new UserId(authUser.Id));
+
+            var profileImageBlobName = await _profileImageStorageService.UploadProfileImageAsync(request.File.OpenReadStream(), request.File.FileName, new UserId(authUser.Id), user?.ProfileImagePath);
+
+            if (user == null)
+            {
+                var newUser = new User()
+                {
+                    Id = new UserId(authUser.Id),
+                    Email = authUser.Email ?? "",
+                    UserName = authUser.UserName ?? "",
+                    ProfileImagePath = profileImageBlobName
+                };
+
+                try
+                {
+                    await _userRepository.CreateAsync(newUser);
+                }
+                catch (Exception)
+                {
+                    throw new InternalServerException();
+                }
+            }
+            else
+            {
+                user.ProfileImagePath = profileImageBlobName;
+
+                try
+                {
+                    await _userRepository.UpdateAsync(user);
+                }
+                catch (Exception)
+                {
+                    throw new InternalServerException();
+                }
+            }
+
+            return new ProfilePictureUploadResponse()
+            {
+                ProfilePictureUrl = _profileImageStorageService.GetProfileImageUrl(profileImageBlobName)
+            };
         }
 
         public async Task RegistrationStep3(RegistrationStep3Request request, string? registrationToken)
@@ -598,7 +680,7 @@ namespace Glowee.Identity.Services
                 LastName = user.LastName,
                 UserName = authUser.UserName ?? "",
                 Email = authUser.Email ?? "",
-                ProfileImageUrl = user.ProfileImageUrl,
+                ProfileImageUrl = user.ProfileImagePath,
                 Roles = await _userManager.GetRolesAsync(authUser),
                 Token = accessToken
             };

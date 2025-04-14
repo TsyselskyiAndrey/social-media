@@ -10,7 +10,7 @@ namespace Glowee.Domain.Entities.MessageAttachments
         public Message Message { get; set; }
         public MessageAttachmentTypeId MessageAttachmentTypeId { get; set; }
         public MessageAttachmentType MessageAttachmentType { get; set; }
-        public string MediaUrl { get; set; } = string.Empty;
+        public string MediaPath { get; set; } = string.Empty;
         public TimeSpan? Duration { get; set; }
         public string Format { get; set; } = string.Empty;
         public long Size { get; set; }
