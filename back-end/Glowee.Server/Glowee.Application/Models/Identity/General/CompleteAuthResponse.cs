@@ -1,6 +1,6 @@
-﻿namespace Glowee.Application.Models.Identity.LogIn
+﻿namespace Glowee.Application.Models.Identity.General
 {
-    public class LogInResponse
+    public class CompleteAuthResponse
     {
         public AuthResponse AuthResponse { get; set; }
         public RefreshTokenResponse RefreshTokenResponse { get; set; }

@@ -17,6 +17,7 @@ namespace Glowee.Persistence
 
             services.AddDbContext<SqlDbContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
+            services.AddScoped<IUserRepository, UserRepository>();
 
             return services;
         }

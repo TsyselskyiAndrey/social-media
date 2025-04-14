@@ -2,6 +2,6 @@
 {
     public class InternalServerException : Exception
     {
-        public InternalServerException() : base($"Internal server error.") { }
+        public InternalServerException() : base("Internal server error.") { }
     }
 }

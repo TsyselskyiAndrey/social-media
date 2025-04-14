@@ -1,8 +1,8 @@
 ﻿using Glowee.Application.Contracts.Email;
 using Glowee.Application.Models.Email;
 using Microsoft.Extensions.Options;
-using System.Net.Mail;
 using System.Net;
+using System.Net.Mail;
 
 namespace Glowee.Infrastructure.EmailService
 {
@@ -28,6 +28,7 @@ namespace Glowee.Infrastructure.EmailService
             {
                 Credentials = new NetworkCredential(_emailSettings.SenderEmail, _emailSettings.SenderPassword),
                 EnableSsl = true,
+                UseDefaultCredentials = false,
                 DeliveryMethod = SmtpDeliveryMethod.Network
             })
             {

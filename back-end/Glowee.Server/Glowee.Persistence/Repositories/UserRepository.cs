@@ -1,10 +1,14 @@
 ﻿using Glowee.Application.Contracts.Persistence;
 using Glowee.Domain.Entities.Users;
-using Glowee.Persistence.DbContext;
 
-namespace Glowee.Persistence.Repositories;
+using SocialMediaGloweeServer.Data;
 
-public class UserRepository : GenericRepository<User, UserId>, IUserRepository
+namespace Glowee.Persistence.Repositories
 {
-    public UserRepository(SqlDbContext context) : base(context){}
+    public class UserRepository : GenericRepository<User, UserId>, IUserRepository
+    {
+        public UserRepository(SqlDbContext context) : base(context)
+        {
+        }
+    }
 }

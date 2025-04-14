@@ -26,6 +26,7 @@ using Glowee.Domain.Entities.Tags;
 using Glowee.Domain.Entities.UninterestingPostCauses;
 using Glowee.Domain.Entities.UninterestingPosts;
 using Glowee.Domain.Entities.UserChats;
+using Glowee.Domain.Entities.Users;
 using Glowee.Domain.Entities.UserSubscriptions;
 using Microsoft.EntityFrameworkCore;
 
@@ -66,6 +67,7 @@ namespace Glowee.Persistence.DbContext
         public DbSet<UninterestingPost> UninterestingPosts { get; set; }
         public DbSet<UninterestingPostCause> UninterestingPostCauses { get; set; }
         public DbSet<UserChat> UsersChats { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<UserSubscription> UserSubscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -80,12 +82,12 @@ namespace Glowee.Persistence.DbContext
         {
             foreach (var entry in base.ChangeTracker.Entries<IEntity>().Where(q => q.State == EntityState.Added || q.State == EntityState.Modified))
             {
-                entry.Entity.ModifiedAt = DateTime.UtcNow;
-
                 if (entry.State == EntityState.Added)
                 {
                     entry.Entity.CreatedAt = DateTime.UtcNow;
                 }
+
+                entry.Entity.ModifiedAt = DateTime.UtcNow;
             }
 
             return base.SaveChangesAsync(cancellationToken);

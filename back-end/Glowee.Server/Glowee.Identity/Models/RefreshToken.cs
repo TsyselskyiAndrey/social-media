@@ -6,7 +6,7 @@ namespace Glowee.Identity.Models
     {
         public long Id { get; set; }
         public long UserId { get; set; }
-        public ApplicationUser User { get; set; }
+        public AuthUser User { get; set; }
         public string DeviceId { get; set; } = string.Empty;
         public string Token { get; set; } = string.Empty;
         public DateTime ExpiryTime { get; set; }

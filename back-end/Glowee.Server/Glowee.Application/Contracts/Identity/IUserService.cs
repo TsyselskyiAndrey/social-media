@@ -1,11 +1,11 @@
-﻿namespace Glowee.Application.Contracts.Identity
+﻿using Glowee.Application.Models.Identity.UserService;
+using Glowee.Domain.Entities.Users;
+
+namespace Glowee.Application.Contracts.Identity
 {
     public interface IUserService
     {
-        //UserRepository
-        //UserManager
-
-        //CreateUser
-        //UpdateProfile
+        Task<UserId> CreateAsync(UserModel userModel);
+        Task UpdateAsync(UserModel userModel, UserId userId);
     }
 }

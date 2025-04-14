@@ -1,5 +1,5 @@
 ﻿using Glowee.Application.Contracts.Identity;
-using Glowee.Application.Models.Identity;
+using Glowee.Application.Models.Identity.Settings;
 using Glowee.Identity.DbContext;
 using Glowee.Identity.Models;
 using Glowee.Identity.Services;
@@ -18,13 +18,17 @@ namespace Glowee.Identity
         public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+            services.Configure<GoogleSettings>(configuration.GetSection("GoogleAuthentication"));
+            services.Configure<FacebookSettings>(configuration.GetSection("FacebookAuthentication"));
+            services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+            services.AddScoped<IFacebookAuthService, FacebookAuthService>();
 
             var connectionString = configuration.GetConnectionString("DefaultConnection")
                                            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
             services.AddDbContext<AuthenticationDbContext>(options => options.UseSqlServer(connectionString));
 
-            services.AddIdentity<ApplicationUser, IdentityRole<long>>(options =>
+            services.AddIdentity<AuthUser, IdentityRole<long>>(options =>
             {
                 options.SignIn.RequireConfirmedEmail = true;
                 options.User.RequireUniqueEmail = true;
@@ -39,6 +43,7 @@ namespace Glowee.Identity
             .AddDefaultTokenProviders();
 
             services.AddTransient<IAuthService, AuthService>();
+            services.AddTransient<IUserService, UserService>();
 
             services.AddAuthentication(options =>
             {
@@ -62,12 +67,10 @@ namespace Glowee.Identity
                 };
             });
 
-            //.AddGoogle(googleOptions =>
-            // {
-            //     googleOptions.ClientId = builder.Configuration["GoogleAuthentication:ClientId"];
-            //     googleOptions.ClientSecret = builder.Configuration["GoogleAuthentication:ClientSecret"];
-            //     googleOptions.CallbackPath = "/signin-google";
-            // });
+            services.AddHttpClient("Facebook", c =>
+            {
+                c.BaseAddress = new Uri(configuration.GetValue<string>("FacebookAuthentication:BaseUrl") ?? "");
+            });
 
             return services;
         }

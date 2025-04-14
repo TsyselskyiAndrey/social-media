@@ -35,7 +35,7 @@ namespace Glowee.Persistence.Configurations
 
             builder.Property(c => c.UserName)
                    .IsRequired()
-                   .HasMaxLength(50);
+                   .HasMaxLength(511);
 
             builder.HasIndex(c => c.UserName, "IX_Users_Handle")
                    .IsUnique();
@@ -43,10 +43,6 @@ namespace Glowee.Persistence.Configurations
             builder.Property(c => c.Biography)
                    .IsRequired(false)
                    .HasMaxLength(1024);
-
-            builder.Property(u => u.BannedUntil)
-                   .IsRequired()
-                   .HasDefaultValueSql("'0001-01-01T00:00:00.000'");
 
             builder.Property(c => c.ProfileImageUrl)
                    .IsRequired(false)
