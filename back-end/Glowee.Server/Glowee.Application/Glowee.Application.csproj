@@ -9,6 +9,9 @@
   <ItemGroup>
     <Folder Include="Contracts\Email\" />
     <Folder Include="Contracts\Logging\" />
+    <Folder Include="Features\Message\Commands\" />
+    <Folder Include="Features\Message\Queries\" />
+    <Folder Include="Features\Post\Commands\Comments\" />
     <Folder Include="Contracts\Storage\" />
     <Folder Include="Features\" />
   </ItemGroup>

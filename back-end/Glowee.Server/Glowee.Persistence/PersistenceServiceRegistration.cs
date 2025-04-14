@@ -1,9 +1,9 @@
 ﻿using Glowee.Application.Contracts.Persistence;
+using Glowee.Persistence.DbContext;
 using Glowee.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SocialMediaGloweeServer.Data;
 
 namespace Glowee.Persistence
 {

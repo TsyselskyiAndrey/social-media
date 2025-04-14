@@ -1,5 +1,6 @@
 ﻿using Glowee.Application.Contracts.Persistence;
 using Glowee.Domain.Entities.Users;
+
 using SocialMediaGloweeServer.Data;
 
 namespace Glowee.Persistence.Repositories
