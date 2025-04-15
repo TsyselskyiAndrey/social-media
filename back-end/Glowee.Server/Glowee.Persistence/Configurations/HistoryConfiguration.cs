@@ -11,7 +11,8 @@ namespace Glowee.Persistence.Configurations
             builder.HasKey(h => h.Id);
 
             builder.Property(h => h.Id)
-                   .HasConversion(id => id.Value, value => new(value));
+                   .HasConversion(id => id.Value, value => new(value))
+                   .ValueGeneratedOnAdd();
 
             builder.Property(h => h.CreatedAt)
                    .IsRequired()

@@ -11,7 +11,8 @@ namespace Glowee.Persistence.Configurations
             builder.HasKey(sp => sp.Id);
 
             builder.Property(sp => sp.Id)
-                   .HasConversion(id => id.Value, value => new(value));
+                   .HasConversion(id => id.Value, value => new(value))
+                   .ValueGeneratedOnAdd();
 
             builder.Property(sp => sp.CreatedAt)
                    .IsRequired()
@@ -36,10 +37,6 @@ namespace Glowee.Persistence.Configurations
                    .HasForeignKey(sp => sp.UserId)
                    .OnDelete(DeleteBehavior.Cascade)
                    .IsRequired();
-            
-            builder.Property(lp => lp.Id)
-                   .HasConversion(id => id.Value, value => new(value))
-                   .ValueGeneratedOnAdd();
         }
     }
 }

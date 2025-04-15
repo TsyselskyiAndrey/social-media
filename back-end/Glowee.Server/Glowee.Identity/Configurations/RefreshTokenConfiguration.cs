@@ -10,6 +10,9 @@ namespace Glowee.Identity.Configurations
         {
             builder.HasKey(rt => rt.Id);
 
+            builder.Property(rt => rt.Id)
+                   .ValueGeneratedOnAdd();
+
             builder.Property(rt => rt.CreatedAt)
                    .IsRequired()
                    .HasDefaultValueSql("getdate()");
