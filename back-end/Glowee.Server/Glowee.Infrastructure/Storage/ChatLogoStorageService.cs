@@ -23,6 +23,10 @@ namespace Glowee.Infrastructure.Storage
 
         public string GetChatLogoUrl(string blobName)
         {
+            if (blobName == _defaultFiles.DefaultChatLogo)
+            {
+                throw new InternalServerException();
+            }
             return _blobStorageService.GetBlobUrl(BlobContainerType.ChatLogos, blobName);
         }
 

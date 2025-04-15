@@ -102,11 +102,10 @@ namespace Glowee.Identity.Services
                         LastName = userInfo.LastName,
                         BirthDate = null,
                         Biography = null,
-                        ProfileImageUrl = "DefaultImage.png" // TODO Скачать фотку из файсбука на Ажур или Добавить ссылку на дефолтную аватарку когда Azure подключим.
+                        ProfileImageUrl = _defaultFiles.DefaultProfilePicture
                     };
 
                     var userId = await _userService.CreateAsync(userModel);
-
                     authUser = await _userManager.FindByIdAsync(userId.Value.ToString());
 
                     if (authUser == null)
@@ -115,6 +114,7 @@ namespace Glowee.Identity.Services
                     }
 
                     await _userManager.AddLoginAsync(authUser, info);
+                    await TrySetExternalProfileImageAsync(userId, userInfo.Picture.Data.Url.AbsoluteUri, "facebook_profile.jpg");
                 }
                 else if (authUser.EmailConfirmed == false)
                 {
@@ -127,12 +127,12 @@ namespace Glowee.Identity.Services
                         LastName = userInfo.LastName,
                         BirthDate = null,
                         Biography = null,
-                        ProfileImageUrl = "DefaultImage.png" // TODO Скачать фотку из Фейсбука на Ажур или Добавить ссылку на дефолтную аватарку когда Azure подключим.
+                        ProfileImageUrl = _defaultFiles.DefaultProfilePicture
                     };
 
                     await _userService.UpdateAsync(userModel, new UserId(authUser.Id));
-
                     await _userManager.AddLoginAsync(authUser, info);
+                    await TrySetExternalProfileImageAsync(new UserId(authUser.Id), userInfo.Picture.Data.Url.AbsoluteUri, "facebook_profile.jpg");
                 }
                 else
                 {
@@ -182,11 +182,10 @@ namespace Glowee.Identity.Services
                         LastName = payload.FamilyName,
                         BirthDate = null,
                         Biography = null,
-                        ProfileImageUrl = "DefaultImage.png" // TODO Скачать фотку из гугл на Ажур или Добавить ссылку на дефолтную аватарку когда Azure подключим.
+                        ProfileImageUrl = _defaultFiles.DefaultProfilePicture
                     };
 
                     var userId = await _userService.CreateAsync(userModel);
-
                     authUser = await _userManager.FindByIdAsync(userId.Value.ToString());
 
                     if (authUser == null)
@@ -195,6 +194,7 @@ namespace Glowee.Identity.Services
                     }
 
                     await _userManager.AddLoginAsync(authUser, info);
+                    await TrySetExternalProfileImageAsync(userId, payload.Picture, "google_profile.jpg");
                 }
                 else if (authUser.EmailConfirmed == false)
                 {
@@ -207,12 +207,12 @@ namespace Glowee.Identity.Services
                         LastName = payload.FamilyName,
                         BirthDate = null,
                         Biography = null,
-                        ProfileImageUrl = "DefaultImage.png" // TODO Скачать фотку из гугл на Ажур или Добавить ссылку на дефолтную аватарку когда Azure подключим.
+                        ProfileImageUrl = _defaultFiles.DefaultProfilePicture
                     };
 
                     await _userService.UpdateAsync(userModel, new UserId(authUser.Id));
-
                     await _userManager.AddLoginAsync(authUser, info);
+                    await TrySetExternalProfileImageAsync(new UserId(authUser.Id), payload.Picture, "google_profile.jpg");
                 }
                 else
                 {
@@ -680,7 +680,7 @@ namespace Glowee.Identity.Services
                 LastName = user.LastName,
                 UserName = authUser.UserName ?? "",
                 Email = authUser.Email ?? "",
-                ProfileImageUrl = user.ProfileImagePath,
+                ProfileImageUrl = _profileImageStorageService.GetProfileImageUrl(user.ProfileImagePath ?? _defaultFiles.DefaultProfilePicture),
                 Roles = await _userManager.GetRolesAsync(authUser),
                 Token = accessToken
             };
@@ -839,6 +839,34 @@ namespace Glowee.Identity.Services
             {
                 throw new UnauthorizedAccessException("Token validation failed");
             }
+        }
+
+        private async Task<string> DownloadAndUploadProfileImageFromUrlAsync(string imageUrl, string fileName, UserId userId)
+        {
+            using var httpClient = new HttpClient();
+            using var response = await httpClient.GetAsync(imageUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new BadRequestException("Unable to download image from external provider.");
+            }
+
+            await using var imageStream = await response.Content.ReadAsStreamAsync();
+            return await _profileImageStorageService.UploadProfileImageAsync(imageStream, fileName, userId);
+        }
+
+        private async Task TrySetExternalProfileImageAsync(UserId userId, string? imageUrl, string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(imageUrl))
+                return;
+
+            try
+            {
+                var uploadedPath = await DownloadAndUploadProfileImageFromUrlAsync(imageUrl, fileName, userId);
+                await _userRepository.UpdateProfileImageAsync(userId, uploadedPath);
+            }
+            catch
+            { }
         }
 
         private string GenerateConfirmationCode()

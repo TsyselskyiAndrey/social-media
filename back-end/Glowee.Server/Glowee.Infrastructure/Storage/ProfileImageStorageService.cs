@@ -28,6 +28,10 @@ namespace Glowee.Infrastructure.Storage
 
         public async Task RemoveProfileImageAsync(string blobName)
         {
+            if (blobName == _defaultFiles.DefaultProfilePicture)
+            {
+                throw new InternalServerException();
+            }
             await _blobStorageService.RemoveBlobAsync(BlobContainerType.ProfileImages, blobName);
         }
 
