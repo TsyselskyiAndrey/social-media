@@ -42,9 +42,9 @@ public class GenericRepository<TEntity, TKey> :
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(TEntity entity)
+    public async Task DeleteAsync(TKey key)
     {
-        var trackedEntity = await _context.Set<TEntity>().FindAsync(entity.Id);
+        var trackedEntity = await _context.Set<TEntity>().FindAsync(key);
         if (trackedEntity is not null)
         {
             _context.Remove(trackedEntity);

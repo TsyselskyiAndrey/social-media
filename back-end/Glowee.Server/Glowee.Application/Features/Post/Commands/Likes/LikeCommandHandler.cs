@@ -21,7 +21,7 @@ public class LikeCommandHandler : IRequestHandler<LikeCommand, bool>
     /// <param name="likeRepository">Repository for accessing liked posts.</param>
     /// <param name="postRepository">Repository for accessing posts.</param>
     /// <param name="userRepository">Repository for accessing users.</param>
-    public LikeCommandHandler(ILikeRepository likeRepository, 
+    public LikeCommandHandler(ILikeRepository likeRepository,
      IPostRepository postRepository, IUserRepository userRepository)
     {
         _likedPostsRepository = likeRepository;
@@ -39,7 +39,7 @@ public class LikeCommandHandler : IRequestHandler<LikeCommand, bool>
     public async Task<bool> Handle(LikeCommand request, CancellationToken cancellationToken)
     {
         _postRepository.PostExists(request.PostId);
-        
+
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
         {
@@ -56,11 +56,11 @@ public class LikeCommandHandler : IRequestHandler<LikeCommand, bool>
                 PostId = request.PostId,
                 UserId = request.UserId,
             });
-            
+
             return true;
         }
-        await _likedPostsRepository.DeleteAsync(postLike);
-        
+        await _likedPostsRepository.DeleteAsync(postLike.Id);
+
         return false;
     }
 }

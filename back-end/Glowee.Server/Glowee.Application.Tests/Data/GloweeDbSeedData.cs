@@ -18,7 +18,7 @@ public static class GloweeDbSeedData
     public static async Task SeedData(this SqlDbContext context)
     {
         // Надо потом добавить пользователей, и внести их в контекст
-        
+
         if (!context.Posts.Any())
         {
             var posts = new List<Post>
@@ -96,7 +96,7 @@ public static class GloweeDbSeedData
             };
             context.Posts.AddRange(posts);
         }
-        
+
         if (!context.PostTypes.Any())
         {
             var postTypes = new List<PostType>
@@ -130,7 +130,7 @@ public static class GloweeDbSeedData
 
             context.PostTypes.AddRange(postTypes);
         }
-        
+
         if (!context.Tags.Any())
         {
             var tags = new List<Tag>
@@ -164,7 +164,7 @@ public static class GloweeDbSeedData
 
             context.Tags.AddRange(tags);
         }
-        
+
         if (!context.SavedPosts.Any())
         {
             var savedPosts = new List<SavedPost>
@@ -203,7 +203,7 @@ public static class GloweeDbSeedData
 
             context.SavedPosts.AddRange(savedPosts);
         }
-        
+
         if (!context.PostMedias.Any())
         {
             var postMediaTypes = new List<PostMediaType>
@@ -221,7 +221,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(1),
                     PostId = new PostId(1),
-                    MediaUrl = "https://example.com/media1.jpg",
+                    MediaPath = "https://example.com/media1.jpg",
                     PostMediaTypeId = new PostMediaTypeId(1),
                     Format = "jpg",
                     Size = 1024,
@@ -232,7 +232,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(2),
                     PostId = new PostId(1),
-                    MediaUrl = "https://example.com/media2.jpg",
+                    MediaPath = "https://example.com/media2.jpg",
                     PostMediaTypeId = new PostMediaTypeId(1),
                     Format = "jpg",
                     Size = 2048,
@@ -243,7 +243,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(3),
                     PostId = new PostId(2),
-                    MediaUrl = "https://example.com/video1.mp4",
+                    MediaPath = "https://example.com/video1.mp4",
                     PostMediaTypeId = new PostMediaTypeId(2),
                     Format = "mp4",
                     Size = 4096,
@@ -254,7 +254,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(4),
                     PostId = new PostId(3),
-                    MediaUrl = "https://example.com/media3.jpg",
+                    MediaPath = "https://example.com/media3.jpg",
                     PostMediaTypeId = new PostMediaTypeId(1),
                     Format = "jpg",
                     Size = 512,
@@ -265,7 +265,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(5),
                     PostId = new PostId(4),
-                    MediaUrl = "https://example.com/video2.mp4",
+                    MediaPath = "https://example.com/video2.mp4",
                     PostMediaTypeId = new PostMediaTypeId(2),
                     Format = "mp4",
                     Size = 8192,
@@ -276,7 +276,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(6),
                     PostId = new PostId(5),
-                    MediaUrl = "https://example.com/media4.jpg",
+                    MediaPath = "https://example.com/media4.jpg",
                     PostMediaTypeId = new PostMediaTypeId(1),
                     Format = "jpg",
                     Size = 1024,
@@ -287,7 +287,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(7),
                     PostId = new PostId(6),
-                    MediaUrl = "https://example.com/media5.jpg",
+                    MediaPath = "https://example.com/media5.jpg",
                     PostMediaTypeId = new PostMediaTypeId(1),
                     Format = "jpg",
                     Size = 2048,
@@ -298,7 +298,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(8),
                     PostId = new PostId(7),
-                    MediaUrl = "https://example.com/video3.mp4",
+                    MediaPath = "https://example.com/video3.mp4",
                     PostMediaTypeId = new PostMediaTypeId(2),
                     Format = "mp4",
                     Size = 10240,
@@ -309,7 +309,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(9),
                     PostId = new PostId(8),
-                    MediaUrl = "https://example.com/media6.jpg",
+                    MediaPath = "https://example.com/media6.jpg",
                     PostMediaTypeId = new PostMediaTypeId(1),
                     Format = "jpg",
                     Size = 512,
@@ -320,7 +320,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(10),
                     PostId = new PostId(9),
-                    MediaUrl = "https://example.com/video4.mp4",
+                    MediaPath = "https://example.com/video4.mp4",
                     PostMediaTypeId = new PostMediaTypeId(2),
                     Format = "mp4",
                     Size = 16384,
@@ -331,7 +331,7 @@ public static class GloweeDbSeedData
                 {
                     Id = new PostMediaId(11),
                     PostId = new PostId(10),
-                    MediaUrl = "https://example.com/audio1.mp3",
+                    MediaPath = "https://example.com/audio1.mp3",
                     PostMediaTypeId = new PostMediaTypeId(3),
                     Format = "mp3",
                     Size = 5120,
@@ -429,13 +429,13 @@ public static class GloweeDbSeedData
                 }
             };
         }
-        
+
         // Зачем поле IsLiked если потом постоянно надо будет создавать , можно проверять по наличию
         if (!context.CommentStatuses.Any())
         {
-            
+
         }
-        
+
         await context.SaveChangesAsync();
     }
 }

@@ -20,6 +20,7 @@ namespace Glowee.Identity
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
             services.Configure<GoogleSettings>(configuration.GetSection("GoogleAuthentication"));
             services.Configure<FacebookSettings>(configuration.GetSection("FacebookAuthentication"));
+            services.Configure<AuthSettings>(configuration.GetSection("AuthSettings"));
             services.AddScoped<IGoogleAuthService, GoogleAuthService>();
             services.AddScoped<IFacebookAuthService, FacebookAuthService>();
 

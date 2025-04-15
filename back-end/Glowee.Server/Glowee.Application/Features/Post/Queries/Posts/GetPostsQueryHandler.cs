@@ -1,7 +1,7 @@
-﻿using Glowee.Application.Contracts.Persistence;
+﻿using Glowee.Application.Contracts.Identity;
+using Glowee.Application.Contracts.Mappers;
+using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Features.Post.GeneralDto;
-using Glowee.Application.Features.Post.Queries.SavedPosts;
-using Glowee.Application.MappingProfiles;
 using MediatR;
 
 namespace Glowee.Application.Features.Post.Queries.Posts;
@@ -9,12 +9,14 @@ namespace Glowee.Application.Features.Post.Queries.Posts;
 public class GetPostsQueryHandler : IRequestHandler<GetPostsQuery, IEnumerable<PostDto>>
 {
     private readonly IPostRepository _postRepository;
+    private readonly IPostMapper _postMapper;
 
-    public GetPostsQueryHandler(IPostRepository postRepository)
+    public GetPostsQueryHandler(IPostRepository postRepository, IPostMapper postMapper, IUserService userService)
     {
         _postRepository = postRepository;
+        _postMapper = postMapper;
     }
-    
+
     public async Task<IEnumerable<PostDto>> Handle(GetPostsQuery request, CancellationToken cancellationToken)
     {
         var postsQuery = await _postRepository
@@ -39,11 +41,13 @@ public class GetPostsQueryHandler : IRequestHandler<GetPostsQuery, IEnumerable<P
             }
         }
 
+        //TODO Заметил что ты передаешь UserId в реквесте, но у нас он будет браться из токена через UserService (если оно сработает). Глянь как я сделал в Queries >> Comments >> GetPostCommentsQueryHandler.cs
+
         var posts = postsQuery
             .OrderByDescending(p => p.Id.Value)
             .Take(request.PostsAmount)
-            .Select(x => x.MapPostToPostDto());
-        
+            .Select(x => _postMapper.MapPostToPostDtoAsync(x, request.UserId));
+
         return posts;
     }
 }

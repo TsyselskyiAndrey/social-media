@@ -28,7 +28,7 @@ public class SavedPostHandlerCommand : IRequestHandler<SavedPostCommand, bool>
         _postRepository = postRepository;
         _userRepository = userRepository;
     }
-    
+
     /// <summary>
     /// Handles the save/unsaved post logic.
     /// </summary>
@@ -39,7 +39,7 @@ public class SavedPostHandlerCommand : IRequestHandler<SavedPostCommand, bool>
     public async Task<bool> Handle(SavedPostCommand request, CancellationToken cancellationToken)
     {
         _postRepository.PostExists(request.PostId);
-        
+
         var user = await _userRepository.GetByIdAsync(request.UserId);
         if (user == null)
         {
@@ -56,11 +56,11 @@ public class SavedPostHandlerCommand : IRequestHandler<SavedPostCommand, bool>
                 PostId = request.PostId,
                 UserId = request.UserId,
             });
-            
+
             return true;
         }
-        await _savedPostRepository.DeleteAsync(postLike);
-        
+        await _savedPostRepository.DeleteAsync(postLike.Id);
+
         return false;
     }
 }

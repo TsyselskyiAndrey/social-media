@@ -15,6 +15,7 @@ namespace Glowee.Application.Contracts.Identity
         Task<CompleteAuthResponse> Login(LogInRequest request);
         Task<RegistrationStep1Response> RegistrationStep1(RegistrationStep1Request request);
         Task RegistrationStep2(RegistrationStep2Request request, string? registrationToken);
+        Task<ProfilePictureUploadResponse> UploadProfilePicture(ProfilePictureUploadRequest request, string? registrationToken);
         Task RegistrationStep3(RegistrationStep3Request request, string? registrationToken);
         Task<CompleteAuthResponse> RefreshToken(RefreshTokenRequest request, string? refreshToken);
         Task Logout(ClaimsPrincipal userPrincipal);

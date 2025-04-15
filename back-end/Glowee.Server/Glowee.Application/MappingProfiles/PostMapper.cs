@@ -1,21 +1,25 @@
-﻿using Glowee.Application.Features.Post.GeneralDto;
-using Glowee.Application.Features.Post.Queries.Comments;
-using Glowee.Application.Features.Post.Queries.SavedPosts;
-using Glowee.Domain.Entities.Comments;
-using Glowee.Domain.Entities.LikedPosts;
-using Glowee.Domain.Entities.PostMedias;
+﻿using Glowee.Application.Contracts.Mappers;
+using Glowee.Application.Contracts.Storage;
+using Glowee.Application.Features.Post.GeneralDto;
 using Glowee.Domain.Entities.Posts;
-using Glowee.Domain.Entities.SavedPosts;
-using Glowee.Domain.Entities.Tags;
-using Glowee.Domain.Entities.UninterestingPosts;
+using Glowee.Domain.Entities.Users;
 
 namespace Glowee.Application.MappingProfiles;
 
-public static class PostMapper
+public class PostMapper : IPostMapper
 {
-    public static PostDto MapPostToPostDto(this Post post)
+    private readonly IThumbnailStorageService _thumbnailStorageService;
+    private readonly IPostMediaStorageService _postMediaStorageService;
+
+    public PostMapper(IThumbnailStorageService thumbnailStorageService, IPostMediaStorageService postMediaStorageService)
     {
-        return new PostDto
+        _thumbnailStorageService = thumbnailStorageService;
+        _postMediaStorageService = postMediaStorageService;
+    }
+
+    public PostDto MapPostToPostDtoAsync(Post post, UserId? currentUserId)
+    {
+        var dto = new PostDto
         {
             Id = post.Id.Value,
             UserId = post.UserId.Value,
@@ -23,41 +27,31 @@ public static class PostMapper
             PostType = post.PostType.Name,
             Likes = post.LikedPosts.Count,
             Views = post.Histories.Count,
-            IsLiked = post.LikedPosts.Any(x => x.UserId == post.UserId),
-            IsSaved = post.SavedPosts.Any(x => x.UserId == post.UserId),
-            IsUninteresting = post.UninterestingPosts.Any(x => x.UserId == post.UserId),
+            IsLiked = post.LikedPosts.Any(x => x.UserId == currentUserId),
+            IsSaved = post.SavedPosts.Any(x => x.UserId == currentUserId),
+            IsUninteresting = post.UninterestingPosts.Any(x => x.UserId == currentUserId),
             Tags = post.Tags.Select(x => x.Name).ToList(),
-            PostMediaDtos = post.PostMedias.Select(x => new PostMediaDto()
-            {
-                Id = x.Id.Value,
-                MediaUrl = x.MediaUrl,
-                PostMediaType = x.PostMediaType.Name,
-                ThumbnailUrl = x.ThumbnailUrl,
-                Duration = x.Duration,
-                Format = x.Format,
-                Size = x.Size,
-                IsUploaded = x.IsUploaded,
-                Position = x.Position,
-            }).ToList(),
+            PostMediaDtos = new List<PostMediaDto>()
         };
-    }
 
-    public static CommentDto MapCommentToCommentDto(this Comment comment)
-    {
-        var result = new CommentDto()
+        foreach (var media in post.PostMedias)
         {
-            Id = comment.Id.Value,
-            Content = comment.Content,
-            Author = new CommentUserDto()
+            dto.PostMediaDtos.Add(new PostMediaDto
             {
-                Id = comment.UserId.Value,
-                UserName = comment.User.UserName,
-                ProfileImageUrl = comment.User.ProfileImageUrl,
-            },
-            IsLiked = comment.CommentStatuses.Any(x => x.UserId == comment.UserId),
-            Likes = comment.CommentStatuses.Count(x => x.Comment.Id == comment.Id),
-        };
-        
-        return result;
-    }   
+                Id = media.Id.Value,
+                MediaUrl = _postMediaStorageService.GetPostMediaUrl(media.MediaPath),
+                ThumbnailUrl = media.ThumbnailPath != null
+                    ? _thumbnailStorageService.GetThumbnailUrl(media.ThumbnailPath)
+                    : null,
+                PostMediaType = media.PostMediaType.Name,
+                Duration = media.Duration,
+                Format = media.Format,
+                Size = media.Size,
+                IsUploaded = media.IsUploaded,
+                Position = media.Position
+            });
+        }
+
+        return dto;
+    }
 }

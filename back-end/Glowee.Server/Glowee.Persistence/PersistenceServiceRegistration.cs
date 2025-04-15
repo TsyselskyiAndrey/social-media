@@ -18,6 +18,13 @@ namespace Glowee.Persistence
             services.AddDbContext<SqlDbContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPostRepository, PostRepository>();
+            services.AddScoped<IPostMediaRepository, PostMediaRepository>();
+            services.AddScoped<ISavedPostRepository, SavedPostRepository>();
+            services.AddScoped<ICommentsRepository, CommentsRepository>();
+            services.AddScoped<ILikeRepository, LikeRepository>();
+            services.AddScoped<ITagRepository, TagRepository>();
+            services.AddScoped<IUninterestingPostRepository, UninterestingPostsRepository>();
 
             return services;
         }

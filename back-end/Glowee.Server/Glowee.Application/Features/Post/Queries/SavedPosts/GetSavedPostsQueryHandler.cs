@@ -1,7 +1,7 @@
-﻿using Glowee.Application.Contracts.Persistence;
+﻿using Glowee.Application.Contracts.Mappers;
+using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Exceptions;
 using Glowee.Application.Features.Post.GeneralDto;
-using Glowee.Application.MappingProfiles;
 
 using MediatR;
 
@@ -11,13 +11,15 @@ public class GetSavedPostsQueryHandler : IRequestHandler<GetSavedPostsQuery, IEn
 {
     private readonly ISavedPostRepository _savedPostRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IPostMapper _postMapper;
 
-    public GetSavedPostsQueryHandler(ISavedPostRepository savedPostRepository, IUserRepository userRepository)
+    public GetSavedPostsQueryHandler(ISavedPostRepository savedPostRepository, IUserRepository userRepository, IPostMapper postMapper)
     {
         _savedPostRepository = savedPostRepository;
         _userRepository = userRepository;
+        _postMapper = postMapper;
     }
-    
+
     public async Task<IEnumerable<PostDto>> Handle(GetSavedPostsQuery request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(request.UserId);
@@ -25,12 +27,13 @@ public class GetSavedPostsQueryHandler : IRequestHandler<GetSavedPostsQuery, IEn
         {
             throw new NotFoundException("User not found");
         }
-        
-        var userSavedPosts = await _savedPostRepository
-            .GetUserSavedPostsAsync(request.UserId);
-        
-        var result = userSavedPosts.Select(post => post.MapPostToPostDto()).ToList();
-    
+
+        var userSavedPosts = await _savedPostRepository.GetUserSavedPostsAsync(request.UserId);
+
+        //TODO Заметил что ты передаешь UserId в реквесте, но у нас он будет браться из токена через UserService (если оно сработает). Глянь как я сделал в Queries >> Comments >> GetPostCommentsQueryHandler.cs
+
+        var result = userSavedPosts.Select(post => _postMapper.MapPostToPostDtoAsync(post, request.UserId)).ToList();
+
         return result;
     }
 }

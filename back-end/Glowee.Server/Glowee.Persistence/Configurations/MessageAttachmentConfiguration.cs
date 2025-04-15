@@ -37,7 +37,7 @@ namespace Glowee.Persistence.Configurations
                    .OnDelete(DeleteBehavior.Restrict)  // We can't delete an attachment if its type has been deleted
                    .IsRequired();
 
-            builder.Property(ma => ma.MediaUrl)
+            builder.Property(ma => ma.MediaPath)
                    .IsRequired()
                    .HasMaxLength(512);
 
