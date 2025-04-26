@@ -16,11 +16,14 @@ public class CommentsRepository : GenericRepository<Comment, CommentId> , IComme
     public async Task<IEnumerable<Comment>> GetIncludedPostComments(PostId postId)
     {
         return await _context.Comments
-            .Where(x => x.PostId == postId)
+            .Where(x => x.PostId.Value == postId.Value && x.ParentCommentId == null)
+            .AsNoTracking()
             .Include(c => c.ChildComments)
+                 .ThenInclude(x => x.CommentStatuses)
+            .Include(c => c.ChildComments)
+                 .ThenInclude(x => x.User)
             .Include(c => c.CommentStatuses)
             .Include(c => c.User)
-            .AsNoTracking()
             .ToListAsync();
     }
 }

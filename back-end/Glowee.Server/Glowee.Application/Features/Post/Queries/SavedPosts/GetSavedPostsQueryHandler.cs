@@ -13,7 +13,8 @@ public class GetSavedPostsQueryHandler : IRequestHandler<GetSavedPostsQuery, IEn
     private readonly IUserRepository _userRepository;
     private readonly IPostMapper _postMapper;
 
-    public GetSavedPostsQueryHandler(ISavedPostRepository savedPostRepository, IUserRepository userRepository, IPostMapper postMapper)
+    public GetSavedPostsQueryHandler(ISavedPostRepository savedPostRepository
+        , IUserRepository userRepository, IPostMapper postMapper)
     {
         _savedPostRepository = savedPostRepository;
         _userRepository = userRepository;
@@ -29,10 +30,9 @@ public class GetSavedPostsQueryHandler : IRequestHandler<GetSavedPostsQuery, IEn
         }
 
         var userSavedPosts = await _savedPostRepository.GetUserSavedPostsAsync(request.UserId);
-
-        //TODO Заметил что ты передаешь UserId в реквесте, но у нас он будет браться из токена через UserService (если оно сработает). Глянь как я сделал в Queries >> Comments >> GetPostCommentsQueryHandler.cs
-
-        var result = userSavedPosts.Select(post => _postMapper.MapPostToPostDtoAsync(post, request.UserId)).ToList();
+        
+        var result = userSavedPosts
+            .Select(post => _postMapper.MapPostToPostDtoAsync(post, request.UserId)).ToList();
 
         return result;
     }
