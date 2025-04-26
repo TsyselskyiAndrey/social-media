@@ -11,7 +11,8 @@ public class PostMapper : IPostMapper
     private readonly IThumbnailStorageService _thumbnailStorageService;
     private readonly IPostMediaStorageService _postMediaStorageService;
 
-    public PostMapper(IThumbnailStorageService thumbnailStorageService, IPostMediaStorageService postMediaStorageService)
+    public PostMapper(IThumbnailStorageService thumbnailStorageService
+        , IPostMediaStorageService postMediaStorageService)
     {
         _thumbnailStorageService = thumbnailStorageService;
         _postMediaStorageService = postMediaStorageService;

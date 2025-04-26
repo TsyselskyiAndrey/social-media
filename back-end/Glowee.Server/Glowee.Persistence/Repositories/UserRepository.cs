@@ -2,6 +2,7 @@
 using Glowee.Application.Exceptions;
 using Glowee.Domain.Entities.Users;
 using Glowee.Persistence.DbContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace Glowee.Persistence.Repositories
 {

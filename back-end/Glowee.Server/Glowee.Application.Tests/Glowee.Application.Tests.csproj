@@ -21,6 +21,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Glowee.Application\Glowee.Application.csproj" />
+      <ProjectReference Include="..\Glowee.Identity\Glowee.Identity.csproj" />
       <ProjectReference Include="..\Glowee.Persistence\Glowee.Persistence.csproj" />
     </ItemGroup>
 

@@ -13,7 +13,9 @@ public class GetPostCommentsQueryHandler : IRequestHandler<GetPostCommentsQuery,
     private readonly ICommentMapper _commentMapper;
     private readonly IUserService _userService;
 
-    public GetPostCommentsQueryHandler(ICommentsRepository commentsRepository, IPostRepository postRepository, ICommentMapper commentMapper, IUserService userService)
+    public GetPostCommentsQueryHandler(ICommentsRepository commentsRepository
+        , IPostRepository postRepository, ICommentMapper commentMapper
+        , IUserService userService)
     {
         _commentsRepository = commentsRepository;
         _postRepository = postRepository;
@@ -31,7 +33,8 @@ public class GetPostCommentsQueryHandler : IRequestHandler<GetPostCommentsQuery,
             ? new UserId(Convert.ToInt64(_userService.UserId))
             : null;
 
-        var result = postComments.Select(x => _commentMapper.MapCommentToCommentDto(x, currentUserId));
+        var result = postComments
+            .Select(x => _commentMapper.MapCommentToCommentDto(x, currentUserId));
 
         return result;
     }

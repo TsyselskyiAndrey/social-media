@@ -1,5 +1,7 @@
 ﻿using Glowee.Domain.Entities.Comments;
+using Glowee.Domain.Entities.GeneralSettings;
 using Glowee.Domain.Entities.LikedPosts;
+using Glowee.Domain.Entities.NotificationSettings;
 using Glowee.Domain.Entities.PostMedias;
 using Glowee.Domain.Entities.PostMediaTypes;
 using Glowee.Domain.Entities.Posts;
@@ -17,8 +19,6 @@ public static class GloweeDbSeedData
 {
     public static async Task SeedData(this SqlDbContext context)
     {
-        // Надо потом добавить пользователей, и внести их в контекст
-
         if (!context.Posts.Any())
         {
             var posts = new List<Post>
@@ -398,6 +398,7 @@ public static class GloweeDbSeedData
                     PostId = new PostId(1),
                     UserId = new UserId(1),
                     Content = "IMPRESSIVE im really happy",
+                    ParentCommentId = null,
                 },
                 new Comment()
                 {
@@ -405,12 +406,14 @@ public static class GloweeDbSeedData
                     PostId = new PostId(1),
                     UserId = new UserId(2),
                     Content = "Bruh",
+                    ParentCommentId = null
                 },
                 new Comment()
                 {
                     Id = new CommentId(3),
                     PostId = new PostId(1),
                     UserId = new UserId(1),
+                    ParentCommentId = new CommentId(1),
                     Content = "Really bruh",
                 },
                 new Comment()
@@ -419,6 +422,7 @@ public static class GloweeDbSeedData
                     PostId = new PostId(2),
                     UserId = new UserId(3),
                     Content = "I am good",
+                    ParentCommentId = null
                 },
                 new Comment()
                 {
@@ -426,14 +430,101 @@ public static class GloweeDbSeedData
                     PostId = new PostId(2),
                     UserId = new UserId(5),
                     Content = "I am bad",
+                    ParentCommentId = null
                 }
             };
+            
+            context.Comments.AddRange(comments);
         }
 
-        // Зачем поле IsLiked если потом постоянно надо будет создавать , можно проверять по наличию
-        if (!context.CommentStatuses.Any())
+        if (!context.Users.Any())
         {
+            var users = new List<User>
+            {
+                new User
+                {
+                    Id = new UserId(1),
+                    FirstName = "John",
+                    LastName = "Doe",
+                    Email = "john.doe@example.com",
+                    UserName = "johndoe",
+                    BirthDate = new DateTime(1990, 5, 15),
+                    ProfileImagePath = "1"
+                },
+                new User
+                {
+                    Id = new UserId(2),
+                    FirstName = "Jane",
+                    LastName = "Smith",
+                    Email = "jane.smith@example.com",
+                    UserName = "janesmith",
+                    BirthDate = new DateTime(1995, 8, 22),
+                    ProfileImagePath = "2"
+                },
+                new User
+                {
+                    Id = new UserId(3), 
+                    FirstName = "Alice", 
+                    LastName = "Johnson", 
+                    Email = "alice.johnson@example.com", 
+                    UserName = "alicej", 
+                    BirthDate = new DateTime(1988, 4, 10), 
+                    ProfileImagePath = "3"
+                },
+                new User
+                {
+                    Id = new UserId(4), 
+                    FirstName = "Bob", 
+                    LastName = "Brown", 
+                    Email = "bob.brown@example.com", 
+                    UserName = "bobb", 
+                    BirthDate = new DateTime(1992, 6, 30), 
+                    ProfileImagePath = "4"
+                },
+                new User
+                {
+                    Id = new UserId(5), 
+                    FirstName = "Charlie", 
+                    LastName = "Davis", 
+                    Email = "charlie.davis@example.com", 
+                    UserName = "charlied", 
+                    BirthDate = new DateTime(1985, 9, 12), 
+                    ProfileImagePath = "5"
+                },
+            };
+            
+            context.Users.AddRange(users);
+        }
 
+        if (!context.GeneralSettings.Any())
+        {
+            var generalSettings = new GeneralSetting()
+            {
+                Id = new GeneralSettingId(1),
+                UserId = new UserId(1),
+                IsPrivate = false,
+                Language = "English",
+                Theme = "Light",
+            };
+            
+            context.GeneralSettings.Add(generalSettings);
+        }
+
+        if (!context.NotificationSettings.Any())
+        {
+            var notificationSettings = new NotificationSetting()
+            {
+                Id = new NotificationSettingId(1),
+                UserId = new UserId(1),
+                NotifyComments = true,
+                NotifyFollows = true,
+                NotifyMessages = true,
+                NotifyMentions = true,
+                NotifyPostLikes = true,
+                NotifyReplies = true,
+            };
+            
+            context.NotificationSettings.Add(notificationSettings);
         }
 
         await context.SaveChangesAsync();

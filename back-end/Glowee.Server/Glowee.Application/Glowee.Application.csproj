@@ -19,7 +19,6 @@
     <Folder Include="Contracts\Email\" />
     <Folder Include="Contracts\Logging\" />
     <Folder Include="Contracts\Storage\" />
-    <Folder Include="Features\" />
   </ItemGroup>
 
   <ItemGroup>

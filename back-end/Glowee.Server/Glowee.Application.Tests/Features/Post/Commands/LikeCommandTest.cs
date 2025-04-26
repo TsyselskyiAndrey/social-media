@@ -19,7 +19,7 @@ public class LikeCommandTest : IClassFixture<TestContext>
     private readonly SqlDbContext _context;
     private readonly IPostRepository _postRepository;
     private readonly ILikeRepository _likeRepository;
-    private readonly Mock<IUserRepository> _mockUserRepo;
+    private readonly IUserRepository _mockUserRepo;
 
     public LikeCommandTest(TestContext fixture)
     {
@@ -27,14 +27,14 @@ public class LikeCommandTest : IClassFixture<TestContext>
         _context.SeedData();
         _postRepository = new PostRepository(_context);
         _likeRepository = new LikeRepository(_context);
-        _mockUserRepo = MockUserRepository.GetMockUsersRepository();
+        _mockUserRepo = new UserRepository(_context);
     }
 
     [Theory]
     [MemberData(nameof(TestData.GetLikeCommandTestData), MemberType = typeof(TestData))]
     public async Task LikeCommand_Test(long postId, long userId, object expectedResult)
     {
-        var handler = new LikeCommandHandler(_likeRepository, _postRepository, _mockUserRepo.Object);
+        var handler = new LikeCommandHandler(_likeRepository, _postRepository, _mockUserRepo);
         var command = new LikeCommand(new PostId(postId), new UserId(userId));
         
         if (expectedResult is Type expectedException)
