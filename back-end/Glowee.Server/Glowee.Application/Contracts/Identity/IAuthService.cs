@@ -1,4 +1,5 @@
 ﻿using Glowee.Application.Models.Identity.FacebookAuth;
+using Glowee.Application.Models.Identity.ForgotPassword;
 using Glowee.Application.Models.Identity.General;
 using Glowee.Application.Models.Identity.GoogleAuth;
 using Glowee.Application.Models.Identity.LogIn;
@@ -18,6 +19,7 @@ namespace Glowee.Application.Contracts.Identity
         Task<ProfilePictureUploadResponse> UploadProfilePicture(ProfilePictureUploadRequest request, string? registrationToken);
         Task RegistrationStep3(RegistrationStep3Request request, string? registrationToken);
         Task<CompleteAuthResponse> RefreshToken(RefreshTokenRequest request, string? refreshToken);
+        Task ForgotPassword(ForgotPasswordRequest request);
         Task Logout(ClaimsPrincipal userPrincipal);
     }
 }

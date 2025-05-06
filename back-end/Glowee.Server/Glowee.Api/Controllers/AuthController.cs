@@ -1,5 +1,6 @@
 ﻿using Glowee.Application.Contracts.Identity;
 using Glowee.Application.Models.Identity.FacebookAuth;
+using Glowee.Application.Models.Identity.ForgotPassword;
 using Glowee.Application.Models.Identity.GoogleAuth;
 using Glowee.Application.Models.Identity.LogIn;
 using Glowee.Application.Models.Identity.RefreshToken;
@@ -137,6 +138,13 @@ namespace Glowee.Api.Controllers
             Response.Cookies.Append("refreshToken", completeAuthResponse.RefreshTokenResponse.Token, cookieOptions);
 
             return Ok(completeAuthResponse.AuthResponse);
+        }
+
+        [HttpPost("forgotpassword")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest forgotPasswordRequest)
+        {
+            await _authService.ForgotPassword(forgotPasswordRequest);
+            return Ok();
         }
 
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

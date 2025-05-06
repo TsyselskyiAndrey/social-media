@@ -6,6 +6,7 @@ using Glowee.Application.Contracts.Storage;
 using Glowee.Application.Exceptions;
 using Glowee.Application.Models.Email;
 using Glowee.Application.Models.Identity.FacebookAuth;
+using Glowee.Application.Models.Identity.ForgotPassword;
 using Glowee.Application.Models.Identity.General;
 using Glowee.Application.Models.Identity.GoogleAuth;
 using Glowee.Application.Models.Identity.LogIn;
@@ -19,6 +20,7 @@ using Glowee.Identity.DbContext;
 using Glowee.Identity.Models;
 using Glowee.Identity.Validators;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -436,7 +438,7 @@ namespace Glowee.Identity.Services
                 throw new InternalServerException();
             }
 
-            await SendConfirmationCodeByEmail(authUser.Email, code);
+            await SendConfirmationCodeByEmail(authUser.Email!, code);
         }
 
         public async Task<ProfilePictureUploadResponse> UploadProfilePicture(ProfilePictureUploadRequest request, string? registrationToken)
@@ -625,6 +627,47 @@ namespace Glowee.Identity.Services
             return await GenerateAuthResponse(authUser, deviceId);
         }
 
+        public async Task ForgotPassword(ForgotPasswordRequest request)
+        {
+            var validationResult = await new ForgotPasswordVaidator().ValidateAsync(request);
+
+            if (validationResult.Errors.Count != 0)
+            {
+                throw new BadRequestException("Invalid forgot password request", validationResult);
+            }
+
+            var authUser = await _userManager.FindByEmailAsync(request.Email);
+
+            if (authUser == null)
+            {
+                throw new NotFoundException($"The user ({request.Email}) was not found.");
+            }
+            if (authUser.EmailConfirmed == false)
+            {
+                throw new ForbiddenException("The email is not confirmed. Finish your registration");
+            }
+            if (string.IsNullOrWhiteSpace(authUser.PasswordHash))
+            {
+                var passwordValidationResult = new ValidationResult(new List<ValidationFailure>
+                {
+                    new ValidationFailure("Email", "The account was registered with an external provider. Try another way")
+                });
+
+                throw new BadRequestException("Invalid forgot password request", passwordValidationResult);
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(authUser);
+
+            var param = new Dictionary<string, string?>()
+            {
+                { "token", token },
+                { "email", request.Email }
+            };
+
+            var callback = QueryHelpers.AddQueryString(request.ClientUri, param);
+            await SendPasswordResetLinkByEmail(authUser.Email!, callback);
+        }
+
         public async Task Logout(ClaimsPrincipal userPrincipal)
         {
             string? email = userPrincipal.FindFirst(ClaimTypes.Email)?.Value;
@@ -661,8 +704,6 @@ namespace Glowee.Identity.Services
 
 
         }
-
-
 
         private async Task<CompleteAuthResponse> GenerateAuthResponse(AuthUser authUser, string deviceId)
         {
@@ -891,6 +932,34 @@ namespace Glowee.Identity.Services
                             <h3 style='color: #444;'>{confirmationCode}</h3>
                         </div>
                         <p style='font-size: 16px; color: #555;'>If you didn't request this, please ignore this email.</p>
+                        <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Application Team</p>
+                    </div>
+                </body>
+            </html>";
+
+            await _emailSender.SendEmailAsync(new EmailMessage()
+            {
+                To = toEmail,
+                Body = htmlBody,
+                Subject = subject,
+                IsBodyHtml = true
+            });
+        }
+
+        private async Task SendPasswordResetLinkByEmail(string toEmail, string resetLink)
+        {
+            string subject = "Password Reset Request";
+
+            string htmlBody = $@"
+            <html>
+                <body style='font-family: Arial, sans-serif;'>
+                    <div style='max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc;'>
+                        <h2 style='color: #333;'>Reset Your Password</h2>
+                        <p style='font-size: 16px; color: #555;'>We received a request to reset your password. Click the link below to choose a new password:</p>
+                        <div style='margin: 20px 0; text-align: center;'>
+                            <a href='{resetLink}' style='display: inline-block; padding: 12px 24px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; font-size: 16px;'>Reset Password</a>
+                        </div>
+                        <p style='font-size: 16px; color: #555;'>If you didn’t request a password reset, you can safely ignore this email.</p>
                         <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Application Team</p>
                     </div>
                 </body>
