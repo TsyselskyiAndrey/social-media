@@ -662,6 +662,8 @@ namespace Glowee.Identity.Services
 
         }
 
+
+
         private async Task<CompleteAuthResponse> GenerateAuthResponse(AuthUser authUser, string deviceId)
         {
             var accessToken = await GenerateJwtToken(authUser, _jwtSettings.AccessTokenValidityInMinutes, deviceId);

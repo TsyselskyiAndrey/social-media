@@ -1,6 +1,7 @@
 ﻿using Glowee.Application.Contracts.FileProcessing;
 using Glowee.Application.Exceptions;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
 
 namespace Glowee.Infrastructure.FileProcessing
@@ -26,7 +27,7 @@ namespace Glowee.Infrastructure.FileProcessing
                     .Resize(size, size));
 
                 var outputStream = new MemoryStream();
-                await image.SaveAsJpegAsync(outputStream);
+                await image.SaveAsJpegAsync(outputStream, new JpegEncoder { Quality = 90 });
                 outputStream.Position = 0;
 
                 return outputStream;
