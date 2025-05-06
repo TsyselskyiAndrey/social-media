@@ -147,6 +147,13 @@ namespace Glowee.Api.Controllers
             return Ok();
         }
 
+        [HttpPost("resetpassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest forgotPasswordRequest)
+        {
+            await _authService.ResetPassword(forgotPasswordRequest);
+            return Ok();
+        }
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()

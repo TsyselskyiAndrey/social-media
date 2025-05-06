@@ -20,6 +20,7 @@ namespace Glowee.Application.Contracts.Identity
         Task RegistrationStep3(RegistrationStep3Request request, string? registrationToken);
         Task<CompleteAuthResponse> RefreshToken(RefreshTokenRequest request, string? refreshToken);
         Task ForgotPassword(ForgotPasswordRequest request);
+        Task ResetPassword(ResetPasswordRequest request);
         Task Logout(ClaimsPrincipal userPrincipal);
     }
 }

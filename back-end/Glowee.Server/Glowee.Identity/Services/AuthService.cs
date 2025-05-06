@@ -668,6 +668,39 @@ namespace Glowee.Identity.Services
             await SendPasswordResetLinkByEmail(authUser.Email!, callback);
         }
 
+        public async Task ResetPassword(ResetPasswordRequest request)
+        {
+            var validationResult = await new ResetPasswordValidator().ValidateAsync(request);
+
+            if (validationResult.Errors.Count != 0)
+            {
+                throw new BadRequestException("Invalid reset password request", validationResult);
+            }
+
+            var authUser = await _userManager.FindByEmailAsync(request.Email);
+
+            if (authUser == null)
+            {
+                throw new NotFoundException($"The user ({request.Email}) was not found.");
+            }
+
+            var decodedToken = Uri.UnescapeDataString(request.Token);
+
+            var result = await _userManager.ResetPasswordAsync(authUser, decodedToken, request.Password);
+
+            if (!result.Succeeded)
+            {
+                var resultValidationFailures = result.Errors
+                    .Select(e => new ValidationFailure("ResetPassword", e.Description))
+                    .ToList();
+
+                var resultValidationResult = new ValidationResult(resultValidationFailures);
+
+                throw new BadRequestException("Reset password failed", resultValidationResult);
+            }
+
+        }
+
         public async Task Logout(ClaimsPrincipal userPrincipal)
         {
             string? email = userPrincipal.FindFirst(ClaimTypes.Email)?.Value;
@@ -932,7 +965,7 @@ namespace Glowee.Identity.Services
                             <h3 style='color: #444;'>{confirmationCode}</h3>
                         </div>
                         <p style='font-size: 16px; color: #555;'>If you didn't request this, please ignore this email.</p>
-                        <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Application Team</p>
+                        <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Glowee Team</p>
                     </div>
                 </body>
             </html>";
@@ -960,7 +993,7 @@ namespace Glowee.Identity.Services
                             <a href='{resetLink}' style='display: inline-block; padding: 12px 24px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; font-size: 16px;'>Reset Password</a>
                         </div>
                         <p style='font-size: 16px; color: #555;'>If you didn’t request a password reset, you can safely ignore this email.</p>
-                        <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Application Team</p>
+                        <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Glowee Team</p>
                     </div>
                 </body>
             </html>";
