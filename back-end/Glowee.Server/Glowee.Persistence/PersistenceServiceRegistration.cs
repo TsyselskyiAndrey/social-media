@@ -27,6 +27,11 @@ namespace Glowee.Persistence
             services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IUninterestingPostRepository, UninterestingPostsRepository>();
+            services.AddScoped<IFollowRepository, FollowRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<IReportRepository, ReportRepository>();
+            services.AddScoped<IRequestRepository, RequestRepository>();
 
             return services;
         }

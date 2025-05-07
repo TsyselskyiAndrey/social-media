@@ -43,7 +43,7 @@ namespace Glowee.Persistence.Configurations
             builder.HasOne(n => n.User)
                    .WithMany(u => u.NotificationsReceived)
                    .HasForeignKey(n => n.UserId)
-                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention
+                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention (Done)
                    .IsRequired();
 
             builder.Property(n => n.SenderId)

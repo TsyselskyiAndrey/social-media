@@ -7,10 +7,86 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Glowee.Persistence.Repositories;
 
-public class CommentsRepository : GenericRepository<Comment, CommentId> , ICommentsRepository
+public class CommentsRepository : GenericRepository<Comment, CommentId>, ICommentsRepository
 {
     public CommentsRepository(SqlDbContext context) : base(context)
     {
+    }
+
+    /// <summary>
+    /// This is the method that deletes a comment with all its child comments to prevent the cascade errror :)
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public override async Task DeleteAsync(CommentId id)
+    {
+        var toDelete = new List<Comment>();
+        var stack = new Stack<CommentId>();
+        stack.Push(id);
+
+        while (stack.Count > 0)
+        {
+            var currentId = stack.Pop();
+            var comment = await _context.Comments.FindAsync(currentId);
+            if (comment != null)
+            {
+                toDelete.Add(comment);
+                var childrenIds = await _context.Comments
+                    .Where(c => c.ParentCommentId == currentId)
+                    .Select(c => c.Id)
+                    .ToListAsync();
+
+                foreach (var childId in childrenIds)
+                {
+                    stack.Push(childId);
+                }
+            }
+        }
+
+        if (toDelete.Count > 0)
+        {
+            _context.Comments.RemoveRange(toDelete);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>
+    /// The method that deletes all comments below a particular post to avoid the cascade error
+    /// </summary>
+    /// <param name="postId"></param>
+    /// <returns></returns>
+    public async Task DeleteByPostIdAsync(PostId postId)
+    {
+        var rootComments = await _context.Comments
+            .Where(c => c.PostId == postId && c.ParentCommentId == null)
+            .ToListAsync();
+
+        foreach (var comment in rootComments)
+        {
+            await DeleteAsync(comment.Id);
+        }
+    }
+
+    /// <summary>
+    /// The method that deletes all comments written by a particular user to avoid the cascade error
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public async Task DeleteByUserIdAsync(UserId userId)
+    {
+        var userComments = await _context.Comments
+            .Where(c => c.UserId == userId)
+            .ToListAsync();
+
+        var topLevelComments = userComments
+            .Where(c => c.ParentCommentId == null ||
+                        !userComments.Any(parent => parent.Id == c.ParentCommentId))
+            .ToList();
+
+        foreach (var comment in topLevelComments)
+        {
+            await DeleteAsync(comment.Id);
+        }
     }
 
     public async Task<IEnumerable<Comment>> GetIncludedPostComments(PostId postId)

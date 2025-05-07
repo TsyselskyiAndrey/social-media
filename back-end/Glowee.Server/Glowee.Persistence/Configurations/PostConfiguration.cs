@@ -28,7 +28,7 @@ namespace Glowee.Persistence.Configurations
             builder.HasOne(p => p.User)
                    .WithMany(u => u.Posts)
                    .HasForeignKey(p => p.UserId)
-                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention
+                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention (Done)
                    .IsRequired();
 
             builder.Property(p => p.Caption)
