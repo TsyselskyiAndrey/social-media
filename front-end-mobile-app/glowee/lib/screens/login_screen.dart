@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:glowee/screens/register.dart';
 
 class LoginScreen extends StatefulWidget {
-  final VoidCallback show;
-  const LoginScreen(this.show, {super.key});
+  final VoidCallback? onSignUpTap;
+
+  const LoginScreen({this.onSignUpTap, super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
+
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController email = TextEditingController();
@@ -80,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
             style: TextStyle(fontSize: 14.sp, color: Colors.white),
           ),
           GestureDetector(
-            onTap: widget.show,
+            onTap: widget.onSignUpTap,
             child: Text(
               "reset it here!",
               style: TextStyle(
@@ -95,50 +98,33 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
 
-
-
   Widget _buildSignUpPrompt() {
-    return Align(
-      alignment: Alignment.bottomCenter, // Выравнивание внизу
-      child: Container(
-        constraints: BoxConstraints(maxWidth: 600),  // Ограничиваем максимальную ширину
-        width: double.infinity,  // Задаем ширину на весь экран
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2), // полупрозрачный белый
-          borderRadius: BorderRadius.circular(0.r),
-
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "Don't have an account?",
+          style: TextStyle(color: Colors.white),
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center, // Выравнивание текста по центру
-            children: [
-              Text(
-                "Don’t have an Account ? ",
-                style: TextStyle(fontSize: 14.sp, color: Colors.white),
-              ),
-              GestureDetector(
-                onTap: widget.show,
-                child: Text(
-                  "Sign up",
-                  style: TextStyle(
-                      fontSize: 15.sp,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
+        TextButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Register()),
+            );
+          },
+          child: Text(
+            "Sign up",
+            style: TextStyle(
+              fontSize: 23,
+              color: Colors.yellow,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
-
-
-
-
-
 
   Widget _buildLoginButton() {
     return Padding(
@@ -153,11 +139,11 @@ class _LoginScreenState extends State<LoginScreen> {
           width: double.infinity,
           height: 44.h,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2), // полупрозрачный белый
+            color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(10.r),
             border: Border.all(
-              color: Colors.white,
-              width: 2.w
+                color: Colors.white,
+                width: 2.w
             ),
           ),
           child: Text(
