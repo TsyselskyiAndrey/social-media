@@ -21,14 +21,13 @@ namespace Glowee.Api
 
             builder.Services.AddCors(options =>
             {
-                var allowedOrigins = new[] { "http://localhost:3000/" };
+                var allowedOrigins = new[] { "http://localhost:3000" };
                 options.AddPolicy("AllowAllOrigins", policy =>
                 {
                     policy.WithOrigins(allowedOrigins)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .AllowCredentials()
-                        .WithExposedHeaders("X-Token-Expired");
+                        .AllowCredentials();
                 });
             });
 

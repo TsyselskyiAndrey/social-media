@@ -12,7 +12,7 @@ namespace Glowee.Persistence.Configurations
 
             builder.Property(u => u.Id)
                    .HasConversion(id => id.Value, value => new(value))
-                   .ValueGeneratedOnAdd();
+                   .ValueGeneratedNever();
 
             builder.Property(u => u.CreatedAt)
                    .IsRequired()

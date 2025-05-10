@@ -296,17 +296,21 @@ namespace Glowee.Identity.Services
                 throw new BadRequestException("Invalid registration", userNameValidationResult);
             }
 
-            existingUser = await _userManager.FindByEmailAsync(request.Email);
-
-            if (existingUser != null && existingUser.EmailConfirmed)
+            if (existingUser == null)
             {
-                var emailValidationResult = new ValidationResult(new List<ValidationFailure>
-                {
-                    new ValidationFailure("Email", "This email has been taken.")
-                });
+                existingUser = await _userManager.FindByEmailAsync(request.Email);
 
-                throw new BadRequestException("Invalid registration", emailValidationResult);
+                if (existingUser != null && existingUser.EmailConfirmed)
+                {
+                    var emailValidationResult = new ValidationResult(new List<ValidationFailure>
+                    {
+                        new ValidationFailure("Email", "This email has been taken.")
+                    });
+
+                    throw new BadRequestException("Invalid registration", emailValidationResult);
+                }
             }
+
 
             string registrationToken = "";
 
@@ -608,7 +612,7 @@ namespace Glowee.Identity.Services
 
             if (authUser == null)
             {
-                throw new NotFoundException($"The user ('{email}') wasn't found.");
+                throw new UnauthorizedAccessException($"The user ('{email}') wasn't found.");
             }
 
             var existingRefreshToken = await _context.RefreshTokens
@@ -740,14 +744,16 @@ namespace Glowee.Identity.Services
 
         private async Task<CompleteAuthResponse> GenerateAuthResponse(AuthUser authUser, string deviceId)
         {
-            var accessToken = await GenerateJwtToken(authUser, _jwtSettings.AccessTokenValidityInMinutes, deviceId);
-            var refreshToken = await GenerateRefreshToken(authUser, deviceId);
             var user = await _userRepository.GetByIdAsync(new UserId(authUser.Id));
 
             if (user == null)
             {
                 throw new InternalServerException();
             }
+
+            var accessToken = await GenerateJwtToken(authUser, _jwtSettings.AccessTokenValidityInMinutes, deviceId);
+            var refreshToken = await GenerateRefreshToken(authUser, deviceId);
+
 
             var authResponse = new AuthResponse
             {
