@@ -7,13 +7,9 @@ namespace Glowee.Identity.Validators
     {
         public GoogleLoginValidator()
         {
-            RuleFor(r => r.Provider)
+            RuleFor(r => r.CodeOrIdToken)
                    .Cascade(CascadeMode.Stop)
-                   .NotEmpty().WithMessage("Provider is required");
-
-            RuleFor(r => r.IdToken)
-                   .Cascade(CascadeMode.Stop)
-                   .NotEmpty().WithMessage("IdToken is required");
+                   .NotEmpty().WithMessage("Code is required");
 
             RuleFor(r => r.DeviceId)
                    .Cascade(CascadeMode.Stop)

@@ -167,7 +167,7 @@ namespace Glowee.Identity.Services
             {
                 throw new BadRequestException("Google email is not verified.");
             }
-            var info = new UserLoginInfo(request.Provider, payload.Subject, request.Provider);
+            var info = new UserLoginInfo("Google", payload.Subject, "Google");
             var authUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
 
             if (authUser == null)
