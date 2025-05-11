@@ -2,6 +2,7 @@ import { FormControl } from "../../../Types/FormControl";
 import "./SignupPage.css";
 import logo from "../../../Assets/logo.png";
 import loadanimation from "../../../Assets/loadanimation.gif";
+import defaultProfilePicture from "../../../Assets/default_profile_picture.jpg";
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import validateControl from "../../../Utils/GeneralValidation";
@@ -146,8 +147,10 @@ export default function SignupPage() {
       },
     },
   ]);
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string>(defaultProfilePicture);
   const [isSubmitLoading, setIsSubmitLoading] = useState(false);
   const [selected, setSelected] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
 
   function IsFormValid(): boolean {
@@ -319,20 +322,91 @@ export default function SignupPage() {
     navigate("/login");
   }
 
+  function handleFileUpload(e: ChangeEvent<HTMLInputElement>): void {
+    if (isUploading) {
+      return;
+    }
+    const file = e.target.files?.[0];
+    if (file) {
+      uploadAvatar(file);
+    }
+  }
+
+  async function uploadAvatar(file: File): Promise<void> {
+    if (!file) {
+      alert("Please select a file!");
+      return;
+    }
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const response = await Agent.Auth.uploadAvatar(file);
+
+      if (response.status === 200) {
+        const result = response.data;
+        setProfilePictureUrl(result.profilePictureUrl);
+      } else {
+        alert("Error uploading file.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred.");
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
   return (
     <div className="authWindow">
       <div className="authContainer">
         <div className="logo ">
           <img src={logo} alt="logo" />
-          <p>Create An Account and Sign Up</p>
           <div className="dash"></div>
         </div>
+
         <form action="#" noValidate>
           <div className="pageSelector ">
             {Object.keys(formControls).map((cn, index) => {
               return <div key={`${index}_selector`} className={"selector " + (selected === index ? "active" : "")}></div>;
             })}
           </div>
+
+          {selected === 1 ? (
+            <div className="imageForm">
+              <label htmlFor="fileToUpload">
+                <div
+                  className={"profile-pic " + (isUploading ? "profile-pic-dark" : "")}
+                  style={{
+                    backgroundImage: `url(${profilePictureUrl})`,
+                  }}
+                >
+                  {isUploading ? (
+                    <img src={loadanimation} alt="loading..."></img>
+                  ) : (
+                    <>
+                      <span>📷</span>
+                      <span>Change Image</span>
+                    </>
+                  )}
+                </div>
+              </label>
+              <input type="file" name="fileToUpload" id="fileToUpload" onChange={handleFileUpload} />
+            </div>
+          ) : (
+            <></>
+          )}
+
+          {selected === 2 ? (
+            <div className={"verifyInfo "}>
+              <h2 style={{ textAlign: "center" }}>Verify your email!</h2>
+              <p style={{ textAlign: "center" }}>
+                We're sending a letter to your email with a code. You may need to check your spam or junk folder. Please enter the code below.
+              </p>
+            </div>
+          ) : (
+            <></>
+          )}
           {Object.keys(formControls[selected]).map((controlName, index) => {
             const control = formControls[selected][controlName];
             return (

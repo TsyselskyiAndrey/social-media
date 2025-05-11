@@ -1,15 +1,3 @@
-.signUpElemAnim {
-  filter: blur(10px);
-  right: -100%;
-  transition: right 1.1s ease, filter 1.1s ease, color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-}
-
-.signUpElem {
-  filter: blur(0px);
-  right: 0%;
-  transition: right 1.1s ease, filter 1.1s ease, color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-}
-
 .btnContainer {
   display: flex;
   position: relative;
@@ -62,4 +50,63 @@
 .selector.active {
   background-color: #118c8c;
   opacity: 1;
+}
+
+.verifyInfo {
+  position: relative;
+  width: 100%;
+  padding: 0px 35px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.profile-pic {
+  border-radius: 50%;
+  height: 120px;
+  width: 120px;
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: multiply;
+  text-align: center;
+  color: transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.profile-pic:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+}
+
+.profile-pic span {
+  color: inherit;
+  font-size: 14px;
+  display: block;
+  font-weight: 600;
+}
+
+.profile-pic span:first-child {
+  font-size: 18px;
+}
+
+form input[type="file"] {
+  display: none;
+}
+
+.authContainer .imageForm {
+  padding-top: 15px;
+  padding-bottom: 0;
+}
+
+.profile-pic img{
+  width: 100px;
+}
+
+.profile-pic-dark{
+  background-color: rgba(0, 0, 0, 0.5);
+  
 }

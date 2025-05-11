@@ -1,10 +1,10 @@
-.googleLogo {
+.externalServiceLogo {
   width: 37px;
   margin-right: 20px;
   margin-left: 5px;
 }
 
-.googleLogin {
+.externalServiceLogin {
   position: relative;
   width: 100%;
   max-width: 320px;
@@ -15,19 +15,20 @@
   display: flex;
   align-items: center;
   border: 2px solid rgb(28, 28, 28);
+  margin-bottom: 10px;
 }
-.googleLogin:disabled,
-.googleLogin[disabled] {
+.externalServiceLogin:disabled,
+.externalServiceLogin[disabled] {
   cursor: not-allowed;
   background-color: #e6e4e4;
   color: #6b6b6b;
 }
-.googleLogin:not(:disabled):hover {
+.externalServiceLogin:not(:disabled):hover {
   background-color: #e1e0e0;
   border: 2px solid black;
 }
 
-.googleLogin:not(:disabled):active {
+.externalServiceLogin:not(:disabled):active {
   background-color: whitesmoke;
 }
 
@@ -44,8 +45,6 @@
 }
 
 .line {
-  height: 50%;
   flex: 1;
   border-bottom: 2px solid #7a7a7a;
 }
-

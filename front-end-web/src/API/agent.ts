@@ -24,16 +24,20 @@ interface Step3Data {
   code: string;
 }
 
+interface UploadAvatarResponse {
+  profilePictureUrl: string;
+}
+
 const Auth = {
   login: (loginData: LoginData) =>
     axios.post<AuthResponse>("/api/auth/login", loginData, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
-  refreshToken: (token: string) =>
+  refreshToken: (accessToken: string) =>
     axios.post<AuthResponse>(
       "/api/auth/refresh-token",
-      { token },
+      { accessToken },
       {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
@@ -54,6 +58,17 @@ const Auth = {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
+  uploadAvatar: (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return axios.post<UploadAvatarResponse>("/api/auth/upload-profile-image", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+  },
 };
 
 const Agent = {

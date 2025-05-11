@@ -123,12 +123,6 @@ export default function Input(props: InputProps) {
   if (props.type === "code") {
     return (
       <>
-        <div className={"verifyInfo "}>
-          <h2 style={{ textAlign: "center" }}>Verify your email!</h2>
-          <p style={{ textAlign: "justify" }}>
-            We're sending a letter to your email with a code. You may need to check your spam or junk folder. Please enter the code below.
-          </p>
-        </div>
         <input type="hidden" id={id} name={props.name} value={props.value} readOnly></input>
         <div className={"codeContainer "}>
           {code.map((num, index) => (

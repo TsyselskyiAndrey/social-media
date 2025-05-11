@@ -18,36 +18,31 @@ const useRefreshToken = () => {
 
     isRefreshing = true; // Устанавливаем блокировку
 
-    refreshPromise = new Promise<AuthResponse | null>(
-      async (resolve, reject) => {
-        try {
-          console.log("refresh called");
-          const token = localStorage.getItem("accessToken");
+    refreshPromise = new Promise<AuthResponse | null>(async (resolve, reject) => {
+      try {
+        console.log("refresh called");
+        const token = localStorage.getItem("accessToken");
 
-          const response = await Agent.Auth.refreshToken(token || "");
+        const response = await Agent.Auth.refreshToken(token || "");
 
-          if (response.data.token) {
-            localStorage.setItem("accessToken", response.data.token);
-            resolve(response.data);
-          } else {
-            resolve(null);
-          }
-        } catch (error: unknown) {
-          if (axiosLib.isAxiosError(error)) {
-            console.error(
-              "Error during token refreshment:",
-              error.response?.data || error.message
-            );
-          } else {
-            console.error("Unexpected error:", error);
-          }
-          reject(error);
-        } finally {
-          isRefreshingRef.current = false;
-          refreshPromiseRef.current = null;
+        if (response.data.token) {
+          localStorage.setItem("accessToken", response.data.token);
+          resolve(response.data);
+        } else {
+          resolve(null);
         }
+      } catch (error: unknown) {
+        if (axiosLib.isAxiosError(error)) {
+          console.error("Error during token refreshment:", error.response?.data || error.message);
+        } else {
+          console.error("Unexpected error:", error);
+        }
+        reject(error);
+      } finally {
+        isRefreshingRef.current = false;
+        refreshPromiseRef.current = null;
       }
-    );
+    });
 
     return refreshPromiseRef.current;
   }, []);

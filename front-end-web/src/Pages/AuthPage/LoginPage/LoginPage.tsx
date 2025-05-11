@@ -7,7 +7,8 @@ import Input from "../../../Components/Input/Input";
 import validateControl from "../../../Utils/GeneralValidation";
 import Agent from "../../../API/agent";
 import "./LoginPage.css";
-import googleImage from "../../../Assets/google1.png";
+import googleImage from "../../../Assets/google.png";
+import facebookImage from "../../../Assets/facebook.png";
 import logo from "../../../Assets/logo.png";
 import loadanimation from "../../../Assets/loadanimation.gif";
 import "../CommonStyles.css";
@@ -182,7 +183,6 @@ export default function LoginPage() {
       <div className="authContainer">
         <div className="logo ">
           <img src={logo} alt="logo" />
-          <p>Log in to see photos and videos of your friends</p>
           <div className="dash"></div>
         </div>
         <form action="#" method="POST" onSubmit={handleSubmit} noValidate>
@@ -222,9 +222,14 @@ export default function LoginPage() {
             <div className="line"></div>
           </div>
 
-          <button type="button" className="googleLogin " disabled={isSubmitLoading ? true : false}>
-            <img src={googleImage} alt="" className="googleLogo" />
+          <button type="button" className="externalServiceLogin " disabled={isSubmitLoading ? true : false}>
+            <img src={googleImage} alt="" className="externalServiceLogo" />
             <p>Continue with Google</p>
+          </button>
+
+          <button type="button" className="externalServiceLogin " disabled={isSubmitLoading ? true : false}>
+            <img src={facebookImage} alt="" className="externalServiceLogo" />
+            <p>Continue with Facebook</p>
           </button>
         </form>
       </div>

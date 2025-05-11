@@ -102,14 +102,6 @@
   animation: shake 0.3s ease-in-out;
 }
 
-.verifyInfo {
-  position: relative;
-  width: 100%;
-  padding: 0px 35px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
-
 .codeContainer {
   position: relative;
   display: flex;

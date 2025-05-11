@@ -20,8 +20,8 @@
   position: relative;
   overflow: hidden;
   flex-direction: column;
-  min-height: 720px;
-  min-width: 500px;
+  height: 720px;
+  width: 500px;
   background-color: whitesmoke;
 }
 
