@@ -6,12 +6,19 @@ import { FormControl } from "../../../Types/FormControl";
 import Input from "../../../Components/Input/Input";
 import validateControl from "../../../Utils/GeneralValidation";
 import Agent from "../../../API/agent";
+import { useGoogleLogin } from "@react-oauth/google";
 import "./LoginPage.css";
 import googleImage from "../../../Assets/google.png";
 import facebookImage from "../../../Assets/facebook.png";
 import logo from "../../../Assets/logo.png";
 import loadanimation from "../../../Assets/loadanimation.gif";
 import "../CommonStyles.css";
+
+declare global {
+  interface Window {
+    FB: any;
+  }
+}
 
 interface LogInFormControls {
   login: FormControl;
@@ -173,6 +180,70 @@ export default function LoginPage() {
     }
   }
 
+  const handleGoogleLogin = useGoogleLogin({
+    flow: "auth-code",
+    onSuccess: async (codeResponse) => {
+      const code = codeResponse.code;
+      const response = await Agent.Auth.googleLogin({
+        codeOrIdToken: code,
+        deviceId: await getFingerprint(),
+        isMobile: false,
+      });
+
+      if (response.data.token) {
+        const { token, ...user } = response.data;
+        localStorage.setItem("accessToken", token);
+        setAuth(user);
+        navigate("/");
+      }
+    },
+    onError: (errorResponse) => {
+      console.error("Google login error:", errorResponse);
+    },
+  });
+
+  async function handleFacebookLogin() {
+    setIsSubmitLoading(true);
+    try {
+      window.FB.login(
+        (response: any) => {
+          if (response.authResponse) {
+            processFacebookLogin(response.authResponse);
+          } else {
+            console.error("Facebook login failed");
+            setIsSubmitLoading(false);
+          }
+        },
+        { scope: "email,public_profile" }
+      );
+    } catch (err) {
+      console.error("Facebook login error:", err);
+      setIsSubmitLoading(false);
+    }
+  }
+
+  async function processFacebookLogin(authResponse: any) {
+    try {
+      const accessToken = authResponse.accessToken;
+
+      const res = await Agent.Auth.facebookLogin({
+        accessToken,
+        deviceId: await getFingerprint(),
+      });
+
+      if (res.data.token) {
+        const { token, ...user } = res.data;
+        localStorage.setItem("accessToken", token);
+        setAuth(user);
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error during Facebook login:", error);
+    } finally {
+      setIsSubmitLoading(false);
+    }
+  }
+
   function handleLink(e: React.MouseEvent<HTMLAnchorElement>) {
     e.preventDefault();
     navigate("/signup");
@@ -222,12 +293,12 @@ export default function LoginPage() {
             <div className="line"></div>
           </div>
 
-          <button type="button" className="externalServiceLogin " disabled={isSubmitLoading ? true : false}>
+          <button type="button" className="externalServiceLogin" disabled={isSubmitLoading} onClick={() => handleGoogleLogin()}>
             <img src={googleImage} alt="" className="externalServiceLogo" />
             <p>Continue with Google</p>
           </button>
 
-          <button type="button" className="externalServiceLogin " disabled={isSubmitLoading ? true : false}>
+          <button type="button" className="externalServiceLogin" disabled={isSubmitLoading} onClick={handleFacebookLogin}>
             <img src={facebookImage} alt="" className="externalServiceLogo" />
             <p>Continue with Facebook</p>
           </button>

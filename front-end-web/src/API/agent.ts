@@ -7,6 +7,17 @@ interface LoginData {
   deviceId: string;
 }
 
+interface GoogleAuthData {
+  codeOrIdToken: string;
+  deviceId: string;
+  isMobile: boolean;
+}
+
+interface FacebookAuthData {
+  accessToken: string;
+  deviceId: string;
+}
+
 interface Step1Data {
   email: string;
   username: string;
@@ -31,6 +42,17 @@ interface UploadAvatarResponse {
 const Auth = {
   login: (loginData: LoginData) =>
     axios.post<AuthResponse>("/api/auth/login", loginData, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    }),
+  googleLogin: (data: GoogleAuthData) =>
+    axios.post<AuthResponse>("/api/auth/google-login", data, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    }),
+
+  facebookLogin: (data: FacebookAuthData) =>
+    axios.post<AuthResponse>("/api/auth/facebook-login", data, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
