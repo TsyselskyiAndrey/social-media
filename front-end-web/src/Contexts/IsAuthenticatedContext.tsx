@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useState,
-  useEffect,
-  ReactNode,
-  Dispatch,
-  SetStateAction,
-} from "react";
+import { createContext, useState, useEffect, ReactNode, Dispatch, SetStateAction } from "react";
 import useRefreshToken from "../Hooks/useRefreshToken";
 import { User } from "../Types/user";
 
@@ -20,9 +13,7 @@ export interface AuthContextType {
   setAuth: Dispatch<SetStateAction<User | null>>;
 }
 
-export const IsAuthenticatedContext = createContext<
-  AuthContextType | undefined
->(undefined);
+export const IsAuthenticatedContext = createContext<AuthContextType | undefined>(undefined);
 
 export function IsAuthenticatedProvider({ children }: Props) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -65,9 +56,5 @@ export function IsAuthenticatedProvider({ children }: Props) {
     setAuth,
   };
 
-  return (
-    <IsAuthenticatedContext.Provider value={contextValue}>
-      {children}
-    </IsAuthenticatedContext.Provider>
-  );
+  return <IsAuthenticatedContext.Provider value={contextValue}>{children}</IsAuthenticatedContext.Provider>;
 }
