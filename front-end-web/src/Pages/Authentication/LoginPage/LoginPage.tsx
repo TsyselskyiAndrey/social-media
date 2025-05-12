@@ -51,12 +51,6 @@ export default function LoginPage() {
       valid: false,
       validation: {
         required: true,
-        requireNums: true,
-        requireBothCases: true,
-        allowSpaces: false,
-        allowSymbols: false,
-        minLength: 12,
-        maxLength: 100,
       },
       touched: false,
       shake: false,
@@ -152,6 +146,18 @@ export default function LoginPage() {
         setAuth(null);
         if (!error?.response) {
           console.log("No Server Response");
+        } else if (error.response.status === 404) {
+          const formControlsCopy = { ...formControls };
+          formControlsCopy.login.valid = false;
+          formControlsCopy.login.errorMessage = "* The user was not found";
+          formControlsCopy.login.touched = true;
+          setFormControls(formControlsCopy);
+        } else if (error.response.status === 403) {
+          const formControlsCopy = { ...formControls };
+          formControlsCopy.login.valid = false;
+          formControlsCopy.login.errorMessage = "* Confirm your email first";
+          formControlsCopy.login.touched = true;
+          setFormControls(formControlsCopy);
         } else if (error.response?.status === 400) {
           const errorData = error.response.data;
           const formControlsCopy = {
@@ -244,9 +250,14 @@ export default function LoginPage() {
     }
   }
 
-  function handleLink(e: React.MouseEvent<HTMLAnchorElement>) {
+  function handleLinkSignUp(e: React.MouseEvent<HTMLAnchorElement>) {
     e.preventDefault();
     navigate("/signup");
+  }
+
+  function handleLinkForgotPassword(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault();
+    navigate("/forgotpassword");
   }
 
   return (
@@ -275,6 +286,12 @@ export default function LoginPage() {
               />
             );
           })}
+          <span className="linkText ">
+            Forgot your password?{" "}
+            <a className="link " href="" onClick={handleLinkForgotPassword}>
+              Reset Password
+            </a>
+          </span>
           <div className="placeholder"></div>
           <button type="submit" className="submitBtn " disabled={isSubmitLoading ? true : false}>
             {isSubmitLoading ? <img src={loadanimation} alt="loading..."></img> : <p>Log In</p>}
@@ -282,7 +299,7 @@ export default function LoginPage() {
 
           <span className="linkText ">
             Don't have an account?{" "}
-            <a className="link " href="" onClick={handleLink}>
+            <a className="link " href="" onClick={handleLinkSignUp}>
               Sign Up
             </a>
           </span>

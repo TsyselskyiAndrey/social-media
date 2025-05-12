@@ -31,7 +31,7 @@ export default function SignupPage() {
         shake: false,
       },
       email: {
-        type: "email",
+        type: "text",
         name: "email",
         label: "Email:",
         errorMessage: "",
@@ -214,6 +214,7 @@ export default function SignupPage() {
       control.name,
       controlName === "confirmpassword" ? passwordValue : ""
     );
+
     control.valid = isValid;
     control.errorMessage = newErrorMessage;
     control.touched = true;

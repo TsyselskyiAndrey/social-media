@@ -16,7 +16,7 @@ export default function validateControl(
     return [false, `* This field is required.`];
   }
   if (validation.allowSpaces === false && /\s/.test(value)) {
-    return [false, `* This field cannot contain spaces. Please remove any spaces and try again.`];
+    return [false, `* This field cannot contain spaces. Please remove any spaces.`];
   }
 
   if (validation.email) {

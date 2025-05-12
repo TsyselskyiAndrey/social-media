@@ -134,3 +134,13 @@ button {
   background-color: #118c8c;
   border-radius: 5px;
 }
+
+.infoText {
+  margin-bottom: 1rem;
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-align: justify;
+  margin: 30px;
+  margin-bottom: 0;
+}

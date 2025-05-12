@@ -39,12 +39,25 @@ interface UploadAvatarResponse {
   profilePictureUrl: string;
 }
 
+interface ForgotPasswordData {
+  email: string;
+  clientUri: string;
+}
+
+interface ResetPasswordData {
+  password: string;
+  confirmpassword: string;
+  email: string | null;
+  token: string | null;
+}
+
 const Auth = {
   login: (loginData: LoginData) =>
     axios.post<AuthResponse>("/api/auth/login", loginData, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
+
   googleLogin: (data: GoogleAuthData) =>
     axios.post<AuthResponse>("/api/auth/google-login", data, {
       headers: { "Content-Type": "application/json" },
@@ -56,6 +69,7 @@ const Auth = {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
+
   refreshToken: (accessToken: string) =>
     axios.post<AuthResponse>(
       "/api/auth/refresh-token",
@@ -65,21 +79,25 @@ const Auth = {
         withCredentials: true,
       }
     ),
+
   registerStep1: (data: Step1Data) =>
     axios.post("/api/auth/registration-step-1", data, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
+
   registerStep2: (data: Step2Data) =>
     axios.post("/api/auth/registration-step-2", data, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
+
   registerStep3: (data: Step3Data) =>
     axios.post("/api/auth/registration-step-3", data, {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
+
   uploadAvatar: (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
@@ -91,6 +109,18 @@ const Auth = {
       withCredentials: true,
     });
   },
+
+  forgotPassword: (forgotPasswordData: ForgotPasswordData) =>
+    axios.post("/api/auth/forgotpassword", forgotPasswordData, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    }),
+
+  resetPassword: (resetPasswordData: ResetPasswordData) =>
+    axios.post("/api/auth/resetpassword", resetPasswordData, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    }),
 };
 
 const Agent = {
