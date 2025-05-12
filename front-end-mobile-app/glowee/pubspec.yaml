@@ -32,6 +32,8 @@ dependencies:
     sdk: flutter
   flutter_screenutil: ^5.8.4
   image_picker: ^1.0.4
+  intl: ^0.18.1
+  google_sign_in: ^5.2.4
 
 
 
