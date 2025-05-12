@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/screens/register.dart';
+import 'package:glowee/screens/forget_password.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onSignUpTap;
@@ -15,6 +17,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController email = TextEditingController();
   final FocusNode emailFocus = FocusNode();
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
   final TextEditingController password = TextEditingController();
   final FocusNode passwordFocus = FocusNode();
 
@@ -62,7 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
               _buildForgotPassword(),
               SizedBox(height: 15.h),
               _buildLoginButton(),
-              SizedBox(height: 150.h),
+              SizedBox(height: 15.h),
+              _buildGoogleSignInButton(),
+              SizedBox(height: 80.h),
               _buildSignUpPrompt(),
 
             ],
@@ -72,24 +77,77 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Future<void> _signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser != null) {
+        print("User signed in with Google: ${googleUser.displayName}");
+      }
+    } catch (error) {
+      print("Google sign-in error: $error");
+    }
+  }
+  Widget _buildGoogleSignInButton() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      child: InkWell(
+        onTap: _signInWithGoogle,
+        child: Container(
+          alignment: Alignment.center,
+          width: double.infinity,
+          height: 44.h,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(10.r),
+            border: Border.all(
+              color: Colors.white,
+              width: 2.w,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.login, color: Colors.white),
+              SizedBox(width: 10.w),
+              Text(
+                'Sign in with Google',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildForgotPassword() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 30.w),
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
-            "Forgot password? Don’t worry   ",
+            "Forgot password? Don’t worry",
             style: TextStyle(fontSize: 14.sp, color: Colors.white),
           ),
-          GestureDetector(
-            onTap: widget.onSignUpTap,
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ForgetPassword()),
+              );
+            },
             child: Text(
-              "reset it here!",
+              "reset it here! ",
               style: TextStyle(
-                  fontSize: 15.sp,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
+                fontSize: 14,
+                color: Colors.yellow,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -110,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const Register()),
+              MaterialPageRoute(builder: (context) =>  Register()),
             );
           },
           child: Text(
