@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/screens/login_screen.dart';
 import 'package:glowee/screens/register_details.dart';
+import 'package:glowee/screens/email_enter.dart';
 
 class Register extends StatefulWidget {
-  const Register({super.key});
+   Register({super.key});
 
   @override
   State<Register> createState() => _RegisterState();
@@ -22,6 +23,11 @@ class _RegisterState extends State<Register> {
   final passwordConfirme_F = FocusNode();
   final username_F = FocusNode();
   final bio_F = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -64,12 +70,12 @@ class _RegisterState extends State<Register> {
             email_F,
             'Email',
             Icons.email,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Email is required';
-              final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
-              if (!emailRegex.hasMatch(value)) return 'Invalid email format';
-              return null;
-            },
+            // validator: (value) {
+            //   if (value == null || value.isEmpty) return 'Email is required';
+            //   final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
+            //   if (!emailRegex.hasMatch(value)) return 'Invalid email format';
+            //   return null;
+            // },
           ),
           SizedBox(height: 25.h),
           Textfild(
@@ -77,14 +83,14 @@ class _RegisterState extends State<Register> {
             username_F,
             'Username',
             Icons.person,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Username is required';
-              if (RegExp(r'[@?,\*^]').hasMatch(value)) {
-                return 'Username contains invalid characters';
-              }
-
-              return null;
-            },
+            // validator: (value) {
+            //   if (value == null || value.isEmpty) return 'Username is required';
+            //   if (RegExp(r'[@?,\*^]').hasMatch(value)) {
+            //     return 'Username contains invalid characters';
+            //   }
+            //
+            //   return null;
+            // },
           ),
           SizedBox(height: 25.h),
           Textfild(
@@ -92,14 +98,14 @@ class _RegisterState extends State<Register> {
             password_F,
             'Password',
             Icons.lock,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Password is required';
-              if (value.length < 6) return 'Password must be at least 6 characters';
-              if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Password must contain an uppercase letter';
-              if (!RegExp(r'[0-9]').hasMatch(value)) return 'Password must contain a number';
-              if (RegExp(r'[ @?,*^]').hasMatch(value)) return 'Password contains invalid characters';
-              return null;
-            },
+            // validator: (value) {
+            //   if (value == null || value.isEmpty) return 'Password is required';
+            //   if (value.length < 6) return 'Password must be at least 6 characters';
+            //   if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Password must contain an uppercase letter';
+            //   if (!RegExp(r'[0-9]').hasMatch(value)) return 'Password must contain a number';
+            //   if (RegExp(r'[ @?,*^]').hasMatch(value)) return 'Password contains invalid characters';
+            //   return null;
+            // },
           ),
           SizedBox(height: 25.h),
           Textfild(
@@ -107,11 +113,11 @@ class _RegisterState extends State<Register> {
             passwordConfirme_F,
             'Confirm Password',
             Icons.lock_outline,
-              validator: (value) {
-                if (value == null || value.isEmpty) return 'Please confirm your password';
-                if (value != password.text) return 'Passwords do not match';
-                return null;
-              }
+              // validator: (value) {
+              //   if (value == null || value.isEmpty) return 'Please confirm your password';
+              //   if (value != password.text) return 'Passwords do not match';
+              //   return null;
+              // }
           ),
           SizedBox(height: 20.h),
           Next(),
@@ -175,7 +181,8 @@ class _RegisterState extends State<Register> {
           if (_formKey.currentState!.validate()) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const RegisterDetails()),
+                MaterialPageRoute(builder: (context) =>  RegisterDetails(emailText: email.text)),
+
             );
           }
         },
