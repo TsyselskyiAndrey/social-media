@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/screens/login_screen.dart';
 import 'dart:io';
-import 'package:glowee/util/imagepicker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:glowee/screens/email_enter.dart';
 
 class RegisterDetails extends StatefulWidget {
-  const RegisterDetails({super.key});
+  final String? emailText;
+  const RegisterDetails({super.key,this.emailText});
 
   @override
   State<RegisterDetails> createState() => _RegisterDetailsState();
@@ -25,6 +26,11 @@ class _RegisterDetailsState extends State<RegisterDetails> {
   final passwordConfirme_F = FocusNode();
   final username_F = FocusNode();
   final bio_F = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -89,32 +95,20 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                 ),
                 createAccountText(),
                 SizedBox(height: 25.h),
-                Textfild(
-                  email,
-                  email_F,
-                  'Email',
-                  Icons.email,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return 'Email is required';
-                    final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
-                    if (!emailRegex.hasMatch(value)) return 'Invalid email format';
-                    return null;
-                  },
-                ),
                 SizedBox(height: 5.h),
                 Textfild(
                   username,
                   username_F,
                   'Username',
                   Icons.person,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return 'Username is required';
-                    if (RegExp(r'[@?,\*^]').hasMatch(value)) {
-                      return 'Username contains invalid characters';
-                    }
-
-                    return null;
-                  },
+                  // validator: (value) {
+                  //   if (value == null || value.isEmpty) return 'Username is required';
+                  //   if (RegExp(r'[@?,\*^]').hasMatch(value)) {
+                  //     return 'Username contains invalid characters';
+                  //   }
+                  //
+                  //   return null;
+                  // },
                 ),
                 SizedBox(height: 5.h),
                 Textfild(
@@ -122,14 +116,14 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                   password_F,
                   'Password',
                   Icons.lock,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return 'Password is required';
-                    if (value.length < 6) return 'Password must be at least 6 characters';
-                    if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Password must contain an uppercase letter';
-                    if (!RegExp(r'[0-9]').hasMatch(value)) return 'Password must contain a number';
-                    if (RegExp(r'[ @?,*^]').hasMatch(value)) return 'Password contains invalid characters';
-                    return null;
-                  },
+                  // validator: (value) {
+                  //   if (value == null || value.isEmpty) return 'Password is required';
+                  //   if (value.length < 6) return 'Password must be at least 6 characters';
+                  //   if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Password must contain an uppercase letter';
+                  //   if (!RegExp(r'[0-9]').hasMatch(value)) return 'Password must contain a number';
+                  //   if (RegExp(r'[ @?,*^]').hasMatch(value)) return 'Password contains invalid characters';
+                  //   return null;
+                  // },
                 ),
                 SizedBox(height: 5.h),
                 Textfild(
@@ -137,14 +131,14 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                     passwordConfirme_F,
                     'Confirm Password',
                     Icons.lock_outline,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please confirm your password';
-                      if (value != password.text) return 'Passwords do not match';
-                      return null;
-                    }
+                    // validator: (value) {
+                    //   if (value == null || value.isEmpty) return 'Please confirm your password';
+                    //   if (value != password.text) return 'Passwords do not match';
+                    //   return null;
+                    // }
                 ),
                 SizedBox(height: 20.h),
-                Signup(),
+                Next(),
                 SizedBox(height: 15.h),
                 Have(),
               ],
@@ -197,16 +191,47 @@ class _RegisterDetailsState extends State<RegisterDetails> {
     );
   }
 
-  Widget Signup() {
+  // Widget Signup() {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(horizontal: 10.w),
+  //     child: InkWell(
+  //       onTap: () {
+  //         if (_formKey.currentState!.validate()) {
+  //           // Всё ок, можно продолжать
+  //           print("Signup Email: ${email.text}");
+  //         } else {
+  //           print("Форма содержит ошибки");
+  //         }
+  //       },
+  //       child: Container(
+  //         alignment: Alignment.center,
+  //         width: double.infinity,
+  //         height: 44.h,
+  //         decoration: BoxDecoration(
+  //           color: Colors.blue.withOpacity(0.1),
+  //           borderRadius: BorderRadius.circular(10.r),
+  //           border: Border.all(color: Colors.black, width: 1.w),
+  //         ),
+  //         child: Text(
+  //           'Next',
+  //           style: TextStyle(fontSize: 23.sp, color: Colors.black),
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Widget Next() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: InkWell(
         onTap: () {
           if (_formKey.currentState!.validate()) {
-            // Всё ок, можно продолжать
-            print("Signup Email: ${email.text}");
-          } else {
-            print("Форма содержит ошибки");
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EmailEnter(emailText: email.text)),
+
+            );
           }
         },
         child: Container(
@@ -226,7 +251,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
       ),
     );
   }
-
 
   Padding Textfild(
       TextEditingController controll,
