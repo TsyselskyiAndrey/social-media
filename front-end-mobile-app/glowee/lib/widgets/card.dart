@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class PlanCard extends StatelessWidget {
@@ -17,24 +18,24 @@ class PlanCard extends StatelessWidget {
 
   Widget get checkSvg => SvgPicture.asset(
         'assets/svg/check.svg',
-        width: 20,
-        height: 20,
+        width: 20.w,
+        height: 20.h,
       );
 
   Widget get starsImg => Image.asset(
         'assets/images/stars.png',
-        width: 30,
-        height: 30,
+        width: 30.w,
+        height: 30.h,
       );
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.sizeOf(context).height * 0.35,
-      margin: const EdgeInsets.all(20),
+      height: (MediaQuery.sizeOf(context).height * 0.35).h,
+      margin: EdgeInsets.all(20.w),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(15.r),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -49,36 +50,36 @@ class PlanCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         starsImg,
-                        const SizedBox(width: 7),
+                        SizedBox(width: 7.w),
                         Text(
                           title,
-                          style: const TextStyle(
-                            fontSize: 30,
+                          style: TextStyle(
+                            fontSize: 30.sp,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(width: 7),
+                        SizedBox(width: 7.w),
                         if (title == 'Elite Plan') starsImg,
                       ],
                     ),
                   ),
                   if (isPopular)
                     Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
+                      padding: EdgeInsets.only(right: 8.w),
                       child: Align(
                         alignment: Alignment.topRight,
                         child: Container(
-                          width: constraints.maxWidth * 0.25,
-                          height: constraints.minHeight * 0.09,
+                          width: (constraints.maxWidth * 0.25).w,
+                          height: (constraints.minHeight * 0.09).h,
                           decoration: BoxDecoration(
                             color: Colors.black,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text(
                               "Popular",
                               style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 15.sp,
                                 color: Colors.white,
                               ),
                             ),
@@ -90,63 +91,63 @@ class PlanCard extends StatelessWidget {
               ),
               Row(
                 children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 28.0),
+                  Padding(
+                    padding: EdgeInsets.only(left: 28.w),
                     child: Text(
                       "\$",
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: 30.sp,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
                   Text(
                     price,
-                    style: const TextStyle(
-                      fontSize: 30,
+                    style: TextStyle(
+                      fontSize: 30.sp,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const Text(
+                  Text(
                     " / month",
                     style: TextStyle(
-                      fontSize: 23,
+                      fontSize: 23.sp,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
               ),
               SizedBox(
-                width: constraints.maxWidth * 0.8,
-                height: constraints.maxHeight * 0.15,
+                width: (constraints.maxWidth * 0.8).w,
+                height: (constraints.maxHeight * 0.15).h,
                 child: TextButton(
                   onPressed: () {},
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.black,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(12.r),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Get Started",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    style: TextStyle(color: Colors.white, fontSize: 18.sp),
                   ),
                 ),
               ),
               Column(
                 children: features.map((feature) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 30.0, bottom: 8),
+                    padding: EdgeInsets.only(left: 30.w, bottom: 8.h),
                     child: Row(
                       children: [
                         checkSvg,
-                        const SizedBox(width: 10),
+                        SizedBox(width: 10.w),
                         Expanded(
                           child: Text(
                             feature,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.black,
-                              fontSize: 20,
+                              fontSize: 20.sp,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
