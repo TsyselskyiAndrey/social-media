@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/screens/register.dart';
-import 'package:glowee/screens/forget_password.dart';
 import 'package:glowee/screens/email_enter.dart';
-import 'package:glowee/screens/profile.dart';
-class EmailPasswordConfirmationScreen extends StatefulWidget {
-  final VoidCallback? onSignUpTap;
-  const EmailPasswordConfirmationScreen({this.onSignUpTap,  super.key});
 
+class OtpVerificationScreen extends StatefulWidget {
+  final String? emailText;
+
+  const OtpVerificationScreen({super.key, this.emailText});
 
   @override
-  State<EmailPasswordConfirmationScreen> createState() => _EmailPasswordConfirmationScreenState();
+  State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
 }
 
 
 
-class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmationScreen> {
+class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
   final passwordConfirme = TextEditingController();
@@ -31,6 +30,7 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
   @override
   void initState() {
     super.initState();
+    email.text = widget.emailText ?? '';
   }
 
   @override
@@ -65,15 +65,20 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
             key:_formKey,
             child: Column(
               children: [
-                SizedBox(height: 70.h),
-                Center(child: Image.asset('assets/images/logo.png')),
-                SizedBox(height: 90.h),
-                EnterEmailText(),
-                SizedBox(height: 25.h),
-                buildForgotPassword(),
                 SizedBox(height: 20.h),
+                Center(child: Image.asset('assets/images/logo.png')),
+                SizedBox(height: 30.h),
+                headerText(),
+                SizedBox(height: 20.h),
+                EnterEmailText(),
                 SizedBox(height: 15.h),
+                DisplayedEmail(),
+                SizedBox(height: 25.h),
 
+                SizedBox(height: 20.h),
+                SendEmailBtn(),
+                SizedBox(height: 15.h),
+                BackBtn(),
               ],
             ),
           ),
@@ -82,31 +87,15 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
     );
   }
 
-  Widget buildForgotPassword() {
+  Widget headerText() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      padding: EdgeInsets.symmetric(horizontal: 50.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
-            "Didn’t receive the link? ",
+            "Create An Account and Sign Up",
             style: TextStyle(fontSize: 18.sp, color: Colors.white),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) =>  const EmailEnter()),
-              );
-            },
-            child: Text(
-              "Resend email ",
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.yellow,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
           ),
         ],
       ),
@@ -120,13 +109,13 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
-            "We sent you an email with link to",
+            "We will send you a one time ",
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 18.sp, color: Colors.white),
           ),
           SizedBox(height: 5.h),
           Text(
-            "create new password. Check your inbox",
+            "password to your email address",
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 18.sp, color: Colors.white),
           ),
@@ -134,6 +123,78 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
       ),
     );
   }
+
+
+
+  Widget BackBtn() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 30.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) =>  EmailEnter()),
+              );
+            },
+            child: Text(
+              "Back",
+              style: TextStyle(fontSize: 15.sp, color: Colors.black, fontWeight: FontWeight.bold),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget SendEmailBtn() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      child: InkWell(
+        onTap: () {
+          if (_formKey.currentState!.validate()) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =>  Register()),
+            );
+          }
+        },
+        child: Container(
+          alignment: Alignment.center,
+          width: double.infinity,
+          height: 44.h,
+          decoration: BoxDecoration(
+            color: Colors.blue.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10.r),
+            border: Border.all(color: Colors.black, width: 1.w),
+          ),
+          child: Text(
+            'Send',
+            style: TextStyle(fontSize: 23.sp, color: Colors.black),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget DisplayedEmail() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 100.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            widget.emailText ?? '',
+            style: TextStyle(fontSize: 18.sp, color: Colors.yellow),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 
   Padding Textfild(
       TextEditingController controll,
