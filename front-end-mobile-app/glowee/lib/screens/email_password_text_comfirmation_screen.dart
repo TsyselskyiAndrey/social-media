@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/screens/register.dart';
 import 'package:glowee/screens/forget_password.dart';
 import 'package:glowee/screens/email_enter.dart';
-
+import 'package:glowee/screens/profile.dart';
 class EmailPasswordConfirmationScreen extends StatefulWidget {
   final VoidCallback? onSignUpTap;
   const EmailPasswordConfirmationScreen({this.onSignUpTap,  super.key});
