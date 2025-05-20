@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/screens/register.dart';
 import 'package:glowee/screens/forget_password.dart';
+import 'package:glowee/screens/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -191,6 +192,11 @@ class _LoginScreenState extends State<LoginScreen> {
         onTap: () {
           print("Email: ${email.text}");
           print("Password: ${password.text}");
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileScreen(uid: "sdsd",)),
+          );
         },
         child: Container(
           alignment: Alignment.center,
@@ -200,8 +206,8 @@ class _LoginScreenState extends State<LoginScreen> {
             color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(10.r),
             border: Border.all(
-                color: Colors.white,
-                width: 2.w
+              color: Colors.white,
+              width: 2.w,
             ),
           ),
           child: Text(
@@ -216,6 +222,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
 
 
   Widget _buildGreeting() {
