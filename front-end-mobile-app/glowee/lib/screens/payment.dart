@@ -25,7 +25,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             children: [
               Container(
                 margin: EdgeInsets.all(25.w),
-                alignment: Alignment.centerLeft,
                 child: Row(
                   children: [
                     Icon(
