@@ -3,7 +3,7 @@ import { ToastContainer } from "react-toastify";
 import useAxiosWithToken from "./Hooks/useAxiosWithToken";
 import NotFound from "./Pages/NotFoundPage/NotFoundPage";
 import MainPage from "./Pages/MainPage/MainPage";
-import "./App.css";
+import "./App.module.css";
 import LoginPage from "./Pages/Authentication/LoginPage/LoginPage";
 import SignupPage from "./Pages/Authentication/SignupPage/SignupPage";
 import ProtectedRoutes from "./Utils/ProtectedRoutes";
@@ -21,7 +21,7 @@ function App() {
         <Route path="forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="resetpassword" element={<ResetPasswordPage />} />
         <Route element={<ProtectedRoutes />}>
-          <Route index element={<MainPage />} />
+          <Route path="mainpage" element={<MainPage />} />
         </Route>
         <Route path="*" element={<NotFound />}></Route>
       </Route>

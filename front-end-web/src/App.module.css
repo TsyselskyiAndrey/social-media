@@ -1,43 +1,33 @@
-* {
+.appWrapper * {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  overflow-y: hidden;
-  font-family: sans-serif;
-}
-
-*::selection {
+.appWrapper *::selection {
   background-color: #118c8c;
   color: white;
 }
 
-.prevent-select {
+.appWrapper .prevent-select {
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
-::-webkit-scrollbar {
+.appWrapper ::-webkit-scrollbar {
   width: 20px;
 }
 
-::-webkit-scrollbar-track {
+.appWrapper ::-webkit-scrollbar-track {
   background-color: transparent;
 }
 
-::-webkit-scrollbar-thumb {
+.appWrapper ::-webkit-scrollbar-thumb {
   background-color: #dad6e1;
   border-radius: 20px;
   border: 6px solid transparent;
   background-clip: content-box;
 }
 
-::-webkit-scrollbar-thumb:hover {
+.appWrapper ::-webkit-scrollbar-thumb:hover {
   background-color: #7ca6a6;
 }

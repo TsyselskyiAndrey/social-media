@@ -1,35 +1,8 @@
-:root {
-  --nav-width: 240px;
-  --right-sidebar-width: 240px;
-}
-
-.mainPageWrapper {
-  display: flex;
-  height: 100vh;
-  width: 100%;
-}
-
-
-.centerFeed {
-  width: calc(100vw - 2 * var(--nav-width));
-  padding: 20px;
-  box-sizing: border-box;
+body {
   background: linear-gradient(
     to bottom,
-    rgba(242, 188, 23, 0.3),   /* F2BC17 з 20% прозорістю */
-    rgba(17, 140, 140, 0.5)   /* 118C8C з 50% прозорістю */    /* білий з повною непрозорістю */
+    rgba(242, 188, 23, 0.4), 
+    rgba(17, 140, 140, 0.55),   
+    rgba(255, 255, 255, 0.8)     
   );
-  overflow-y: auto;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-
-.rightSidebar {
-  width: var(--right-sidebar-width);
-  background-color: #f0f0f0;
-  padding: 20px;
-  box-sizing: border-box;
-  position: sticky;
-  top: 0;
 }

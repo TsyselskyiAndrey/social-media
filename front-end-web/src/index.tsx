@@ -4,6 +4,7 @@ import reportWebVitals from "./reportWebVitals";
 import { IsAuthenticatedProvider } from "./Contexts/IsAuthenticatedContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import App from "./App";
+import './index.css';
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
