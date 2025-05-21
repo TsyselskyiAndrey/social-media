@@ -2,10 +2,15 @@ import React from "react";
 import { ListItemButton, ListItemIcon, ListItemText, Typography, Box } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 
-const CreateButton: React.FC = () => {
+type CreateButtonProps = {
+  onClick?: () => void;
+};
+
+const CreateButton: React.FC<CreateButtonProps> = ({ onClick }) => {
   return (
     <Box>
       <ListItemButton
+        onClick={onClick}
         sx={{
           backgroundColor: "#1e90ff",
           color: "white",
@@ -31,4 +36,5 @@ const CreateButton: React.FC = () => {
     </Box>
   );
 };
+
 export default CreateButton;

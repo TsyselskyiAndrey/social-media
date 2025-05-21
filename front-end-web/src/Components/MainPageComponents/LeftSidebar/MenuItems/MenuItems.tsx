@@ -1,9 +1,16 @@
 import React from "react";
-import { ListItemButton, ListItemIcon, ListItemText, Typography, Box } from "@mui/material";
+import {
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  Box,
+} from "@mui/material";
 
 type MenuItem = {
   text: string;
   icon: React.ReactNode;
+  onClick?: () => void; // <-- onClick підтримка
 };
 
 type MenuItemsProps = {
@@ -14,9 +21,10 @@ type MenuItemsProps = {
 const MenuItems: React.FC<MenuItemsProps> = ({ items }) => {
   return (
     <Box>
-      {items.map(({ text, icon }) => (
+      {items.map(({ text, icon, onClick }) => (
         <ListItemButton
           key={text}
+          onClick={onClick} // <-- додаємо обробник кліку
           sx={{
             color: "black",
             mx: 0,

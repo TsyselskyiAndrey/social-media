@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from "react";
 import { Box, CssBaseline } from "@mui/material";
 import LeftSidebar from '../../Components/MainPageComponents/LeftSidebar/LeftSidebar';
 import Feed from '../../Components/MainPageComponents/Feed/Feed';
 import RightSidebar from '../../Components/MainPageComponents/RightSidebar/RightSidebar';
+import CreatePost from '../../Components/MainPageComponents/CreatePost/CreatePost';
 import './MainPage.css';
 
 const MainPage = () => {
+  const [showCreatePost, setShowCreatePost] = useState(false);
+
   return (
     <>
       <CssBaseline />
@@ -17,6 +20,7 @@ const MainPage = () => {
           pt: 8,
           px: 2,
           gap: 5,
+          position: "relative",
         }}
       >
         <Box
@@ -26,8 +30,9 @@ const MainPage = () => {
             minWidth: 250,
           }}
         >
-          <LeftSidebar />
+          <LeftSidebar onCreateClick={() => setShowCreatePost(true)} />
         </Box>
+
         <Box
           sx={{
             flex: 1,
@@ -37,6 +42,7 @@ const MainPage = () => {
         >
           <Feed />
         </Box>
+
         <Box
           sx={{
             display: { xs: "none", lg: "block" },
@@ -46,6 +52,38 @@ const MainPage = () => {
         >
           <RightSidebar />
         </Box>
+
+        {showCreatePost && (
+          <Box
+            sx={{
+              position: "fixed",
+              inset: 0,
+              bgcolor: "rgba(0, 0, 0, 0.4)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+              px: 2,
+              py: 4,
+            }}
+            onClick={() => setShowCreatePost(false)}
+          >
+            <Box
+              onClick={(e) => e.stopPropagation()}
+              sx={{
+                width: { xs: "100%", sm: 500 },
+                maxHeight: "90vh",
+                bgcolor: "background.paper",
+                borderRadius: 2,
+                p: 3,
+                overflowY: "auto",
+                boxShadow: 24,
+              }}
+            >
+              <CreatePost onClose={() => setShowCreatePost(false)} />
+            </Box>
+          </Box>
+        )}
       </Box>
     </>
   );

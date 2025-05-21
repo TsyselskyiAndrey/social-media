@@ -7,7 +7,7 @@ import SendIcon from "@mui/icons-material/Send";
 import Like from "./Like/Like";
 import Comments from "./Comment/Comment";
 import Bookmark from "./Bookmark/Bookmark";
-import Photo1 from "../../Assets/Post/Photo1.png";
+import Photo1 from "../../../Assets/Post/Photo1.png";
 
 const Post: React.FC = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

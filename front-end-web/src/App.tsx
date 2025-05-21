@@ -20,9 +20,9 @@ function App() {
         <Route path="signup" element={<SignupPage />} />
         <Route path="forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="resetpassword" element={<ResetPasswordPage />} />
-        <Route element={<ProtectedRoutes />}>
+  
           <Route path="mainpage" element={<MainPage />} />
-        </Route>
+
         <Route path="*" element={<NotFound />}></Route>
       </Route>
     )

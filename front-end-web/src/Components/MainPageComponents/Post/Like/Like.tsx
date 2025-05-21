@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import UnlikeIcon from "../../../Assets/Post/likeAsStar.png";      // твоя іконка лайка
-import LikeIcon from "../../../Assets/Post/likeAsStarActive.png";  // іконка "не лайк" або пусте серце
+import UnlikeIcon from "../../..//../Assets/Post/likeAsStar.png";      // твоя іконка лайка
+import LikeIcon from "../../../../Assets/Post/likeAsStarActive.png";  // іконка "не лайк" або пусте серце
 
 type LikeProps = {
   initialCount?: number;
