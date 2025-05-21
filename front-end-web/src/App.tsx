@@ -9,6 +9,7 @@ import SignupPage from "./Pages/Authentication/SignupPage/SignupPage";
 import ProtectedRoutes from "./Utils/ProtectedRoutes";
 import ForgotPasswordPage from "./Pages/Authentication/ForgotPasswordPage/ForgotPasswordPage";
 import ResetPasswordPage from "./Pages/Authentication/ResetPasswordPage/ResetPasswordPage";
+import ProfilePage from "./Pages/ProfilePage/ProfilePage";
 
 function App() {
   useAxiosWithToken();
@@ -22,7 +23,7 @@ function App() {
         <Route path="resetpassword" element={<ResetPasswordPage />} />
   
           <Route path="mainpage" element={<MainPage />} />
-
+          <Route path="profile" element={<ProfilePage />} />
         <Route path="*" element={<NotFound />}></Route>
       </Route>
     )
