@@ -27,10 +27,8 @@ const Comments: React.FC<CommentsProps> = ({
     setCommentInput("");
   };
 
-  // Визначаємо які коментарі показувати
   const commentsToShow = showAll ? comments : comments.slice(0, 3);
 
-  // Якщо немає коментарів і поле вводу не показувати — нічого не рендеримо
   if (!showCommentInput && comments.length === 0) {
     return null;
   }
@@ -45,7 +43,6 @@ const Comments: React.FC<CommentsProps> = ({
         ))}
       </div>
 
-      {/* Кнопка "Показати більше" */}
       {!showAll && comments.length > 3 && (
         <button
           onClick={() => setShowAll(true)}
@@ -64,7 +61,6 @@ const Comments: React.FC<CommentsProps> = ({
         </button>
       )}
 
-      {/* Поле для додавання нового коментаря */}
       {showCommentInput && (
         <div className="mt-2 flex gap-2" style={{ paddingLeft: 8 }}>
           <input

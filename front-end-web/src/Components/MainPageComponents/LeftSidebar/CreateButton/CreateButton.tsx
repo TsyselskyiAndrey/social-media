@@ -9,7 +9,7 @@ const CreateButton: React.FC = () => {
         sx={{
           backgroundColor: "#1e90ff",
           color: "white",
-          mt: 3, // трохи більший відступ зверху
+          mt: 3,
           borderRadius: 2,
           mx: 0,
           "&:hover": {

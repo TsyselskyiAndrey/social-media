@@ -28,7 +28,7 @@ const LeftSidebar: React.FC = () => {
     flexDirection: "column",
     position: "fixed",
     alignSelf: "flex-start",
-    px: 2,  // горизонтальні падінги для сайдбару
+    px: 2,
   }}
 >
   <Box
@@ -36,8 +36,7 @@ const LeftSidebar: React.FC = () => {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      py: 3,  // вертикальні падінги
-      // без maxWidth
+      py: 3, 
     }}
   >
     <img src={logoSrc} alt="Logo" style={{ width: 200, height: "auto" }} />

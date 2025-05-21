@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, CssBaseline } from "@mui/material";
-import LeftSidebar from '../../Components/LeftSidebar/LeftSidebar';
-import Feed from '../../Components/Feed/Feed';
-import RightSidebar from '../../Components/RightSidebar/RightSidebar';
+import LeftSidebar from '../../Components/MainPageComponents/LeftSidebar/LeftSidebar';
+import Feed from '../../Components/MainPageComponents/Feed/Feed';
+import RightSidebar from '../../Components/MainPageComponents/RightSidebar/RightSidebar';
 import './MainPage.css';
 
 const MainPage = () => {
@@ -17,9 +17,6 @@ const MainPage = () => {
           pt: 8,
           px: 2,
           gap: 5,
-          // УБРАНО: height та overflowY
-          // height: `calc(100vh - 64px)`,
-          // overflowY: "auto",
         }}
       >
         <Box

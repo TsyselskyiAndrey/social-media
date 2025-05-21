@@ -8,7 +8,7 @@ type MenuItem = {
 
 type MenuItemsProps = {
   items: MenuItem[];
-  maxWidth?: number; // опціонально
+  maxWidth?: number;
 };
 
 const MenuItems: React.FC<MenuItemsProps> = ({ items }) => {
@@ -20,7 +20,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items }) => {
           sx={{
             color: "black",
             mx: 0,
-            mb: 1.5, // збільшуємо вертикальний відступ між пунктами
+            mb: 1.5,
             borderRadius: 2,
             fontWeight: "bold",
             transition: "background-color 0.4s ease",

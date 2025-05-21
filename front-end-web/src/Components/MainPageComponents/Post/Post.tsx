@@ -40,7 +40,6 @@ const Post: React.FC = () => {
         flexDirection: "column",
       }}
     >
-      {/* Верхня частина */}
       <Box
         sx={{
           display: "flex",
@@ -70,7 +69,6 @@ const Post: React.FC = () => {
         </Menu>
       </Box>
 
-      {/* Фото */}
       <Box
         component="img"
         src={Photo1}
@@ -78,7 +76,6 @@ const Post: React.FC = () => {
         sx={{ width: "100%", height: "auto", objectFit: "cover" }}
       />
 
-      {/* Кнопки */}
       <Box
         sx={{
           display: 'flex',
@@ -102,7 +99,6 @@ const Post: React.FC = () => {
         <Bookmark initiallySaved={false} />
       </Box>
 
-      {/* Підпис */}
       <Box sx={{ px: 2, pb: 1 }}>
         <Typography component="span" fontWeight="bold">
           user_name{" "}
@@ -110,7 +106,6 @@ const Post: React.FC = () => {
         <Typography component="span">Це приклад підпису до фото...</Typography>
       </Box>
 
-      {/* Коментарі з більшим паддінгом */}
       <Box sx={{ px: 3, pb: 2 }}>
         {showComments && (
           <Comments
