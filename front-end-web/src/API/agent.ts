@@ -1,4 +1,4 @@
-import axios from "./axioscfg";
+import axios, { axiosWithToken } from "./axioscfg";
 import { AuthResponse } from "../Types/AuthResponse";
 
 interface LoginData {
@@ -22,7 +22,7 @@ interface Step1Data {
   email: string;
   username: string;
   password: string;
-  confirmpassword: string;
+  rePassword: string;
 }
 
 interface Step2Data {
@@ -49,6 +49,28 @@ interface ResetPasswordData {
   confirmpassword: string;
   email: string | null;
   token: string | null;
+}
+
+interface CreatePostRequest{
+  caption: string;
+  tags: string[];
+  postMedias: File[];
+  thumbnail: File | null;
+}
+
+export interface Tag{
+  id: number;
+  name: string;
+}
+
+export interface UserProfileInfo{
+  FirstName : string;
+  LastName : string;
+  Email : string;
+  UserName : string;
+  Biography : string | null;
+  ProfileImagePath : string | null;
+  BirthDate : Date | null;
 }
 
 const Auth = {
@@ -123,8 +145,43 @@ const Auth = {
     }),
 };
 
+const Posts = {
+  getPosts: () => {
+
+  },
+  createPost: async ({ caption, tags, postMedias, thumbnail }: CreatePostRequest) => {
+    const formData = new FormData();
+    formData.append('Caption', caption);
+    tags.forEach((tag, index) => formData.append(`Tags[${index}]`, tag));
+    postMedias.forEach(file => formData.append('PostMedias', file));
+    if (thumbnail) formData.append('Thumbnail', thumbnail);
+
+    return await axiosWithToken.post("/api/post/createPost", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+  }
+}
+
+const Tags = {
+  getAllTags: async () =>{
+    return await axiosWithToken.get<Tag[]>("/api/post/getAllTags");
+  }
+}
+
+const User = {
+  getUserProfileInfo: async () => {
+    return await axiosWithToken.get<UserProfileInfo>("/api/user/getUserProfileInfo");
+  }
+}
+
 const Agent = {
   Auth,
+  Posts,
+  Tags,
+  User,
 };
 
 export default Agent;
