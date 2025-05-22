@@ -10,6 +10,7 @@ import ProtectedRoutes from "./Utils/ProtectedRoutes";
 import ForgotPasswordPage from "./Pages/Authentication/ForgotPasswordPage/ForgotPasswordPage";
 import ResetPasswordPage from "./Pages/Authentication/ResetPasswordPage/ResetPasswordPage";
 import ProfilePage from "./Pages/ProfilePage/ProfilePage";
+import SettingsPage from "./Pages/Settings/Settings";
 
 function App() {
   useAxiosWithToken();
@@ -25,6 +26,7 @@ function App() {
           <Route path="mainpage" element={<MainPage />} />
           <Route path="profile" element={<ProfilePage />} />
         <Route path="*" element={<NotFound />}></Route>
+        <Route path="settings" element={<SettingsPage />}></Route>
       </Route>
     )
   );

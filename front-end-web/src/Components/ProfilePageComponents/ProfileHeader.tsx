@@ -1,7 +1,12 @@
 import React from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
+import { useNavigate } from "react-router-dom";
 
 const ProfileHeader: React.FC = () => {
+    const navigate = useNavigate();
+      const goToSettings = () => {
+    navigate("/settings");
+  };
   return (
     <div className="bg-gray-50 p-6 rounded-lg shadow-md max-w-5xl mx-auto mb-8">
       <div className="flex items-center gap-10">
@@ -38,8 +43,10 @@ const ProfileHeader: React.FC = () => {
             aria-label="Налаштування профілю"
             className="p-2 rounded-full hover:bg-gray-200 transition"
             title="Налаштування"
+            onClick={goToSettings}
           >
             <SettingsIcon className="text-gray-700" />
+            
           </button>
         </div>
       </div>
