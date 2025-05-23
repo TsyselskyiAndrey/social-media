@@ -1,0 +1,38 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Features\Message\**" />
+    <Compile Remove="Features\Post\Commands\Comments\**" />
+    <EmbeddedResource Remove="Features\Message\**" />
+    <EmbeddedResource Remove="Features\Post\Commands\Comments\**" />
+    <None Remove="Features\Message\**" />
+    <None Remove="Features\Post\Commands\Comments\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Contracts\Email\" />
+    <Folder Include="Contracts\Logging\" />
+    <Folder Include="Contracts\Storage\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.11.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.69.0" />
+    <PackageReference Include="MediatR" Version="12.4.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Glowee.Domain\Glowee.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
