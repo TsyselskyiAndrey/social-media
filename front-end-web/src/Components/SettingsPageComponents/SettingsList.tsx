@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
@@ -9,6 +10,8 @@ import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 const SettingsList: React.FC = () => {
+  const navigate = useNavigate();
+
   const options = [
     { label: "Activity", icon: <AccessTimeIcon /> },
     { label: "Notifications", icon: <NotificationsIcon /> },
@@ -19,11 +22,18 @@ const SettingsList: React.FC = () => {
     { label: "Interface", icon: <AccessibilityNewIcon /> },
   ];
 
+  const handleClick = (label: string) => {
+    if (label === "Interface") {
+      navigate("/settings/interface");
+    }
+  };
+
   return (
     <div className="space-y-4">
       {options.map((item, idx) => (
         <div
           key={idx}
+          onClick={() => handleClick(item.label)}
           className="flex items-center justify-between bg-white p-4 rounded-lg shadow-sm hover:bg-gray-50 transition cursor-pointer"
         >
           <div className="flex items-center gap-4">

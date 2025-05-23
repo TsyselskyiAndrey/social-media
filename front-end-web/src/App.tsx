@@ -11,9 +11,13 @@ import ForgotPasswordPage from "./Pages/Authentication/ForgotPasswordPage/Forgot
 import ResetPasswordPage from "./Pages/Authentication/ResetPasswordPage/ResetPasswordPage";
 import ProfilePage from "./Pages/ProfilePage/ProfilePage";
 import SettingsPage from "./Pages/Settings/Settings";
+import InterfaceSettingsPage from "./Pages/Settings/InterfaceSettingsPage";
+import { ThemeProviderCustom } from "./Contexts/ThemeContext";
+import { CssBaseline } from "@mui/material";
 
 function App() {
   useAxiosWithToken();
+
 
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -27,15 +31,16 @@ function App() {
           <Route path="profile" element={<ProfilePage />} />
         <Route path="*" element={<NotFound />}></Route>
         <Route path="settings" element={<SettingsPage />}></Route>
+        <Route path="settings/interface" element={<InterfaceSettingsPage />}></Route>
       </Route>
     )
   );
 
   return (
-    <>
+    <ThemeProviderCustom>
       <RouterProvider router={router} />
       <ToastContainer position="top-right" autoClose={3000} />
-    </>
+    </ThemeProviderCustom>
   );
 }
 

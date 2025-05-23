@@ -1,5 +1,4 @@
 import React from "react";
-import LeftSidebar from "../../Components/MainPageComponents/LeftSidebar/LeftSidebar";
 import SettingsHeader from "../../Components/SettingsPageComponents/SettingsHeader";
 import SettingsList from "../../Components/SettingsPageComponents/SettingsList";
 
