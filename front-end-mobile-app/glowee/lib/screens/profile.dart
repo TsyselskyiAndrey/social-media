@@ -5,10 +5,15 @@ import 'package:glowee/widgets/navigation_menu.dart';
 import 'package:glowee/screens/edit_profile.dart';
 import 'package:glowee/screens/login_screen.dart';
 import 'package:glowee/screens/interface.dart';
+import 'package:glowee/data/post_data.dart';
+import 'package:glowee/screens/profile_image_notifier.dart';
+import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
   final String uid;
-  const ProfileScreen({Key? key, required this.uid}) : super(key: key);
+  final void Function(bool isDarkTheme)? onThemeChange;
+
+  const ProfileScreen({Key? key, required this.uid, this.onThemeChange}) : super(key: key);
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -21,9 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final int postLength = 5;
   final int followersCount = 123;
   final int followingCount = 87;
-  final String username = 'mock_user';
   final String bio = 'Just a mock bio';
-  final String profileImageUrl = 'https://via.placeholder.com/150';
 
   @override
   Widget build(BuildContext context) {
@@ -56,18 +59,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      backgroundImage: NetworkImage(profileImageUrl),
-                      radius: 30.r,
+                    ValueListenableBuilder<File?>(
+                      valueListenable: profileImageNotifier,
+                      builder: (context, file, _) {
+                        return Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 30.r,
+                              backgroundImage: file != null
+                                  ? FileImage(file)
+                                  : const AssetImage('assets/images/default_profile_picture.jpg') as ImageProvider,
+                            ),
+                            SizedBox(width: 10.w),
+                          ],
+                        );
+                      },
                     ),
                     SizedBox(height: 10.h),
-                    Text(username,
-                        style: TextStyle(color: Colors.white, fontSize: 16.sp)),
-                    Text(bio,
-                        style: TextStyle(color: Colors.white70, fontSize: 12.sp)),
+                    ValueListenableBuilder<String>(
+                      valueListenable: nameNotifier,
+                      builder: (context, name, _) {
+                        return Text(
+                          name,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        );
+                      },
+                    ),
+                    Text(
+                      bio,
+                      style: TextStyle(color: Colors.white70, fontSize: 12.sp),
+                    ),
                   ],
                 ),
               ),
+
               ListTile(
                 leading: const Icon(Icons.settings, color: Colors.black),
                 title: const Text('Settings'),
@@ -129,7 +158,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   print('Interface tapped');
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => InterfaceScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => InterfaceScreen(
+                        onThemeChange: widget.onThemeChange,
+                      ),
+                    ),
                   );
                 },
               ),
@@ -200,15 +233,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 13.w, vertical: 10.h),
-                child: ClipOval(
-                  child: SizedBox(
-                    width: 80.w,
-                    height: 80.h,
-                    child: Image.network(
-                      profileImageUrl,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                child: ValueListenableBuilder<File?>(
+                  valueListenable: profileImageNotifier,
+                  builder: (context, file, _) {
+                    return ClipOval(
+                      child: SizedBox(
+                        width: 80.w,
+                        height: 80.h,
+                        child: file != null
+                            ? Image.file(file, fit: BoxFit.cover)
+                            : Image.asset('assets/images/default_profile_picture.jpg', fit: BoxFit.cover),
+                      ),
+                    );
+                  },
                 ),
               ),
               Column(
@@ -258,20 +295,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(username,
-                    style: TextStyle(
+                ValueListenableBuilder<String>(
+                  valueListenable: nameNotifier,
+                  builder: (context, name, _) {
+                    return Text(
+                      name,
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 12.sp,
-                        fontWeight: FontWeight.bold)),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                ),
                 SizedBox(height: 5.h),
-                Text(bio,
-                    style: TextStyle(
+                ValueListenableBuilder<String>(
+                  valueListenable: bioNotifier,
+                  builder: (context, bio, _) {
+                    return Text(
+                      bio,
+                      style: TextStyle(
                         color: Colors.white70,
                         fontSize: 12.sp,
-                        fontWeight: FontWeight.w300)),
+                        fontWeight: FontWeight.w300,
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
+
           SizedBox(height: 20.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 13.w),
