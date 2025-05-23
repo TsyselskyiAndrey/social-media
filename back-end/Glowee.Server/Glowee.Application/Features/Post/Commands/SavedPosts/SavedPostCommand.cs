@@ -1,7 +1,6 @@
 ﻿using Glowee.Domain.Entities.Posts;
-using Glowee.Domain.Entities.Users;
 using MediatR;
 
-namespace Glowee.Application.Features.Post.Commands.Likes;
+namespace Glowee.Application.Features.Post.Commands.SavedPosts;
 
-public record SavedPostCommand(UserId UserId, PostId PostId) : IRequest<bool>;
+public record SavedPostCommand(PostId PostId) : IRequest<bool>;

@@ -28,7 +28,7 @@ public class GetSavedPostQueryHandlerTest : IClassFixture<TestContext>
         var thumbnailStorageServiceMock = MockThumbnailStorageService.GetThumbnailStorageService();
         var postMediaStorageServiceMock = MockPostMediaStoraheSrvice.GetPostMediaStorageService();
         
-        _postMapper = new PostMapper(thumbnailStorageServiceMock.Object, postMediaStorageServiceMock.Object);
+        //_postMapper = new PostMapper(thumbnailStorageServiceMock.Object, postMediaStorageServiceMock.Object);
     }
 
     [Theory]

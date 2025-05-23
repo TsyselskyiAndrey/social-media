@@ -1,4 +1,5 @@
-﻿using Glowee.Application.Contracts.Persistence;
+﻿using Glowee.Application.Contracts.Identity;
+using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Exceptions;
 using Glowee.Application.Features.Post.Commands.Likes;
 using Glowee.Application.Tests.Data;
@@ -20,22 +21,23 @@ public class LikeCommandTest : IClassFixture<TestContext>
     private readonly IPostRepository _postRepository;
     private readonly ILikeRepository _likeRepository;
     private readonly IUserRepository _mockUserRepo;
+    private readonly Mock<IUserService> _userService;
 
     public LikeCommandTest(TestContext fixture)
     {
         _context = fixture.Context;       
         _context.SeedData();
-        _postRepository = new PostRepository(_context);
         _likeRepository = new LikeRepository(_context);
         _mockUserRepo = new UserRepository(_context);
+        _userService = MockUserService.GetMockUserService();
     }
 
     [Theory]
     [MemberData(nameof(TestData.GetLikeCommandTestData), MemberType = typeof(TestData))]
     public async Task LikeCommand_Test(long postId, long userId, object expectedResult)
     {
-        var handler = new LikeCommandHandler(_likeRepository, _postRepository, _mockUserRepo);
-        var command = new LikeCommand(new PostId(postId), new UserId(userId));
+        var handler = new LikeCommandHandler(_likeRepository, _postRepository, _userService.Object);
+        var command = new LikeCommand(new PostId(postId));
         
         if (expectedResult is Type expectedException)
         {

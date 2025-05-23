@@ -10,15 +10,20 @@ public class GetPostsQueryHandler : IRequestHandler<GetPostsQuery, IEnumerable<P
 {
     private readonly IPostRepository _postRepository;
     private readonly IPostMapper _postMapper;
+    private readonly IUserService _userService;
 
     public GetPostsQueryHandler(IPostRepository postRepository, IPostMapper postMapper, IUserService userService)
     {
         _postRepository = postRepository;
         _postMapper = postMapper;
+        _userService = userService;
     }
 
     public async Task<IEnumerable<PostDto>> Handle(GetPostsQuery request, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrEmpty(_userService.UserId))
+            throw new UnauthorizedAccessException("User must be authenticated to posts.");
+        
         var postsQuery = await _postRepository
             .GetIncludedPosts();
 
@@ -40,9 +45,7 @@ public class GetPostsQueryHandler : IRequestHandler<GetPostsQuery, IEnumerable<P
                 postsQuery = postsQuery.Where(p => p.Id.Value < lastPost.Id.Value);
             }
         }
-
-        //TODO Заметил что ты передаешь UserId в реквесте, но у нас он будет браться из токена через UserService (если оно сработает). Глянь как я сделал в Queries >> Comments >> GetPostCommentsQueryHandler.cs
-
+        
         var posts = postsQuery
             .OrderByDescending(p => p.Id.Value)
             .Take(request.PostsAmount)

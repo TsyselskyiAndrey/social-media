@@ -27,7 +27,7 @@ public class CommentCrudCommandsTests : IClassFixture<TestContext>
         _context.SeedData();
         _userService = MockUserService.GetMockUserService();
         _commentsRepository = new CommentsRepository(_context);
-        _postRepository = new PostRepository(_context);
+        //_postRepository = new PostRepository(_context);
     }
 
     [Theory]

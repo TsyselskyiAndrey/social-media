@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Glowee.Application.Features.User.Queries.UserSettings;
 
-public record GetUserGeneralSettingsQuery(UserId UserId) : IRequest<UserGeneralSettingsDto>;
+public record GetUserGeneralSettingsQuery() : IRequest<UserGeneralSettingsDto>;

@@ -1,6 +1,7 @@
 ﻿using Glowee.Application.Contracts.Identity;
 using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.MappingProfiles;
+using Glowee.Domain.Entities.Users;
 using MediatR;
 using UnauthorizedAccessException = Glowee.Application.Exceptions.UnauthorizedAccessException;
 
@@ -20,10 +21,12 @@ public class GetUserGeneralSettingsQueryHandler : IRequestHandler<GetUserGeneral
     
     public async Task<UserGeneralSettingsDto> Handle(GetUserGeneralSettingsQuery request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(_userService.UserId))
+        if (string.IsNullOrEmpty(_userService.UserId) || _userService.UserId == null)
             throw new UnauthorizedAccessException("User must be authenticated to take settings.");
         
-        var usersGeneralSettings = await _generalSettingsRepository.GetUsersGeneralSettings(request.UserId);
+        var userId = long.Parse(_userService.UserId);
+        
+        var usersGeneralSettings = await _generalSettingsRepository.GetUsersGeneralSettings(new UserId(userId));
 
         var mapper = new UserSettingsMapper();
 

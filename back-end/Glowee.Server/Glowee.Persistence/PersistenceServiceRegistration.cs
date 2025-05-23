@@ -25,6 +25,9 @@ namespace Glowee.Persistence
             services.AddScoped<ILikeRepository, LikeRepository>();
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IUninterestingPostRepository, UninterestingPostsRepository>();
+            services.AddScoped<IGeneralSettingsRepository, GeneralSettingsRepository>();
+            services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();
+            services.AddScoped<IFollowsRepository, FollowsRepository>();
 
             return services;
         }

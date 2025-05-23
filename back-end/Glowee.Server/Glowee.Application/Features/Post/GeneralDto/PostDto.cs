@@ -3,7 +3,8 @@
 public class PostDto
 {
     public long Id { get; set; }
-    public long UserId { get; set; }
+    public long AuthorName { get; set; }
+    public string AuthorIconUrl { get; set; }
     public string? Caption { get; set; }
     public string PostType { get; set; }
     public List<string> Tags { get; set; } = new List<string>();

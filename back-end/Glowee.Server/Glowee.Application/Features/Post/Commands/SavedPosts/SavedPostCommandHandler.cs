@@ -1,19 +1,22 @@
-﻿using Glowee.Application.Contracts.Persistence;
+﻿using Glowee.Application.Contracts.Identity;
+using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Exceptions;
 using Glowee.Domain.Entities.SavedPosts;
+using Glowee.Domain.Entities.Users;
 using MediatR;
+using UnauthorizedAccessException = Glowee.Application.Exceptions.UnauthorizedAccessException;
 
-namespace Glowee.Application.Features.Post.Commands.Likes;
+namespace Glowee.Application.Features.Post.Commands.SavedPosts;
 
 /// <summary>
 /// Handles the save/unsaved action for a post. 
 /// If the post is not saved yet, it creates a new saved post record; otherwise, it removes the existed saved post.
 /// </summary>
-public class SavedPostHandlerCommand : IRequestHandler<SavedPostCommand, bool>
+public class SavedPostCommandHandler : IRequestHandler<SavedPostCommand, bool>
 {
     private readonly ISavedPostRepository _savedPostRepository;
-    private readonly IUserRepository _userRepository;
     private readonly IPostRepository _postRepository;
+    private readonly IUserService _userService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SavedPostHandlerCommand"/> class.
@@ -21,12 +24,12 @@ public class SavedPostHandlerCommand : IRequestHandler<SavedPostCommand, bool>
     /// <param name="savedPostRepository">Repository for accessing saved posts.</param>
     /// <param name="postRepository">Repository for accessing posts.</param>
     /// <param name="userRepository">Repository for accessing users.</param>
-    public SavedPostHandlerCommand(IPostRepository postRepository
-        , IUserRepository userRepository, ISavedPostRepository savedPostRepository)
+    public SavedPostCommandHandler(IPostRepository postRepository,
+        ISavedPostRepository savedPostRepository, IUserService userService)
     {
         _savedPostRepository = savedPostRepository;
         _postRepository = postRepository;
-        _userRepository = userRepository;
+        _userService = userService;
     }
 
     /// <summary>
@@ -38,23 +41,22 @@ public class SavedPostHandlerCommand : IRequestHandler<SavedPostCommand, bool>
     /// <exception cref="NotFoundException">Thrown if the post or user is not found.</exception>
     public async Task<bool> Handle(SavedPostCommand request, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrEmpty(_userService.UserId))
+            throw new UnauthorizedAccessException("User must be authenticated to create a post.");
+
+        var userId = long.Parse(_userService.UserId);
+        
         _postRepository.PostExists(request.PostId);
 
-        var user = await _userRepository.GetByIdAsync(request.UserId);
-        if (user == null)
-        {
-            throw new NotFoundException("User not found");
-        }
-
         var posts = await _savedPostRepository.GetAsync();
-        var postLike = posts.FirstOrDefault(x => x.PostId == request.PostId && x.UserId == request.UserId);
+        var postLike = posts.FirstOrDefault(x => x.PostId == request.PostId && x.UserId.Value == userId);
 
         if (postLike == null)
         {
             await _savedPostRepository.CreateAsync(new SavedPost()
             {
                 PostId = request.PostId,
-                UserId = request.UserId,
+                UserId = new UserId(userId),
             });
 
             return true;
