@@ -25,7 +25,7 @@ namespace Glowee.Identity.Services
             _contextAccessor = contextAccessor;
         }
 
-        public string? UserId => _contextAccessor.HttpContext?.User?.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        public string? UserId => _contextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
 
         public async Task<UserId> CreateAsync(UserModel userModel)
         {

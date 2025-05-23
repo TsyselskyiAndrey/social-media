@@ -12,16 +12,18 @@ namespace Glowee.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddApplicationServices();
-            builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddPersistenceServices(builder.Configuration);
+            builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddIdentityServices(builder.Configuration);
+            builder.Services.AddApplicationServices();
 
             builder.Services.AddDataProtection();
 
             builder.Services.AddCors(options =>
             {
+
                 var allowedOrigins = new[] { "http://localhost:3000", "https://localhost:3000" };
+
                 options.AddPolicy("AllowAllOrigins", policy =>
                 {
                     policy.WithOrigins(allowedOrigins)

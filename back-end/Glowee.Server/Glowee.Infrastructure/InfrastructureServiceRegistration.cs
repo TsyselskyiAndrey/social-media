@@ -40,6 +40,8 @@ namespace Glowee.Infrastructure
             services.AddScoped<IPostMediaStorageService, PostMediaStorageSevice>();
             services.AddScoped<IProfileImageStorageService, ProfileImageStorageService>();
             services.AddScoped<IThumbnailStorageService, ThumbnailStorageService>();
+            
+            services.AddSingleton(typeof(IAppLogger<>), typeof(LoggerAdapter<>));
 
             return services;
         }

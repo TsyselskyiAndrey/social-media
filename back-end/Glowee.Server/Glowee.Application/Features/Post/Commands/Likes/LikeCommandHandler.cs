@@ -1,7 +1,10 @@
-﻿using Glowee.Application.Contracts.Persistence;
+﻿using Glowee.Application.Contracts.Identity;
+using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Exceptions;
 using Glowee.Domain.Entities.LikedPosts;
+using Glowee.Domain.Entities.Users;
 using MediatR;
+using UnauthorizedAccessException = Glowee.Application.Exceptions.UnauthorizedAccessException;
 
 namespace Glowee.Application.Features.Post.Commands.Likes;
 
@@ -13,20 +16,20 @@ public class LikeCommandHandler : IRequestHandler<LikeCommand, bool>
 {
     private readonly ILikeRepository _likedPostsRepository;
     private readonly IPostRepository _postRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly IUserService _userService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="LikeCommandHandler"/> class.
     /// </summary>
     /// <param name="likeRepository">Repository for accessing liked posts.</param>
     /// <param name="postRepository">Repository for accessing posts.</param>
-    /// <param name="userRepository">Repository for accessing users.</param>
+    /// <param name="userService"></param>
     public LikeCommandHandler(ILikeRepository likeRepository,
-     IPostRepository postRepository, IUserRepository userRepository)
+     IPostRepository postRepository, IUserService userService)
     {
         _likedPostsRepository = likeRepository;
         _postRepository = postRepository;
-        _userRepository = userRepository;
+        _userService = userService;
     }
 
     /// <summary>
@@ -38,23 +41,22 @@ public class LikeCommandHandler : IRequestHandler<LikeCommand, bool>
     /// <exception cref="NotFoundException">Thrown if the post or user is not found.</exception>
     public async Task<bool> Handle(LikeCommand request, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrEmpty(_userService.UserId))
+            throw new UnauthorizedAccessException("User must be authenticated to create a post.");
+
+        var userId = long.Parse(_userService.UserId);
+        
         _postRepository.PostExists(request.PostId);
-
-        var user = await _userRepository.GetByIdAsync(request.UserId);
-        if (user == null)
-        {
-            throw new NotFoundException("User not found");
-        }
-
+        
         var posts = await _likedPostsRepository.GetAsync();
-        var postLike = posts.FirstOrDefault(x => x.PostId == request.PostId && x.UserId == request.UserId);
+        var postLike = posts.FirstOrDefault(x => x.PostId == request.PostId && x.UserId.Value == userId);
 
         if (postLike == null)
         {
             await _likedPostsRepository.CreateAsync(new LikedPost()
             {
                 PostId = request.PostId,
-                UserId = request.UserId,
+                UserId = new UserId(userId),
             });
 
             return true;

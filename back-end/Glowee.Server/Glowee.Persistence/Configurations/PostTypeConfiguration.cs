@@ -25,6 +25,30 @@ namespace Glowee.Persistence.Configurations
             builder.Property(pt => pt.Name)
                    .IsRequired()
                    .HasMaxLength(256);
+
+            builder.HasData(
+                new PostType()
+                {
+                    Id = new PostTypeId(1),
+                    Name = "Photo",
+                    CreatedAt = DateTime.Now,
+                    ModifiedAt = DateTime.Now,
+                },
+                new PostType()
+                {
+                    Id = new PostTypeId(2),
+                    Name = "Video",
+                    CreatedAt = DateTime.Now,
+                    ModifiedAt = DateTime.Now,
+                },
+                new PostType()
+                {
+                    Id = new PostTypeId(3),
+                    Name = "Carousel",
+                    CreatedAt = DateTime.Now,
+                    ModifiedAt = DateTime.Now,
+                }
+                );
         }
     }
 }

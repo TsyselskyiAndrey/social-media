@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Glowee.Application.Features.Post.Commands.Likes;
 
-public record LikeCommand(PostId PostId, UserId UserId) : IRequest<bool>;
+public record LikeCommand(PostId PostId) : IRequest<bool>;

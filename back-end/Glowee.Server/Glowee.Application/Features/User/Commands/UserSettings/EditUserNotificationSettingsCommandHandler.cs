@@ -20,23 +20,16 @@ public class EditUserNotificationSettingsCommandHandler : IRequestHandler<EditUs
     
     public async Task Handle(EditUserNotificationSettingsCommand request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(_userService.UserId))
+        if (string.IsNullOrEmpty(_userService.UserId) || _userService.UserId == null)
         {
-            throw new UnauthorizedAccessException("User must be authenticated to chnge settings.");
+            throw new UnauthorizedAccessException("User must be authenticated to change settings.");
         }
         
-        var currentUserId = _userService.UserId != null
-            ? new UserId(Convert.ToInt64(_userService.UserId))
-            : null;
-
-        if (request.UserId != currentUserId.Value)
-        {
-            throw new UnauthorizedAccessException("You cannot change setting which is not yours");
-        }
-
+        var userId = long.Parse(_userService.UserId);
+        
         var mapper = new UserSettingsMapper();
 
-        var setting = await _notificationSettingsRepository.GetUsersNotificationSettings(currentUserId);
+        var setting = await _notificationSettingsRepository.GetUsersNotificationSettings(new UserId(userId));
         
         var updatedSettings = mapper.MapDtoToNotificationSettings(setting, request);
 

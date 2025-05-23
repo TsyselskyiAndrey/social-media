@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Azure.Storage.Blobs" Version="12.24.0" />
         <PackageReference Include="coverlet.collector" Version="6.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.3" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
@@ -22,6 +23,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Glowee.Application\Glowee.Application.csproj" />
       <ProjectReference Include="..\Glowee.Identity\Glowee.Identity.csproj" />
+      <ProjectReference Include="..\Glowee.Infrastructure\Glowee.Infrastructure.csproj" />
       <ProjectReference Include="..\Glowee.Persistence\Glowee.Persistence.csproj" />
     </ItemGroup>
 

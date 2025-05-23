@@ -29,7 +29,7 @@ public class GetPostCommentsQueryHandlerTest : IClassFixture<TestContext>
     {
         _context = fixture.Context;
         _context.SeedData();
-        _postRepository = new PostRepository(_context);
+        //_postRepository = new PostRepository(_context);
         _commentRepository = new CommentsRepository(_context);
         _userService = MockUserService.GetMockUserService();
         

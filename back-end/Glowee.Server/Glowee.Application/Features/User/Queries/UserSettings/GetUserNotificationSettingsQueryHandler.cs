@@ -1,6 +1,7 @@
 ﻿using Glowee.Application.Contracts.Identity;
 using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.MappingProfiles;
+using Glowee.Domain.Entities.Users;
 using MediatR;
 using UnauthorizedAccessException = Glowee.Application.Exceptions.UnauthorizedAccessException;
 
@@ -20,10 +21,12 @@ public class GetUserNotificationSettingsQueryHandler : IRequestHandler<GetUserNo
 
     public async Task<UserNotificationSettingsDto> Handle(GetUserNotificationSettingsQuery request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(_userService.UserId))
+        if (string.IsNullOrEmpty(_userService.UserId) || _userService.UserId == null)
             throw new UnauthorizedAccessException("User must be authenticated to take settings.");
 
-        var usersGeneralSettings = await _notificationSettingsRepository.GetUsersNotificationSettings(request.UserId);
+        var userId = long.Parse(_userService.UserId);
+        
+        var usersGeneralSettings = await _notificationSettingsRepository.GetUsersNotificationSettings(new UserId(userId));
 
         var mapper = new UserSettingsMapper();
 

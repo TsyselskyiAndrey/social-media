@@ -33,7 +33,7 @@ public class GetUsersSettingsHandlersTests : IClassFixture<TestContext>
     [InlineData(1, false, "Light", "English")]
     public async Task GetUsersGeneralSettingsTest(long userId, bool isPrivate, string theme, string language)
     {
-        var request = new GetUserGeneralSettingsQuery(new UserId(userId));
+        var request = new GetUserGeneralSettingsQuery();
         var handler = new GetUserGeneralSettingsQueryHandler(_mockUserService.Object, _generalSettingsRepository);
         
         var result = await handler.Handle(request, CancellationToken.None);
@@ -48,7 +48,7 @@ public class GetUsersSettingsHandlersTests : IClassFixture<TestContext>
     public async Task GetUsersNotificationSettingsTest(long userId, bool postLikes, bool comments
         , bool replies, bool follows, bool messages, bool mentions)
     {
-        var request = new GetUserNotificationSettingsQuery(new UserId(userId));
+        var request = new GetUserNotificationSettingsQuery();
         var handler = new GetUserNotificationSettingsQueryHandler(_mockUserService.Object, _notificationSettingsRepository);
         
         var result = await handler.Handle(request, CancellationToken.None);
@@ -67,7 +67,7 @@ public class GetUsersSettingsHandlersTests : IClassFixture<TestContext>
     {
         _mockUserService.Setup(x => x.UserId).Returns(() => null);
         
-        var request = new GetUserGeneralSettingsQuery(new UserId(userId));
+        var request = new GetUserGeneralSettingsQuery();
         var handler = new GetUserGeneralSettingsQueryHandler(_mockUserService.Object, _generalSettingsRepository);
 
         await Should.ThrowAsync<UnauthorizedAccessException>(async () =>
@@ -82,7 +82,7 @@ public class GetUsersSettingsHandlersTests : IClassFixture<TestContext>
     {
         _mockUserService.Setup(x => x.UserId).Returns(() => null);
         
-        var request = new GetUserNotificationSettingsQuery(new UserId(userId));
+        var request = new GetUserNotificationSettingsQuery();
         var handler = new GetUserNotificationSettingsQueryHandler(_mockUserService.Object, _notificationSettingsRepository);
         
         await Should.ThrowAsync<UnauthorizedAccessException>(async () =>
@@ -97,7 +97,6 @@ public class GetUsersSettingsHandlersTests : IClassFixture<TestContext>
     {
         var request = new EditUserGeneralSettingsCommand()
         {
-            UserId = userId,
             IsPrivate = true,
             Theme = "Black",
             Language = "Ukrainian",
@@ -119,7 +118,6 @@ public class GetUsersSettingsHandlersTests : IClassFixture<TestContext>
     {
         var request = new EditUserNotificationSettingsCommand()
         {
-            UserId = userId,
             NotifyPostLikes = false,
             NotifyComments = false,
             NotifyReplies = false,

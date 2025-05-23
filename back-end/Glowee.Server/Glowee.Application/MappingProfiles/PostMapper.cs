@@ -10,12 +10,14 @@ public class PostMapper : IPostMapper
 {
     private readonly IThumbnailStorageService _thumbnailStorageService;
     private readonly IPostMediaStorageService _postMediaStorageService;
+    private readonly IProfileImageStorageService _profileImageStorageService;
 
     public PostMapper(IThumbnailStorageService thumbnailStorageService
-        , IPostMediaStorageService postMediaStorageService)
+        , IPostMediaStorageService postMediaStorageService, IProfileImageStorageService profileImageStorageService)
     {
         _thumbnailStorageService = thumbnailStorageService;
         _postMediaStorageService = postMediaStorageService;
+        _profileImageStorageService = profileImageStorageService;
     }
 
     public PostDto MapPostToPostDtoAsync(Post post, UserId? currentUserId)
@@ -23,7 +25,8 @@ public class PostMapper : IPostMapper
         var dto = new PostDto
         {
             Id = post.Id.Value,
-            UserId = post.UserId.Value,
+            AuthorName = post.UserId.Value,
+            AuthorIconUrl = _profileImageStorageService.GetProfileImageUrl(post.User.ProfileImagePath) ?? "",
             Caption = post.Caption,
             PostType = post.PostType.Name,
             Likes = post.LikedPosts.Count,

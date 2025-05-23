@@ -1,5 +1,9 @@
-﻿using Glowee.Domain.Entities.Posts;
-using Glowee.Domain.Entities.Users;
+﻿using Glowee.Application.Features.Post.Queries.SavedPosts;
+using Glowee.Domain.Entities.PostMedias;
+using Glowee.Domain.Entities.Posts;
+using Glowee.Domain.Entities.PostTypes;
+using Glowee.Domain.Entities.Tags;
+
 
 namespace Glowee.Application.Contracts.Persistence;
 
@@ -10,4 +14,11 @@ public interface IPostRepository : IGenericRepository<Post, PostId>
     void PostExists(PostId id);
 
     Task<IEnumerable<Post>> GetIncludedPosts();
+
+    Task CreatePostWithPostMediaAsync(Post post,
+        IEnumerable<(Stream stream, string fileName, long size)> medias,
+        Stream? thumbnailStream,
+        string? thumbnailFileName,
+        IEnumerable<Tag> tags,
+        PostTypeId postTypeId);
 }

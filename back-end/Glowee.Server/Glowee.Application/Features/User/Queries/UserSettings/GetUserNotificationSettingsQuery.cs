@@ -2,4 +2,4 @@
 using MediatR;
 
 namespace Glowee.Application.Features.User.Queries.UserSettings;
-public record GetUserNotificationSettingsQuery(UserId UserId) : IRequest<UserNotificationSettingsDto>;
+public record GetUserNotificationSettingsQuery() : IRequest<UserNotificationSettingsDto>;

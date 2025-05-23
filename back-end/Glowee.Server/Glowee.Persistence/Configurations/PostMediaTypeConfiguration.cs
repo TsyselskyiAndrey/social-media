@@ -25,6 +25,20 @@ namespace Glowee.Persistence.Configurations
             builder.Property(pmt => pmt.Name)
                    .IsRequired()
                    .HasMaxLength(256);
+
+            builder.HasData(
+                new PostMediaType
+                {
+                    Id = new PostMediaTypeId(1),
+                    Name = "Photo"
+                },
+                new PostMediaType
+                {
+                    Id = new PostMediaTypeId(2),
+                    Name = "Video"
+                }
+            );
+
         }
     }
 }

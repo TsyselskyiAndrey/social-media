@@ -20,24 +20,16 @@ public class EditUserGeneralSettingsCommandHandler : IRequestHandler<EditUserGen
     
     public async Task Handle(EditUserGeneralSettingsCommand request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrEmpty(_userService.UserId))
+        if (string.IsNullOrEmpty(_userService.UserId) || _userService.UserId == null)
         {
-            throw new UnauthorizedAccessException("User must be authenticated to chnge settings.");
+            throw new UnauthorizedAccessException("User must be authenticated to change settings.");
         }
         
-        var currentUserId = _userService.UserId != null
-            ? new UserId(Convert.ToInt64(_userService.UserId))
-            : null;
-
-        //TODO: Добавить проверку на соответствие Id пользователя и Id настройки 
-        if (request.UserId != currentUserId.Value)
-        {
-            throw new UnauthorizedAccessException("You cannot change setting which is not yours");
-        }
+        var userId = long.Parse(_userService.UserId);
 
         var mapper = new UserSettingsMapper();
 
-        var setting = await _generalSettingsRepository.GetUsersGeneralSettings(currentUserId);
+        var setting = await _generalSettingsRepository.GetUsersGeneralSettings(new UserId(userId));
         
         var updatedSettings = mapper.MapDtoToGeneralSettings(setting, request);
 
