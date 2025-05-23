@@ -27,7 +27,7 @@ namespace Glowee.Persistence.Configurations
             builder.HasOne(f => f.Follower)
                    .WithMany(u => u.Followings)
                    .HasForeignKey(f => f.FollowerId)
-                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention
+                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention (Done)
                    .IsRequired();
 
             builder.Property(f => f.FollowedId)

@@ -8,6 +8,7 @@ using Glowee.Domain.Entities.PostMediaTypes;
 using Glowee.Domain.Entities.Posts;
 using Glowee.Domain.Entities.PostTypes;
 using Glowee.Domain.Entities.Tags;
+using Glowee.Domain.Entities.Users;
 using Glowee.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,11 +17,31 @@ namespace Glowee.Persistence.Repositories;
 public class PostRepository : GenericRepository<Post, PostId>, IPostRepository
 {
     private readonly IBlobStorageService _blobStorageService;
+    ICommentsRepository _commentsRepository;
 
-    public PostRepository(SqlDbContext connection, IBlobStorageService blobStorageService) : base(connection)
+    public PostRepository(SqlDbContext connection, ICommentsRepository commentsRepository) : base(connection)
     {
-        _blobStorageService = blobStorageService;
+        _commentsRepository = commentsRepository;
     }
+
+    public override async Task DeleteAsync(PostId id)
+    {
+        await _commentsRepository.DeleteByPostIdAsync(id);
+        await base.DeleteAsync(id);
+    }
+
+    public async Task DeleteByUserIdAsync(UserId userId)
+    {
+        var posts = await _context.Posts
+            .Where(c => c.UserId == userId)
+            .ToListAsync();
+
+        foreach (var post in posts)
+        {
+            await DeleteAsync(post.Id);
+        }
+    }
+
     public void PostExists(PostId id)
     {
         if (!_context.Posts.Any(p => p.Id == id))

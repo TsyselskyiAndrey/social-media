@@ -19,7 +19,8 @@ namespace Glowee.Identity.Configurations
                      UserName = "AdminProMax",
                      NormalizedUserName = "ADMINPROMAX",
                      PasswordHash = hasher.HashPassword(null, "Q1w2e3r4t5y6"),
-                     EmailConfirmed = true
+                     EmailConfirmed = true,
+                     SecurityStamp = Guid.NewGuid().ToString()
                  }
             );
 

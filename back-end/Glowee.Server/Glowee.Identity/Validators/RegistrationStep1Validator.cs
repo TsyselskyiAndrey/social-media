@@ -34,7 +34,7 @@ namespace Glowee.Identity.Validators
                    .Matches(@"^[^\s]*$").WithMessage("Password cannot contain spaces.")
                    .Must(password => password.All(c => char.IsLetterOrDigit(c))).WithMessage("Password cannot contain symbols.");
 
-            RuleFor(r => r.RePassword)
+            RuleFor(r => r.ConfirmPassword)
                    .Cascade(CascadeMode.Stop)
                    .NotEmpty().WithMessage("Re-password is required.")
                    .Equal(r => r.Password).WithMessage("Passwords do not match.");

@@ -46,7 +46,7 @@ namespace Glowee.Persistence.Configurations
             builder.HasOne(r => r.Complainant)
                    .WithMany(u => u.ReportsMade)
                    .HasForeignKey(r => r.ComplainantId)
-                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention
+                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention (Done)
                    .IsRequired();
 
             builder.Property(r => r.PostId)

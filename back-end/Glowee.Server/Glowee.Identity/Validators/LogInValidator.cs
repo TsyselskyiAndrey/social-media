@@ -27,14 +27,7 @@ namespace Glowee.Identity.Validators
 
             RuleFor(r => r.Password)
                    .Cascade(CascadeMode.Stop)
-                   .NotEmpty().WithMessage("Password is required.")
-                   .MinimumLength(12).WithMessage("Incorrect password.")
-                   .MaximumLength(30).WithMessage("Incorrect password.")
-                   .Matches(@"[A-Z]").WithMessage("Incorrect password.")
-                   .Matches(@"[a-z]").WithMessage("Incorrect password.")
-                   .Matches(@"[0-9]").WithMessage("Incorrect password.")
-                   .Matches(@"^[^\s]*$").WithMessage("Incorrect password.")
-                   .Must(password => password.All(c => char.IsLetterOrDigit(c))).WithMessage("Incorrect password.");
+                   .NotEmpty().WithMessage("Password is required.");
 
             RuleFor(r => r.DeviceId)
                    .Cascade(CascadeMode.Stop)

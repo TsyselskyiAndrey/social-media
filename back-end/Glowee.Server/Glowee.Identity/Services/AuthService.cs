@@ -6,6 +6,7 @@ using Glowee.Application.Contracts.Storage;
 using Glowee.Application.Exceptions;
 using Glowee.Application.Models.Email;
 using Glowee.Application.Models.Identity.FacebookAuth;
+using Glowee.Application.Models.Identity.ForgotPassword;
 using Glowee.Application.Models.Identity.General;
 using Glowee.Application.Models.Identity.GoogleAuth;
 using Glowee.Application.Models.Identity.LogIn;
@@ -19,6 +20,7 @@ using Glowee.Identity.DbContext;
 using Glowee.Identity.Models;
 using Glowee.Identity.Validators;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -165,7 +167,7 @@ namespace Glowee.Identity.Services
             {
                 throw new BadRequestException("Google email is not verified.");
             }
-            var info = new UserLoginInfo(request.Provider, payload.Subject, request.Provider);
+            var info = new UserLoginInfo("Google", payload.Subject, "Google");
             var authUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
 
             if (authUser == null)
@@ -294,17 +296,21 @@ namespace Glowee.Identity.Services
                 throw new BadRequestException("Invalid registration", userNameValidationResult);
             }
 
-            existingUser = await _userManager.FindByEmailAsync(request.Email);
-
-            if (existingUser != null && existingUser.EmailConfirmed)
+            if (existingUser == null)
             {
-                var emailValidationResult = new ValidationResult(new List<ValidationFailure>
-                {
-                    new ValidationFailure("Email", "This email has been taken.")
-                });
+                existingUser = await _userManager.FindByEmailAsync(request.Email);
 
-                throw new BadRequestException("Invalid registration", emailValidationResult);
+                if (existingUser != null && existingUser.EmailConfirmed)
+                {
+                    var emailValidationResult = new ValidationResult(new List<ValidationFailure>
+                    {
+                        new ValidationFailure("Email", "This email has been taken.")
+                    });
+
+                    throw new BadRequestException("Invalid registration", emailValidationResult);
+                }
             }
+
 
             string registrationToken = "";
 
@@ -436,7 +442,7 @@ namespace Glowee.Identity.Services
                 throw new InternalServerException();
             }
 
-            await SendConfirmationCodeByEmail(authUser.Email, code);
+            await SendConfirmationCodeByEmail(authUser.Email!, code);
         }
 
         public async Task<ProfilePictureUploadResponse> UploadProfilePicture(ProfilePictureUploadRequest request, string? registrationToken)
@@ -606,7 +612,7 @@ namespace Glowee.Identity.Services
 
             if (authUser == null)
             {
-                throw new NotFoundException($"The user ('{email}') wasn't found.");
+                throw new UnauthorizedAccessException($"The user ('{email}') wasn't found.");
             }
 
             var existingRefreshToken = await _context.RefreshTokens
@@ -623,6 +629,80 @@ namespace Glowee.Identity.Services
             }
 
             return await GenerateAuthResponse(authUser, deviceId);
+        }
+
+        public async Task ForgotPassword(ForgotPasswordRequest request)
+        {
+            var validationResult = await new ForgotPasswordVaidator().ValidateAsync(request);
+
+            if (validationResult.Errors.Count != 0)
+            {
+                throw new BadRequestException("Invalid forgot password request", validationResult);
+            }
+
+            var authUser = await _userManager.FindByEmailAsync(request.Email);
+
+            if (authUser == null)
+            {
+                throw new NotFoundException($"The user ({request.Email}) was not found.");
+            }
+            if (authUser.EmailConfirmed == false)
+            {
+                throw new ForbiddenException("The email is not confirmed. Finish your registration");
+            }
+            if (string.IsNullOrWhiteSpace(authUser.PasswordHash))
+            {
+                var passwordValidationResult = new ValidationResult(new List<ValidationFailure>
+                {
+                    new ValidationFailure("Email", "The account was registered with an external provider. Try another way")
+                });
+
+                throw new BadRequestException("Invalid forgot password request", passwordValidationResult);
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(authUser);
+
+            var param = new Dictionary<string, string?>()
+            {
+                { "token", token },
+                { "email", request.Email }
+            };
+
+            var callback = QueryHelpers.AddQueryString(request.ClientUri, param);
+            await SendPasswordResetLinkByEmail(authUser.Email!, callback);
+        }
+
+        public async Task ResetPassword(ResetPasswordRequest request)
+        {
+            var validationResult = await new ResetPasswordValidator().ValidateAsync(request);
+
+            if (validationResult.Errors.Count != 0)
+            {
+                throw new BadRequestException("Invalid reset password request", validationResult);
+            }
+
+            var authUser = await _userManager.FindByEmailAsync(request.Email);
+
+            if (authUser == null)
+            {
+                throw new NotFoundException($"The user ({request.Email}) was not found.");
+            }
+
+            var decodedToken = Uri.UnescapeDataString(request.Token);
+
+            var result = await _userManager.ResetPasswordAsync(authUser, decodedToken, request.Password);
+
+            if (!result.Succeeded)
+            {
+                var resultValidationFailures = result.Errors
+                    .Select(e => new ValidationFailure("ResetPassword", e.Description))
+                    .ToList();
+
+                var resultValidationResult = new ValidationResult(resultValidationFailures);
+
+                throw new BadRequestException("Reset password failed", resultValidationResult);
+            }
+
         }
 
         public async Task Logout(ClaimsPrincipal userPrincipal)
@@ -664,14 +744,16 @@ namespace Glowee.Identity.Services
 
         private async Task<CompleteAuthResponse> GenerateAuthResponse(AuthUser authUser, string deviceId)
         {
-            var accessToken = await GenerateJwtToken(authUser, _jwtSettings.AccessTokenValidityInMinutes, deviceId);
-            var refreshToken = await GenerateRefreshToken(authUser, deviceId);
             var user = await _userRepository.GetByIdAsync(new UserId(authUser.Id));
 
             if (user == null)
             {
                 throw new InternalServerException();
             }
+
+            var accessToken = await GenerateJwtToken(authUser, _jwtSettings.AccessTokenValidityInMinutes, deviceId);
+            var refreshToken = await GenerateRefreshToken(authUser, deviceId);
+
 
             var authResponse = new AuthResponse
             {
@@ -889,7 +971,35 @@ namespace Glowee.Identity.Services
                             <h3 style='color: #444;'>{confirmationCode}</h3>
                         </div>
                         <p style='font-size: 16px; color: #555;'>If you didn't request this, please ignore this email.</p>
-                        <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Application Team</p>
+                        <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Glowee Team</p>
+                    </div>
+                </body>
+            </html>";
+
+            await _emailSender.SendEmailAsync(new EmailMessage()
+            {
+                To = toEmail,
+                Body = htmlBody,
+                Subject = subject,
+                IsBodyHtml = true
+            });
+        }
+
+        private async Task SendPasswordResetLinkByEmail(string toEmail, string resetLink)
+        {
+            string subject = "Password Reset Request";
+
+            string htmlBody = $@"
+            <html>
+                <body style='font-family: Arial, sans-serif;'>
+                    <div style='max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc;'>
+                        <h2 style='color: #333;'>Reset Your Password</h2>
+                        <p style='font-size: 16px; color: #555;'>We received a request to reset your password. Click the link below to choose a new password:</p>
+                        <div style='margin: 20px 0; text-align: center;'>
+                            <a href='{resetLink}' style='display: inline-block; padding: 12px 24px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; font-size: 16px;'>Reset Password</a>
+                        </div>
+                        <p style='font-size: 16px; color: #555;'>If you didn’t request a password reset, you can safely ignore this email.</p>
+                        <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Glowee Team</p>
                     </div>
                 </body>
             </html>";

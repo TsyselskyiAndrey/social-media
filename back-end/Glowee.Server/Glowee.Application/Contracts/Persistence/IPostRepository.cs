@@ -4,12 +4,15 @@ using Glowee.Domain.Entities.Posts;
 using Glowee.Domain.Entities.PostTypes;
 using Glowee.Domain.Entities.Tags;
 
+
 namespace Glowee.Application.Contracts.Persistence;
 
-public interface IPostRepository: IGenericRepository<Post, PostId>
+public interface IPostRepository : IGenericRepository<Post, PostId>
 {
+    Task DeleteByUserIdAsync(UserId userId);
+
     void PostExists(PostId id);
-    
+
     Task<IEnumerable<Post>> GetIncludedPosts();
 
     Task CreatePostWithPostMediaAsync(Post post,

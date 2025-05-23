@@ -27,7 +27,7 @@ namespace Glowee.Persistence.Configurations
             builder.HasOne(c => c.User)
                    .WithMany(u => u.Comments)
                    .HasForeignKey(c => c.UserId)
-                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention
+                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention (Done)
                    .IsRequired();
 
             builder.Property(c => c.PostId)
@@ -35,7 +35,7 @@ namespace Glowee.Persistence.Configurations
             builder.HasOne(c => c.Post)
                    .WithMany(p => p.Comments)
                    .HasForeignKey(c => c.PostId)
-                   .OnDelete(DeleteBehavior.Restrict)  // ----------- Attention
+                   .OnDelete(DeleteBehavior.Restrict)  // ----------- Attention (Done)
                    .IsRequired();
 
             builder.Property(c => c.Content)
@@ -47,7 +47,7 @@ namespace Glowee.Persistence.Configurations
             builder.HasOne(c => c.ParentComment)
                    .WithMany(c => c.ChildComments)
                    .HasForeignKey(c => c.ParentCommentId)
-                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention
+                   .OnDelete(DeleteBehavior.Restrict) // ----------- Attention (Done)
                    .IsRequired(false);
         }
     }

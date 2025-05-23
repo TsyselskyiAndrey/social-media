@@ -3,15 +3,12 @@ using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Exceptions;
 using Glowee.Application.Models.Identity.UserService;
 using Glowee.Domain.Entities.Users;
-using Glowee.Identity.DbContext;
 using Glowee.Identity.Models;
-using Glowee.Persistence.DbContext;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Transactions;
 
 namespace Glowee.Identity.Services
 {
@@ -19,16 +16,12 @@ namespace Glowee.Identity.Services
     {
         private readonly UserManager<AuthUser> _userManager;
         private readonly IUserRepository _userRepository;
-        private readonly AuthenticationDbContext _authContext;
-        private readonly SqlDbContext _businessContext;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public UserService(UserManager<AuthUser> userManager, IUserRepository userRepository, AuthenticationDbContext authContext, SqlDbContext businessContext, IHttpContextAccessor contextAccessor)
+        public UserService(UserManager<AuthUser> userManager, IUserRepository userRepository, IHttpContextAccessor contextAccessor)
         {
             _userManager = userManager;
             _userRepository = userRepository;
-            _authContext = authContext;
-            _businessContext = businessContext;
             _contextAccessor = contextAccessor;
         }
 
@@ -36,46 +29,44 @@ namespace Glowee.Identity.Services
 
         public async Task<UserId> CreateAsync(UserModel userModel)
         {
-            await using var transaction = await _authContext.Database.BeginTransactionAsync();
-
             try
             {
-                var newAuthUser = new AuthUser()
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    UserName = userModel.UserName,
-                    Email = userModel.Email,
-                    EmailConfirmed = userModel.EmailConfirmed
-                };
+                    var newAuthUser = new AuthUser()
+                    {
+                        UserName = userModel.UserName,
+                        Email = userModel.Email,
+                        EmailConfirmed = userModel.EmailConfirmed
+                    };
 
-                var createResult = await _userManager.CreateAsync(newAuthUser);
+                    var createResult = await _userManager.CreateAsync(newAuthUser);
 
-                if (createResult.Succeeded == false)
-                {
-                    throw new InternalServerException();
+                    if (!createResult.Succeeded)
+                    {
+                        throw new InternalServerException();
+                    }
+
+                    var newUser = new User()
+                    {
+                        Id = new UserId(newAuthUser.Id),
+                        Email = userModel.Email,
+                        UserName = userModel.UserName,
+                        FirstName = userModel.FirstName,
+                        LastName = userModel.LastName,
+                        BirthDate = userModel.BirthDate,
+                        Biography = userModel.Biography,
+                        ProfileImagePath = userModel.ProfileImageUrl
+                    };
+
+                    await _userRepository.CreateAsync(newUser);
+
+                    scope.Complete();
+                    return new UserId(newAuthUser.Id);
                 }
-
-                await _businessContext.Database.UseTransactionAsync(transaction.GetDbTransaction());
-
-                var newUser = new User()
-                {
-                    Id = new UserId(newAuthUser.Id),
-                    Email = userModel.Email,
-                    UserName = userModel.UserName,
-                    FirstName = userModel.FirstName,
-                    LastName = userModel.LastName,
-                    BirthDate = userModel.BirthDate,
-                    Biography = userModel.Biography,
-                    ProfileImagePath = userModel.ProfileImageUrl
-                };
-
-                await _userRepository.CreateAsync(newUser);
-
-                await transaction.CommitAsync();
-                return new UserId(newAuthUser.Id);
             }
             catch (Exception)
             {
-                await transaction.RollbackAsync();
                 throw new InternalServerException();
             }
 
@@ -83,69 +74,66 @@ namespace Glowee.Identity.Services
 
         public async Task UpdateAsync(UserModel userModel, UserId userId)
         {
-            await using var transaction = await _authContext.Database.BeginTransactionAsync();
-
             try
             {
-                var authUser = await _userManager.FindByIdAsync(userId.Value.ToString());
-
-                if (authUser == null)
+                using (var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
                 {
-                    throw new NotFoundException("The user wasn't found.");
-                }
+                    var authUser = await _userManager.FindByIdAsync(userId.Value.ToString());
 
-                authUser.Email = userModel.Email;
-                authUser.UserName = userModel.UserName;
-                authUser.EmailConfirmed = userModel.EmailConfirmed;
-
-                var updateResult = await _userManager.UpdateAsync(authUser);
-
-                if (updateResult.Succeeded == false)
-                {
-                    throw new InternalServerException();
-                }
-
-                await _businessContext.Database.UseTransactionAsync(transaction.GetDbTransaction());
-
-                var businessUser = await _userRepository.GetByIdAsync(userId);
-
-                if (businessUser == null)
-                {
-                    businessUser = new User()
+                    if (authUser == null)
                     {
-                        Id = new UserId(authUser.Id),
-                        Email = userModel.Email,
-                        UserName = userModel.UserName,
-                        FirstName = userModel.FirstName,
-                        LastName = userModel.LastName,
-                        Biography = userModel.Biography,
-                        BirthDate = userModel.BirthDate,
-                        ProfileImagePath = userModel.ProfileImageUrl
-                    };
+                        throw new NotFoundException("The user wasn't found.");
+                    }
 
-                    await _userRepository.CreateAsync(businessUser);
+                    authUser.Email = userModel.Email;
+                    authUser.UserName = userModel.UserName;
+                    authUser.EmailConfirmed = userModel.EmailConfirmed;
+
+                    var updateResult = await _userManager.UpdateAsync(authUser);
+
+                    if (!updateResult.Succeeded)
+                    {
+                        throw new InternalServerException();
+                    }
+
+                    var businessUser = await _userRepository.GetByIdAsync(userId);
+
+                    if (businessUser == null)
+                    {
+                        businessUser = new User()
+                        {
+                            Id = new UserId(authUser.Id),
+                            Email = userModel.Email,
+                            UserName = userModel.UserName,
+                            FirstName = userModel.FirstName,
+                            LastName = userModel.LastName,
+                            Biography = userModel.Biography,
+                            BirthDate = userModel.BirthDate,
+                            ProfileImagePath = userModel.ProfileImageUrl
+                        };
+
+                        await _userRepository.CreateAsync(businessUser);
+                    }
+                    else
+                    {
+                        businessUser.Email = userModel.Email;
+                        businessUser.UserName = userModel.UserName;
+                        businessUser.FirstName = userModel.FirstName;
+                        businessUser.LastName = userModel.LastName;
+                        businessUser.Biography = userModel.Biography;
+                        businessUser.BirthDate = userModel.BirthDate;
+                        businessUser.ProfileImagePath = userModel.ProfileImageUrl;
+
+                        await _userRepository.UpdateAsync(businessUser);
+                    }
+
+                    scope.Complete();
                 }
-                else
-                {
-                    businessUser.Email = userModel.Email;
-                    businessUser.UserName = userModel.UserName;
-                    businessUser.FirstName = userModel.FirstName;
-                    businessUser.LastName = userModel.LastName;
-                    businessUser.Biography = userModel.Biography;
-                    businessUser.BirthDate = userModel.BirthDate;
-                    businessUser.ProfileImagePath = userModel.ProfileImageUrl;
-
-                    await _userRepository.UpdateAsync(businessUser);
-                }
-
-                await transaction.CommitAsync();
             }
             catch (Exception)
             {
-                await transaction.RollbackAsync();
                 throw new InternalServerException();
             }
-
         }
     }
 }
