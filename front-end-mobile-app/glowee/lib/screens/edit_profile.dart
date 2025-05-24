@@ -129,17 +129,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               EditableProfileInfoRow(title: 'Bio', controller: _bioController),
               const Divider(),
               EditableProfileInfoRow(title: 'Birthdate', controller: _birthdayController),
-              SizedBox(height: 30.h),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Private Information',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
               SizedBox(height: 10.h),
 
             ],
@@ -150,7 +139,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
 }
-
 class EditableProfileInfoRow extends StatelessWidget {
   final String title;
   final TextEditingController controller;
@@ -163,6 +151,8 @@ class EditableProfileInfoRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isBirthdate = title.toLowerCase() == 'birthdate';
+
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 12.h),
       child: Row(
@@ -175,7 +165,32 @@ class EditableProfileInfoRow extends StatelessWidget {
               fontSize: 16,
             ),
           ),
-          SizedBox(
+          isBirthdate
+              ? GestureDetector(
+            onTap: () async {
+              DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.tryParse(controller.text) ?? DateTime(2000),
+                firstDate: DateTime(1900),
+                lastDate: DateTime.now(),
+              );
+              if (pickedDate != null) {
+                controller.text = pickedDate.toLocal().toIso8601String().split('T').first;
+                birthdayNotifier.value = controller.text;
+              }
+            },
+            child: Container(
+              alignment: Alignment.centerRight,
+              width: 200.w,
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                controller.text.isNotEmpty ? controller.text : 'Select date',
+                style: const TextStyle(fontSize: 16, color: Colors.black87),
+                textAlign: TextAlign.end,
+              ),
+            ),
+          )
+              : SizedBox(
             width: 200.w,
             child: TextField(
               controller: controller,
