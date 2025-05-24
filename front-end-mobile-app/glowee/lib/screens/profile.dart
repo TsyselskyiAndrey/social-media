@@ -35,7 +35,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Scaffold(
         backgroundColor: const Color.fromRGBO(27, 97, 103, 1),
         appBar: AppBar(
-          title: const Text('Profile', style: TextStyle(color: Colors.white)),
+          title: ValueListenableBuilder<String>(
+            valueListenable: usernameNotifier,
+            builder: (context, name, _) {
+              return Text(
+                name,
+                style: const TextStyle(color: Colors.white),
+              );
+            },
+          ),
           backgroundColor: const Color.fromRGBO(36, 54, 66, 1),
           elevation: 0,
           iconTheme: const IconThemeData(color: Colors.white),
@@ -76,19 +84,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
                     SizedBox(height: 10.h),
-                    ValueListenableBuilder<String>(
-                      valueListenable: nameNotifier,
-                      builder: (context, name, _) {
-                        return Text(
-                          name,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      },
-                    ),
                     Text(
                       bio,
                       style: TextStyle(color: Colors.white70, fontSize: 12.sp),
@@ -189,14 +184,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   SliverToBoxAdapter(child: _buildHead()),
                   SliverGrid(
                     delegate: SliverChildBuilderDelegate(
-                          (context, index) => GestureDetector(
-                        onTap: () {},
-                        child: Image.network(
-                          'https://via.placeholder.com/150',
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      childCount: postLength,
+                          (context, index) {
+                        if (index >= posts.length) {
+                          return Container(); // Return empty container if no more posts
+                        }
+                        return GestureDetector(
+                          onTap: () {},
+                          child: Image.file(
+                            posts[index].image,
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      },
+                      childCount: posts.length, // Use actual post count
                     ),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
