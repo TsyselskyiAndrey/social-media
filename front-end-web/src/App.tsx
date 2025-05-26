@@ -14,10 +14,10 @@ import SettingsPage from "./Pages/Settings/Settings";
 import InterfaceSettingsPage from "./Pages/Settings/InterfaceSettingsPage";
 import { ThemeProviderCustom } from "./Contexts/ThemeContext";
 import { CssBaseline } from "@mui/material";
+import CheckoutPage from "./Pages/CheckoutPage/CheckoutPage";
 
 function App() {
   useAxiosWithToken();
-
 
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -26,9 +26,9 @@ function App() {
         <Route path="signup" element={<SignupPage />} />
         <Route path="forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="resetpassword" element={<ResetPasswordPage />} />
-  
-          <Route path="mainpage" element={<MainPage />} />
-          <Route path="profile" element={<ProfilePage />} />
+        <Route path="mainpage" element={<MainPage />} />
+        <Route path="checkout" element={<CheckoutPage />} />
+        <Route path="profile" element={<ProfilePage />} />
         <Route path="*" element={<NotFound />}></Route>
         <Route path="settings" element={<SettingsPage />}></Route>
         <Route path="settings/interface" element={<InterfaceSettingsPage />}></Route>
