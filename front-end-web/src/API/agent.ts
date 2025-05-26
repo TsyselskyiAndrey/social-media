@@ -22,7 +22,7 @@ interface Step1Data {
   email: string;
   username: string;
   password: string;
-  rePassword: string;
+  confirmpassword: string;
 }
 
 interface Step2Data {
@@ -51,26 +51,26 @@ interface ResetPasswordData {
   token: string | null;
 }
 
-interface CreatePostRequest{
+interface CreatePostRequest {
   caption: string;
   tags: string[];
   postMedias: File[];
   thumbnail: File | null;
 }
 
-export interface Tag{
+export interface Tag {
   id: number;
   name: string;
 }
 
-export interface UserProfileInfo{
-  FirstName : string;
-  LastName : string;
-  Email : string;
-  UserName : string;
-  Biography : string | null;
-  ProfileImagePath : string | null;
-  BirthDate : Date | null;
+export interface UserProfileInfo {
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  UserName: string;
+  Biography: string | null;
+  ProfileImagePath: string | null;
+  BirthDate: Date | null;
 }
 
 const Auth = {
@@ -146,15 +146,13 @@ const Auth = {
 };
 
 const Posts = {
-  getPosts: () => {
-
-  },
+  getPosts: () => {},
   createPost: async ({ caption, tags, postMedias, thumbnail }: CreatePostRequest) => {
     const formData = new FormData();
-    formData.append('Caption', caption);
+    formData.append("Caption", caption);
     tags.forEach((tag, index) => formData.append(`Tags[${index}]`, tag));
-    postMedias.forEach(file => formData.append('PostMedias', file));
-    if (thumbnail) formData.append('Thumbnail', thumbnail);
+    postMedias.forEach((file) => formData.append("PostMedias", file));
+    if (thumbnail) formData.append("Thumbnail", thumbnail);
 
     return await axiosWithToken.post("/api/post/createPost", formData, {
       headers: {
@@ -162,20 +160,20 @@ const Posts = {
       },
       withCredentials: true,
     });
-  }
-}
+  },
+};
 
 const Tags = {
-  getAllTags: async () =>{
+  getAllTags: async () => {
     return await axiosWithToken.get<Tag[]>("/api/post/getAllTags");
-  }
-}
+  },
+};
 
 const User = {
   getUserProfileInfo: async () => {
     return await axiosWithToken.get<UserProfileInfo>("/api/user/getUserProfileInfo");
-  }
-}
+  },
+};
 
 const Agent = {
   Auth,
