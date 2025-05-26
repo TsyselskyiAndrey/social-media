@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../data/post_data.dart';
+import 'package:glowee/screens/profile_image_notifier.dart';
 import 'package:glowee/model/post_model.dart';
-
-
+import 'package:glowee/screens/profile.dart';
 class AddPostTextScreen extends StatefulWidget {
   final File _file;
   const AddPostTextScreen(this._file, {super.key});
@@ -37,13 +37,25 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
                     isLoading = true;
                   });
 
-                  posts.add(Post(image: widget._file, caption: caption.text));
+                  posts.add(Post(
+                    image: widget._file,
+                    caption: caption.text,
+                    username: usernameNotifier.value,
+                    userImage: profileImageNotifier.value,
+                  ));
 
                   setState(() {
                     isLoading = false;
                   });
 
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(
+                        uid: 'current_user_id', // Replace with actual user ID
+                      ),
+                    ),
+                        (Route<dynamic> route) => false,
+                  );
                 },
                 child: Text(
                   'Share',
