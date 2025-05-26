@@ -91,17 +91,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
-
               ListTile(
-                leading: const Icon(Icons.settings, color: Colors.black),
-                title: const Text('Settings'),
-                onTap: () {
-                  Navigator.pop(context);
-                  print('Settings tapped');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.save, color: Colors.black),
+                leading: Icon(Icons.save, color: Theme.of(context).iconTheme.color),
                 title: const Text('Saved'),
                 onTap: () {
                   Navigator.pop(context);
@@ -109,7 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.payment, color: Colors.black),
+                leading: Icon(Icons.settings, color: Theme.of(context).iconTheme.color),
                 title: const Text('Payment'),
                 onTap: () {
                   Navigator.pop(context);
@@ -118,7 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               ),
               ListTile(
-                leading: const Icon(Icons.account_box, color: Colors.black),
+                leading: Icon(Icons.person, color: Theme.of(context).iconTheme.color),
                 title: const Text('Account'),
                 onTap: () {
                   Navigator.pop(context);
@@ -130,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.help, color: Colors.black),
+                leading: Icon(Icons.payment, color: Theme.of(context).iconTheme.color),
                 title: const Text('Help'),
                 onTap: () {
                   Navigator.pop(context);
@@ -138,7 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.sunny, color: Colors.black),
+                leading: Icon(Icons.sunny, color: Theme.of(context).iconTheme.color),
                 title: const Text('Interface'),
                 onTap: () {
                   Navigator.pop(context);
@@ -154,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.logout, color: Colors.black),
+                leading: Icon(Icons.exit_to_app, color: Theme.of(context).iconTheme.color),
                 title: const Text('Logout'),
                   onTap: () {
                     Navigator.pop(context);
@@ -330,6 +321,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget editProfileBtn(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -342,14 +335,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
         height: 30.h,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isDark ? Colors.teal[700] : Colors.tealAccent[100],
           borderRadius: BorderRadius.circular(5.r),
-          border: Border.all(color: Colors.grey.shade400),
+          border: Border.all(color: isDark ? Colors.white54 : Colors.grey.shade400),
         ),
-        child: const Text('Edit Your Profile'),
+        child: Text(
+          'Edit Your Profile',
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }
+
 
 
 }
