@@ -59,7 +59,6 @@ class _InterfaceScreenState extends State<InterfaceScreen> {
             ),
           ),
           _buildThemeSetting(context),
-          _buildPrivacySetting(context),
           _buildLanguageSetting(context),
         ],
       ),
@@ -95,17 +94,6 @@ class _InterfaceScreenState extends State<InterfaceScreen> {
     );
   }
 
-  Widget _buildPrivacySetting(BuildContext context) {
-    return SwitchListTile(
-      title: const Text('Private Account'), // Consider adding to localization
-      value: _isPrivateAccount,
-      onChanged: (bool value) {
-        setState(() {
-          _isPrivateAccount = value;
-        });
-      },
-    );
-  }
 
   Widget _buildLanguageSetting(BuildContext context) {
     return ListTile(
