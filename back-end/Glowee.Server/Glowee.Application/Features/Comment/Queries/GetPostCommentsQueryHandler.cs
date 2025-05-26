@@ -4,16 +4,16 @@ using Glowee.Application.Contracts.Persistence;
 using Glowee.Domain.Entities.Users;
 using MediatR;
 
-namespace Glowee.Application.Features.Post.Queries.Comments;
+namespace Glowee.Application.Features.Comment.Queries;
 
 public class GetPostCommentsQueryHandler : IRequestHandler<GetPostCommentsQuery, IEnumerable<CommentDto>>
 {
-    private readonly ICommentsRepository _commentsRepository;
+    private readonly ICommentRepository _commentsRepository;
     private readonly IPostRepository _postRepository;
     private readonly ICommentMapper _commentMapper;
     private readonly IUserService _userService;
 
-    public GetPostCommentsQueryHandler(ICommentsRepository commentsRepository
+    public GetPostCommentsQueryHandler(ICommentRepository commentsRepository
         , IPostRepository postRepository, ICommentMapper commentMapper
         , IUserService userService)
     {

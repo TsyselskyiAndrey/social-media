@@ -21,7 +21,8 @@ namespace Glowee.Persistence
             services.AddScoped<IPostRepository, PostRepository>();
             services.AddScoped<IPostMediaRepository, PostMediaRepository>();
             services.AddScoped<ISavedPostRepository, SavedPostRepository>();
-            services.AddScoped<ICommentsRepository, CommentsRepository>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
+            services.AddScoped<ICommentStatusRepository, CommentStatusRepository>();
             services.AddScoped<ILikeRepository, LikeRepository>();
             services.AddScoped<IGeneralSettingsRepository, GeneralSettingsRepository>();
             services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();
@@ -29,7 +30,6 @@ namespace Glowee.Persistence
             services.AddScoped<IUninterestingPostRepository, UninterestingPostsRepository>();
             services.AddScoped<IGeneralSettingsRepository, GeneralSettingsRepository>();
             services.AddScoped<INotificationSettingsRepository, NotificationSettingsRepository>();
-            services.AddScoped<IFollowsRepository, FollowsRepository>();
             services.AddScoped<IFollowRepository, FollowRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddScoped<INotificationRepository, NotificationRepository>();

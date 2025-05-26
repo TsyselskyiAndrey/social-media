@@ -7,16 +7,16 @@ using Glowee.Domain.Entities.Users;
 using MediatR;
 using UnauthorizedAccessException = Glowee.Application.Exceptions.UnauthorizedAccessException;
 
-namespace Glowee.Application.Features.Post.Commands.Comment.CreateComment;
+namespace Glowee.Application.Features.Comment.Commands.CreateComment;
 
 public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand>
 {
     private readonly IUserService _userService;
     private readonly IPostRepository _postRepository;
-    private readonly ICommentsRepository _commentsRepository;
-    
+    private readonly ICommentRepository _commentsRepository;
+
     public CreateCommentCommandHandler(IUserService userService,
-        IPostRepository postRepository, ICommentsRepository commentsRepository)
+        IPostRepository postRepository, ICommentRepository commentsRepository)
     {
         _userService = userService;
         _postRepository = postRepository;
@@ -25,19 +25,19 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand>
 
 
     public async Task Handle(CreateCommentCommand request, CancellationToken cancellationToken)
-    { 
+    {
         var validator = new CreateCommentCommandValidator();
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
-        
+
         if (validationResult.Errors.Any())
             throw new BadRequestException("Invalid create comment type", validationResult);
-        
+
         _postRepository.PostExists(new PostId(request.PostId));
 
         if (string.IsNullOrEmpty(_userService.UserId))
             throw new UnauthorizedAccessException("User must be authenticated to comment.");
 
-        var userId = int.Parse(_userService.UserId!);
+        var userId = long.Parse(_userService.UserId!);
 
         var newComment = new Domain.Entities.Comments.Comment()
         {

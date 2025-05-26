@@ -1,8 +1,7 @@
-﻿using Glowee.Application.Features.Post.Queries.SavedPosts;
-using Glowee.Domain.Entities.PostMedias;
-using Glowee.Domain.Entities.Posts;
+﻿using Glowee.Domain.Entities.Posts;
 using Glowee.Domain.Entities.PostTypes;
 using Glowee.Domain.Entities.Tags;
+using Glowee.Domain.Entities.Users;
 
 
 namespace Glowee.Application.Contracts.Persistence;

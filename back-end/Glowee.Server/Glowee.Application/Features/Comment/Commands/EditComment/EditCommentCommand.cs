@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Glowee.Application.Features.Post.Commands.Comment.EditComment;
+namespace Glowee.Application.Features.Comment.Commands.EditComment;
 
 public class EditCommentCommand : IRequest
 {

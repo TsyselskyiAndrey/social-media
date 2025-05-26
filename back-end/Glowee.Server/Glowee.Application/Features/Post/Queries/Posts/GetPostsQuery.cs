@@ -1,5 +1,4 @@
 ﻿using Glowee.Application.Features.Post.GeneralDto;
-using Glowee.Application.Features.Post.Queries.SavedPosts;
 using Glowee.Domain.Entities.Posts;
 using Glowee.Domain.Entities.Tags;
 using Glowee.Domain.Entities.Users;

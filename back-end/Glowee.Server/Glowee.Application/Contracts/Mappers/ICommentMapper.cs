@@ -1,4 +1,4 @@
-﻿using Glowee.Application.Features.Post.Queries.Comments;
+﻿using Glowee.Application.Features.Comment.Queries;
 using Glowee.Domain.Entities.Comments;
 using Glowee.Domain.Entities.Users;
 

@@ -8,14 +8,14 @@ namespace Glowee.Persistence.Repositories
     public class UserRepository : GenericRepository<User, UserId>, IUserRepository
     {
         IFollowRepository _followRepository;
-        ICommentsRepository _commentsRepository;
+        ICommentRepository _commentsRepository;
         IMessageRepository _messageRepository;
         IPostRepository _postRepository;
         INotificationRepository _notificationRepository;
         IReportRepository _reportRepository;
         IRequestRepository _requestRepository;
 
-        public UserRepository(SqlDbContext context, IFollowRepository followRepository, ICommentsRepository commentsRepository, IMessageRepository messageRepository, IPostRepository postRepository, INotificationRepository notificationRepository, IReportRepository reportRepository, IRequestRepository requestRepository) : base(context)
+        public UserRepository(SqlDbContext context, IFollowRepository followRepository, ICommentRepository commentsRepository, IMessageRepository messageRepository, IPostRepository postRepository, INotificationRepository notificationRepository, IReportRepository reportRepository, IRequestRepository requestRepository) : base(context)
         {
             _followRepository = followRepository;
             _commentsRepository = commentsRepository;

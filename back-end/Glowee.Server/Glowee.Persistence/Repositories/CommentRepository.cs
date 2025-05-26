@@ -1,4 +1,5 @@
 ﻿using Glowee.Application.Contracts.Persistence;
+using Glowee.Application.Exceptions;
 using Glowee.Domain.Entities.Comments;
 using Glowee.Domain.Entities.Posts;
 using Glowee.Domain.Entities.Users;
@@ -7,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Glowee.Persistence.Repositories;
 
-public class CommentsRepository : GenericRepository<Comment, CommentId>, ICommentsRepository
+public class CommentRepository : GenericRepository<Comment, CommentId>, ICommentRepository
 {
-    public CommentsRepository(SqlDbContext context) : base(context)
+    public CommentRepository(SqlDbContext context) : base(context)
     {
     }
 
@@ -101,5 +102,13 @@ public class CommentsRepository : GenericRepository<Comment, CommentId>, ICommen
             .Include(c => c.CommentStatuses)
             .Include(c => c.User)
             .ToListAsync();
+    }
+
+    public void CommentExists(CommentId id)
+    {
+        if (!_context.Comments.Any(c => c.Id == id))
+        {
+            throw new NotFoundException($"Comment with id {id} does not exist");
+        }
     }
 }

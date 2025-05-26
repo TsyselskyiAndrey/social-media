@@ -1,4 +1,4 @@
-﻿namespace Glowee.Application.Features.Post.Queries.Comments;
+﻿namespace Glowee.Application.Features.Comment.Queries;
 
 public class CommentUserDto
 {

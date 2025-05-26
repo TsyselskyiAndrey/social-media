@@ -10,29 +10,29 @@ namespace Glowee.Application.Features.User.Commands.Follow;
 public class FollowUserCommandHandler : IRequestHandler<FollowUserCommand, bool>
 {
     private readonly IUserRepository _userRepository;
-    private readonly IFollowsRepository _followsRepository;
+    private readonly IFollowRepository _followRepository;
     private readonly IUserService _userService;
 
-    public FollowUserCommandHandler(IUserRepository userRepository, IUserService userService, IFollowsRepository followsRepository)
+    public FollowUserCommandHandler(IUserRepository userRepository, IUserService userService, IFollowRepository followRepository)
     {
         _userRepository = userRepository;
         _userService = userService;
-        _followsRepository = followsRepository;
+        _followRepository = followRepository;
     }
-    
+
     public async Task<bool> Handle(FollowUserCommand request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(_userService.UserId))
             throw new UnauthorizedAccessException("User must be authenticated to create a post.");
-        
+
         var targetUser = await _userRepository.GetByIdAsync(request.UserId);
-        
-        if(targetUser == null)
+
+        if (targetUser == null)
             throw new BadRequestException("User was not found.");
-        
+
         var userId = long.Parse(_userService.UserId);
-        
-        var follow = await _followsRepository.UserFollow(new UserId(userId), targetUser.Id );
+
+        var follow = await _followRepository.UserFollow(new UserId(userId), targetUser.Id);
 
         if (follow == null)
         {
@@ -41,14 +41,14 @@ public class FollowUserCommandHandler : IRequestHandler<FollowUserCommand, bool>
                 FollowerId = new UserId(userId),
                 FollowedId = targetUser.Id,
             };
-            
-            await _followsRepository.CreateAsync(newFollow);
-            
+
+            await _followRepository.CreateAsync(newFollow);
+
             return true;
         }
 
-        await _followsRepository.DeleteAsync(follow.Id);
-        
+        await _followRepository.DeleteAsync(follow.Id);
+
         return false;
     }
 }

@@ -5,14 +5,14 @@ using MediatR;
 using UnauthorizedAccessException = Glowee.Application.Exceptions.UnauthorizedAccessException;
 
 
-namespace Glowee.Application.Features.Post.Commands.Comment.DeleteComment;
+namespace Glowee.Application.Features.Comment.Commands.DeleteComment;
 
 public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand>
 {
     private readonly IUserService _userService;
-    private readonly ICommentsRepository _commentsRepository;
+    private readonly ICommentRepository _commentsRepository;
     
-    public DeleteCommentCommandHandler(IUserService userService, ICommentsRepository commentsRepository)
+    public DeleteCommentCommandHandler(IUserService userService, ICommentRepository commentsRepository)
     {
         _userService = userService;
         _commentsRepository = commentsRepository;

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Glowee.Application.Features.Post.Commands.Comment.CreateComment;
+namespace Glowee.Application.Features.Comment.Commands.CreateComment;
 
 public class CreateCommentCommandValidator : AbstractValidator<CreateCommentCommand>
 {

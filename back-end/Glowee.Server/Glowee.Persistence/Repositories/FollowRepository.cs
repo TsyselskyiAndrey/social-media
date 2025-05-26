@@ -18,5 +18,10 @@ namespace Glowee.Persistence.Repositories
                 .Where(f => f.FollowerId == userId)
                 .ExecuteDeleteAsync();
         }
+
+        public async Task<Follow?> UserFollow(UserId user, UserId target)
+        {
+            return await _context.Follows.FirstOrDefaultAsync(x => x.Follower.Id.Value == user.Value && x.Followed.Id.Value == target.Value);
+        }
     }
 }

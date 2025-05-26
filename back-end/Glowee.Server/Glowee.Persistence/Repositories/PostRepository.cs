@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Glowee.Application.Contracts.Persistence;
+﻿using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Contracts.Storage;
 using Glowee.Application.Exceptions;
 using Glowee.Application.Helpers;
@@ -11,15 +10,16 @@ using Glowee.Domain.Entities.Tags;
 using Glowee.Domain.Entities.Users;
 using Glowee.Persistence.DbContext;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace Glowee.Persistence.Repositories;
 
 public class PostRepository : GenericRepository<Post, PostId>, IPostRepository
 {
     private readonly IBlobStorageService _blobStorageService;
-    ICommentsRepository _commentsRepository;
+    ICommentRepository _commentsRepository;
 
-    public PostRepository(SqlDbContext connection, ICommentsRepository commentsRepository) : base(connection)
+    public PostRepository(SqlDbContext connection, ICommentRepository commentsRepository) : base(connection)
     {
         _commentsRepository = commentsRepository;
     }
@@ -121,7 +121,7 @@ public class PostRepository : GenericRepository<Post, PostId>, IPostRepository
             }
 
             await _context.PostMedias.AddRangeAsync(postMedias);
-            
+
             foreach (var media in postMedias)
                 post.PostMedias.Add(media);
 
