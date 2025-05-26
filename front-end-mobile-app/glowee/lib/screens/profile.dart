@@ -101,14 +101,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.notifications_active, color: Colors.black),
-                title: const Text('Notifications'),
-                onTap: () {
-                  Navigator.pop(context);
-                  print('Settings tapped');
-                },
-              ),
-              ListTile(
                 leading: const Icon(Icons.save, color: Colors.black),
                 title: const Text('Saved'),
                 onTap: () {
