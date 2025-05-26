@@ -38,7 +38,7 @@ class _InterfaceScreenState extends State<InterfaceScreen> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               AppLocalizations.of(context)!.done,
-              style: TextStyle(color: theme.colorScheme.primary),
+              style: TextStyle(color: Colors.black),
             ),
           ),
         ],
