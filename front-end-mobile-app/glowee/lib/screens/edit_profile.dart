@@ -83,7 +83,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: const Text(
               'Save',
               style: TextStyle(
-                color: Colors.blue,
+                color: Colors.white,
                 fontSize: 16,
               ),
             ),
