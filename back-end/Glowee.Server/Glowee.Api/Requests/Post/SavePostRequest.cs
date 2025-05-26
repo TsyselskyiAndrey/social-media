@@ -1,4 +1,4 @@
-﻿namespace Glowee.Api.Requests;
+﻿namespace Glowee.Api.Requests.Post;
 
 public class SavePostRequest
 {

@@ -1,4 +1,4 @@
-﻿using Glowee.Api.Requests;
+﻿using Glowee.Api.Requests.User;
 using Glowee.Application.Contracts.Identity;
 using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Contracts.Storage;

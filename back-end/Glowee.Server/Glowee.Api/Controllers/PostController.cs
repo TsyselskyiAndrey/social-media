@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using Glowee.Api.Requests;
+﻿using Glowee.Api.Requests.Post;
 using Glowee.Application.Contracts.Identity;
 using Glowee.Application.Contracts.Logging;
 using Glowee.Application.Contracts.Mappers;
@@ -50,7 +49,7 @@ public class PostController : ControllerBase
     }
 
     [HttpGet("getPosts")]
-    public async Task<IActionResult> GetPostsAsync([FromQuery] int postAmount, 
+    public async Task<IActionResult> GetPostsAsync([FromQuery] int postAmount,
         [FromQuery] long postId, [FromQuery] List<long> tags, [FromQuery] long userId)
     {
         var request = new GetPostsQuery()
@@ -79,7 +78,7 @@ public class PostController : ControllerBase
         };
 
         var handler = new CreatePostCommandHandler(_userService, _postRepository, _tagRepository);
-        
+
         await handler.Handle(command, new CancellationToken());
         return Ok();
     }
@@ -101,7 +100,7 @@ public class PostController : ControllerBase
         var command = new SavedPostCommand(new PostId(saveRequest.PostId));
 
         var handler = new SavedPostCommandHandler(_postRepository, _savedPostRepository, _userService);
-        
+
         var result = await handler.Handle(command, new CancellationToken());
         return Ok(result);
     }
@@ -110,12 +109,12 @@ public class PostController : ControllerBase
     public async Task<IActionResult> GetAllTags()
     {
         var command = new GetAllTagsQuery();
-        
+
         var handler = new GetAllTagsQueryHandler(_tagRepository, _userService);
-        
+
         var tags = await handler.Handle(command, new CancellationToken());
         return Ok(tags);
     }
-    
-    
+
+
 }
