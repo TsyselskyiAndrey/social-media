@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:glowee/util/app_localizations.dart';
 import 'package:glowee/util/locale_notifier.dart';
-'12'12'12'12'12'12'12import 'package:glowee/screens/theme_notifier.dart';
+import 'package:glowee/screens/theme_notifier.dart';
 
 class InterfaceScreen extends StatefulWidget {
   final void Function(bool isDarkTheme)? onThemeChange;
