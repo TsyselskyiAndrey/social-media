@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, CssBaseline } from "@mui/material";
 import LeftSidebar from '../../Components/MainPageComponents/LeftSidebar/LeftSidebar';
 import Feed from '../../Components/MainPageComponents/Feed/Feed';
@@ -8,6 +8,27 @@ import './MainPage.css';
 
 const MainPage = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
+
+  useEffect(() => {
+    if (showCreatePost) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showCreatePost]);
+
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowCreatePost(false);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
 
   return (
     <>
@@ -36,7 +57,7 @@ const MainPage = () => {
         <Box
           sx={{
             flex: 1,
-            flexBasis: { xs: "100%", md: "55%", lg: "56%" },
+            flexBasis: { xs: "100%", md: "55%",  lg: "56%" },
             minWidth: 700,
           }}
         >
@@ -71,7 +92,7 @@ const MainPage = () => {
             <Box
               onClick={(e) => e.stopPropagation()}
               sx={{
-                width: { xs: "100%", sm: 500 },
+                width: { xs: "100%", sm: "80%", md: 900 },
                 maxHeight: "90vh",
                 bgcolor: "background.paper",
                 borderRadius: 2,

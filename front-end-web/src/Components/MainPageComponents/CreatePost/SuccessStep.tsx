@@ -1,14 +1,16 @@
-import React from "react";
-import { CheckCircle } from "lucide-react";
+import React from 'react';
 
-const SuccessStep: React.FC = () => {
-  return (
-    <div className="text-center p-8">
-      <CheckCircle className="mx-auto mb-4 text-green-500" size={48} />
-      <h2 className="text-2xl font-semibold mb-2">Допис опубліковано!</h2>
-      <p className="text-gray-500">Ваш допис успішно збережено.</p>
-    </div>
-  );
-};
+interface SuccessStepProps {
+  onReset: () => void;
+  
+}
+
+const SuccessStep: React.FC<SuccessStepProps> = ({ onReset }) => (
+  <div>
+    <h2>Пост успішно створено! 🎉</h2>
+    <button onClick={onReset}>Створити ще один пост</button>
+    <button onClick={() => window.location.href = '/feed'}>Повернутися до стрічки</button>
+  </div>
+);
 
 export default SuccessStep;
