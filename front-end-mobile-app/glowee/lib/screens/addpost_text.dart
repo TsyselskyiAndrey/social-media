@@ -1,11 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import '../data/post_data.dart';
+import 'package:glowee/screens/profile_image_notifier.dart';
+import 'package:glowee/model/post_model.dart';
+import 'package:glowee/screens/profile.dart';
 class AddPostTextScreen extends StatefulWidget {
-  File _file;
-  AddPostTextScreen(this._file, {super.key});
+  final File _file;
+  const AddPostTextScreen(this._file, {super.key});
 
   @override
   State<AddPostTextScreen> createState() => _AddPostTextScreenState();
@@ -14,18 +16,16 @@ class AddPostTextScreen extends StatefulWidget {
 class _AddPostTextScreenState extends State<AddPostTextScreen> {
   final caption = TextEditingController();
   final location = TextEditingController();
-  bool islooding = false;
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.black),
+        iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
-          'New post',
-          style: TextStyle(color: Colors.black),
-        ),
+        title: const Text('New post', style: TextStyle(color: Colors.black)),
         centerTitle: false,
         actions: [
           Center(
@@ -34,13 +34,28 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
               child: GestureDetector(
                 onTap: () async {
                   setState(() {
-                    islooding = true;
+                    isLoading = true;
                   });
+
+                  posts.add(Post(
+                    image: widget._file,
+                    caption: caption.text,
+                    username: usernameNotifier.value,
+                    userImage: profileImageNotifier.value,
+                  ));
+
                   setState(() {
-                    islooding = false;
+                    isLoading = false;
                   });
-                  // ignore: use_build_context_synchronously
-                  Navigator.of(context).pop();
+
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => ProfileScreen(
+                        uid: 'current_user_id', // Replace with actual user ID
+                      ),
+                    ),
+                        (Route<dynamic> route) => false,
+                  );
                 },
                 child: Text(
                   'Share',
@@ -52,65 +67,62 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
         ],
       ),
       body: SafeArea(
-          child: islooding
-              ? Center(
-              child: CircularProgressIndicator(
-                color: Colors.black,
-              ))
-              : Padding(
-            padding: EdgeInsets.only(top: 10.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 10.w, vertical: 5.h),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 65.w,
-                        height: 65.h,
-                        decoration: BoxDecoration(
-                          color: Colors.amber,
-                          image: DecorationImage(
-                            image: FileImage(widget._file),
-                            fit: BoxFit.cover,
-                          ),
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator(color: Colors.black))
+            : Padding(
+          padding: EdgeInsets.only(top: 10.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 65.w,
+                      height: 65.h,
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                        image: DecorationImage(
+                          image: FileImage(widget._file),
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      SizedBox(width: 10.w),
-                      SizedBox(
-                        width: 280.w,
-                        height: 60.h,
-                        child: TextField(
-                          controller: caption,
-                          decoration: const InputDecoration(
-                            hintText: 'Write a caption ...',
-                            border: InputBorder.none,
-                          ),
+                    ),
+                    SizedBox(width: 10.w),
+                    SizedBox(
+                      width: 260.w,
+                      height: 60.h,
+                      child: TextField(
+                        controller: caption,
+                        decoration: const InputDecoration(
+                          hintText: 'Write a caption ...',
+                          border: InputBorder.none,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const Divider(),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w),
-                  child: SizedBox(
-                    width: 280.w,
-                    height: 30.h,
-                    child: TextField(
-                      controller: location,
-                      decoration: const InputDecoration(
-                        hintText: 'Add location',
-                        border: InputBorder.none,
-                      ),
+              ),
+              const Divider(),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: SizedBox(
+                  width: 280.w,
+                  height: 30.h,
+                  child: TextField(
+                    controller: location,
+                    decoration: const InputDecoration(
+                      hintText: 'Add location',
+                      border: InputBorder.none,
                     ),
                   ),
                 ),
-              ],
-            ),
-          )),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
