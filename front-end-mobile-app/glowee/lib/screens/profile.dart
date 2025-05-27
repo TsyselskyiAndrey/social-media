@@ -26,7 +26,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final int postLength = 5;
   final int followersCount = 123;
   final int followingCount = 87;
-  final String bio = 'Just a mock bio';
 
   @override
   Widget build(BuildContext context) {
@@ -82,11 +81,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         );
                       },
-                    ),
-                    SizedBox(height: 10.h),
-                    Text(
-                      bio,
-                      style: TextStyle(color: Colors.white70, fontSize: 12.sp),
                     ),
                   ],
                 ),
