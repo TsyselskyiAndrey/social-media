@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:glowee/screens/add_post.dart';
-import 'package:glowee/screens/chat.dart';
 import 'package:glowee/screens/feed.dart';
-import 'package:glowee/screens/interaction.dart';
 import 'package:glowee/screens/profile.dart';
 import 'package:glowee/screens/recommendation.dart';
 
@@ -53,32 +51,6 @@ class NavigationMenu extends StatelessWidget {
             },
             icon: const Icon(
               Icons.add,
-              color: Colors.black,
-              size: 40,
-            ),
-          ),
-          IconButton(
-            enableFeedback: false,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const InteractionScreen()),
-              );
-            },
-            icon: const Icon(
-              Icons.favorite_border,
-              color: Colors.black,
-              size: 40,
-            ),
-          ),
-          IconButton(
-            enableFeedback: false,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ChatScreen()),
-              );
-            },
-            icon: const Icon(
-              Icons.chat_bubble_outline,
               color: Colors.black,
               size: 40,
             ),
