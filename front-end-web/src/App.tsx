@@ -14,10 +14,12 @@ import SettingsPage from "./Pages/Settings/Settings";
 import InterfaceSettingsPage from "./Pages/Settings/InterfaceSettingsPage";
 import { ThemeProviderCustom } from "./Contexts/ThemeContext";
 import { CssBaseline } from "@mui/material";
-import CheckoutPage from "./Pages/CheckoutPage/CheckoutPage";
+import SubscriptionsPage from "./Pages/SubscriptionsPage/SubscriptionsPage";
+import PaymentSuccessPage from "./Pages/PaymentCompletionPages/PaymentSuccessPage";
+import PaymentCancelPage from "./Pages/PaymentCompletionPages/PaymentCancelPage";
 
 function App() {
-  useAxiosWithToken();
+  const interceptorsReady = useAxiosWithToken();
 
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -27,7 +29,9 @@ function App() {
         <Route path="forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="resetpassword" element={<ResetPasswordPage />} />
         <Route path="mainpage" element={<MainPage />} />
-        <Route path="checkout" element={<CheckoutPage />} />
+        <Route path="subscriptions" element={<SubscriptionsPage />} />
+        <Route path="payment-success" element={<PaymentSuccessPage />} />
+        <Route path="payment-cancel" element={<PaymentCancelPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="*" element={<NotFound />}></Route>
         <Route path="settings" element={<SettingsPage />}></Route>
@@ -35,6 +39,8 @@ function App() {
       </Route>
     )
   );
+
+  if (!interceptorsReady) return null; //Вместо null можно добавить страничку загрузк если есть желания. Но тут нет долгой операции
 
   return (
     <ThemeProviderCustom>
