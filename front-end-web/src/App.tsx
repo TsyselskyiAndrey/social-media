@@ -14,7 +14,10 @@ import SettingsPage from "./Pages/Settings/Settings";
 import InterfaceSettingsPage from "./Pages/Settings/InterfaceSettingsPage";
 import { ThemeProviderCustom } from "./Contexts/ThemeContext";
 import { CssBaseline } from "@mui/material";
-
+import SubscriptionsPage from "./Pages/SubscriptionsPage/SubscriptionsPage";
+import PaymentSuccessPage from "./Pages/PaymentCompletionPages/PaymentSuccessPage";
+import PaymentCancelPage from "./Pages/PaymentCompletionPages/PaymentCancelPage";
+import EditPage from "./Pages/EditPage/EditPage";
 function App() {
   const interceptorsReady = useAxiosWithToken();
 
@@ -26,10 +29,14 @@ function App() {
         <Route path="forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="resetpassword" element={<ResetPasswordPage />} />
         <Route element={<ProtectedRoutes />}>
-        <Route path="mainpage" element={<MainPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="settings" element={<SettingsPage />} />
-        <Route path="settings/interface" element={<InterfaceSettingsPage />} />
+          <Route path="mainpage" element={<MainPage />} />
+          <Route path="editpage" element={<EditPage />} />
+          <Route path="subscriptions" element={<SubscriptionsPage />} />
+          <Route path="payment-success" element={<PaymentSuccessPage />} />
+          <Route path="payment-cancel" element={<PaymentCancelPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="settings/interface" element={<InterfaceSettingsPage />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Route>
