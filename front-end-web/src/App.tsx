@@ -28,14 +28,16 @@ function App() {
         <Route path="signup" element={<SignupPage />} />
         <Route path="forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="resetpassword" element={<ResetPasswordPage />} />
-        <Route path="mainpage" element={<MainPage />} />
-        <Route path="subscriptions" element={<SubscriptionsPage />} />
-        <Route path="payment-success" element={<PaymentSuccessPage />} />
-        <Route path="payment-cancel" element={<PaymentCancelPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="*" element={<NotFound />}></Route>
-        <Route path="settings" element={<SettingsPage />}></Route>
-        <Route path="settings/interface" element={<InterfaceSettingsPage />}></Route>
+        <Route element={<ProtectedRoutes />}>
+          <Route path="mainpage" element={<MainPage />} />
+          <Route path="subscriptions" element={<SubscriptionsPage />} />
+          <Route path="payment-success" element={<PaymentSuccessPage />} />
+          <Route path="payment-cancel" element={<PaymentCancelPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="settings/interface" element={<InterfaceSettingsPage />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
       </Route>
     )
   );
