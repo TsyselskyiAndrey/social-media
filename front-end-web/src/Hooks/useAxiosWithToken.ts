@@ -1,11 +1,6 @@
 import { axiosWithToken } from "../API/axioscfg";
-import { useEffect } from "react";
-import {
-  InternalAxiosRequestConfig,
-  AxiosRequestConfig,
-  AxiosError,
-  AxiosResponse,
-} from "axios";
+import { useEffect, useState } from "react";
+import { InternalAxiosRequestConfig, AxiosRequestConfig, AxiosError, AxiosResponse } from "axios";
 import useRefreshToken from "./useRefreshToken";
 import useAuth from "./useAuth";
 import { AuthResponse } from "../Types/AuthResponse";
@@ -13,6 +8,7 @@ import { AuthResponse } from "../Types/AuthResponse";
 const useAxiosWithToken = () => {
   const refresh = useRefreshToken();
   const { setAuth } = useAuth();
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const requestIntercept = axiosWithToken.interceptors.request.use(
@@ -56,11 +52,15 @@ const useAxiosWithToken = () => {
       }
     );
 
+    setIsReady(true);
+
     return () => {
       axiosWithToken.interceptors.request.eject(requestIntercept);
       axiosWithToken.interceptors.response.eject(responseIntercept);
     };
   }, [refresh, setAuth]);
+
+  return isReady;
 };
 
 export default useAxiosWithToken;

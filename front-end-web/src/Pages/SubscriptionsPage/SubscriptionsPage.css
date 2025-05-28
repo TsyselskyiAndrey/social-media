@@ -1,0 +1,121 @@
+.subscriptions-container {
+  min-height: 100vh;
+  min-width: 100vw;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: sans-serif;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #2f855a;
+  margin-bottom: 40px;
+  font-weight: bold;
+}
+
+.loader {
+  font-size: 1.25rem;
+  color: #2f855a;
+  font-style: italic;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.plan-card {
+  background-color: #ffffff;
+  border: 2px solid #c6f6d5;
+  border-radius: 20px;
+  padding: 25px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(47, 133, 90, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.plan-card:hover {
+  transform: scale(1.03);
+}
+
+.plan-name {
+  font-size: 1.5rem;
+  color: #2f855a;
+  margin-bottom: 10px;
+}
+
+.plan-price {
+  font-size: 1.2rem;
+  color: #38a169;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.plan-description {
+  font-size: 0.95rem;
+  color: #4a5568;
+  margin-bottom: 15px;
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+  color: #2f855a;
+}
+
+.plan-features li {
+  margin-bottom: 5px;
+}
+
+.choose-button {
+  background-color: #38a169;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.choose-button:hover:not(:disabled) {
+  background-color: #2f855a;
+}
+
+.choose-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.subscriptions-container {
+  min-height: 100vh;
+  padding: 60px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+}
+
+.subscriptions-content {
+  max-width: 900px;
+  background: rgba(255, 255, 255, 0.95); /* можно варьировать прозрачность */
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(4px); /* опционально, если фон полупрозрачный */
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #2f855a;
+  margin-bottom: 40px;
+  font-weight: bold;
+  text-align: center;
+}

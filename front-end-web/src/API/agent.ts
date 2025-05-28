@@ -145,6 +145,26 @@ const Auth = {
     }),
 };
 
+const Payment = {
+  getConfig: async () => {
+    return await axiosWithToken.get<string>("/api/subscription/config", {
+      withCredentials: true,
+    });
+  },
+  getAllPlans: async () => {
+    return await axiosWithToken.get("/api/subscription/availableSubscriptions", {
+      withCredentials: true,
+    });
+  },
+  createCheckoutSession: (body: { priceId: string }) =>
+    axiosWithToken
+      .post("/api/subscription/checkoutSession", body, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+      .then((res) => res.data),
+};
+
 const Posts = {
   getPosts: () => {},
   createPost: async ({ caption, tags, postMedias, thumbnail }: CreatePostRequest) => {
@@ -177,6 +197,7 @@ const User = {
 
 const Agent = {
   Auth,
+  Payment,
   Posts,
   Tags,
   User,
