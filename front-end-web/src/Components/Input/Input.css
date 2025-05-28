@@ -9,13 +9,46 @@
 .inp .label {
   position: absolute;
   top: 27px;
-  left: 1px;
+  left: 5px;
   font-size: 18px;
   color: rgba(0, 0, 0);
   opacity: 0.5;
   font-weight: 500;
   transition: all 0.3s ease;
   pointer-events: none;
+}
+
+/* Специфічний стиль для полів username, email, ім'я, прізвище, дата народження ТІЛЬКИ на EditPage */
+.edit-form-container .inp input[name="UserName"] + .label,
+.edit-form-container .inp input[name="Email"] + .label,
+.edit-form-container .inp input[name="FirstName"] + .label,
+.edit-form-container .inp input[name="LastName"] + .label,
+.edit-form-container.inp input[name="BirthDate"] +.label{
+  left: 5px;
+}
+
+.edit-form-container .inp input[name="UserName"]:not(:placeholder-shown) + .label,
+.edit-form-container .inp input[name="Email"]:not(:placeholder-shown) + .label,
+.edit-form-container .inp input[name="FirstName"]:not(:placeholder-shown) + .label,
+.edit-form-container .inp input[name="LastName"]:not(:placeholder-shown) + .label,
+.edit-form-container .inp input[name="BirthDate"]:not(:placeholder-shown) + .label {
+  color: rgba(0, 0, 0);
+  opacity: 0.5;
+  transform-origin: left;
+  font-weight: bold;
+  transform: translate3d(0.2rem, -27px, 0) scale(0.9);
+}
+
+.edit-form-container .inp input[name="UserName"]:focus + .label,
+.edit-form-container .inp input[name="Email"]:focus + .label,
+.edit-form-container .inp input[name="FirstName"]:focus + .label,bel,
+.edit-form-container .inp input[name="LastName"]:focus + .label,
+.edit-form-container .inp input[name="BirthDate"]:focus + .label {
+  color: #118c8c;
+  opacity: 1;
+  transform-origin: left;
+  transform: translate3d(0.2rem, -27px, 0) scale(0.9);
+  font-weight: bold;
 }
 
 .inp input {
@@ -131,4 +164,31 @@
 .codeNum:focus.error {
   border: 2px solid crimson;
   outline: none;
+}
+
+.edit-form-container .inp input[type="date"] {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 16px 12px 0 0.2rem;
+  min-width: 0;
+}
+
+.edit-form-container .inp {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+.edit-form-container .inp {
+  width: 100%;
+  max-width: 100%;
+}
+
+.inp input[type="date"] + .label,
+.inp input[name="BirthDate"] + .label {
+  top: 5px;
+  white-space: nowrap;
+  width: auto;
+  min-width: max-content;
 }

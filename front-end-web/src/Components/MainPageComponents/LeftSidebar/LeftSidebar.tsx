@@ -11,9 +11,10 @@ import { useNavigate } from "react-router-dom";
 
 type LeftSidebarProps = {
   onCreateClick: () => void;
+  hideCreateButton?: boolean;
 };
 
-const LeftSidebar: React.FC<LeftSidebarProps> = ({ onCreateClick }) => {
+const LeftSidebar: React.FC<LeftSidebarProps> = ({ onCreateClick, hideCreateButton = false }) => {
   const navigate = useNavigate();
 
   const items = [
@@ -60,7 +61,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ onCreateClick }) => {
 
       <MenuItems items={items} />
 
-      <CreateButton onClick={onCreateClick} />
+      {!hideCreateButton && <CreateButton onClick={onCreateClick} />}
     </Box>
   );
 };
