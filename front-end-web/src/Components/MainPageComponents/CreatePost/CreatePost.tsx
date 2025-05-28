@@ -41,7 +41,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
   const removeMedia = (index: number) => {
     setPostMedias((prev) => prev.filter((_, i) => i !== index));
   };
-  
+
   const reset = () => {
     postMedias.forEach((file) => URL.revokeObjectURL(file.previewUrl));
     setPostMedias([]);
@@ -78,43 +78,47 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
         />
       )}
 
-{step === 'preview' && (
-  <div className="w-full flex justify-center">
-    <div className="min-w-[900px] max-w-[1200px] w-full">
-      <PreviewStep
-        postMedias={postMedias}
-        caption={caption}
-        tags={tags}
-        thumbnail={thumbnail}
-          addFiles={addFiles}
-          onRemoveMedia={removeMedia}  
-          onBack={() => setStep('confirm')}
-          onSubmit={async () => {
-            const formData = new FormData();
-            formData.append('Caption', caption);
-            tags.forEach((tag) => formData.append('Tags', tag));
-            postMedias.forEach((file) => formData.append('PostMedias', file));
-            if (thumbnail) formData.append('Thumbnail', thumbnail);
+      {step === 'preview' && (
+        <div className="w-full flex justify-center">
+          <div className="min-w-[900px] max-w-[1200px] w-full">
+            <PreviewStep
+              postMedias={postMedias}
+              caption={caption}
+              tags={tags}
+              thumbnail={thumbnail}
+              addFiles={addFiles}
+              onRemoveMedia={removeMedia}
+              onBack={() => setStep('confirm')}
+              onSubmit={async () => {
+                const formData = new FormData();
+                formData.append('Caption', caption);
+                tags.forEach((tag) => formData.append('Tags', tag));
+                postMedias.forEach((file) => formData.append('PostMedias', file));
+                if (thumbnail) formData.append('Thumbnail', thumbnail);
 
-            try {
-              const res = await fetch('/api/post/createPost', {
-                method: 'POST',
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-                },
-                body: formData,
-              });
-              if (res.ok) setStep('success');
-              else alert('Помилка при створенні поста');
-            } catch (error) {
-              alert('Помилка мережі');
-            }
-          }}
-          onClose={onClose}
-      />
-    </div>
-  </div>
-)}
+                try {
+                  const res = await fetch('/api/post/createPost', {
+                    method: 'POST',
+                    headers: {
+                      Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+                    },
+                    body: formData,
+                  });
+                  if (!res.ok) {
+                    const errorText = await res.text();
+                    alert('Помилка при створенні поста: ' + errorText);
+                  } else {
+                    setStep('success');
+                  }
+                } catch (error) {
+                  alert('Помилка мережі');
+                }
+              }}
+              onClose={onClose}
+            />
+          </div>
+        </div>
+      )}
 
       {step === 'success' && (
         <SuccessStep

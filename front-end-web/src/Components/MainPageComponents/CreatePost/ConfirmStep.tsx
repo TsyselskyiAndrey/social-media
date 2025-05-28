@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Tag } from '../../../API/agent';
+import agent, { Tag } from '../../../API/agent';
+import { Autocomplete, TextField } from '@mui/material';
 
 interface ConfirmStepProps {
     caption: string;
@@ -27,20 +28,19 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    fetch('/api/post/getAllTags', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
-    })
-      .then(res => res.json())
-      .then(data => {
-        setAllTags(data);
-        setLoading(false);
-      })
-      .catch(() => {
+    const fetchTags = async () => {
+      setLoading(true);
+      try {
+        const response = await agent.Tags.getAllTags();
+        setAllTags(response.data);
+      } catch (err) {
         setAllTags([]);
-        setError('Не вдалося завантажити теги');
+        setError('Failed to load tags');
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    fetchTags();
   }, []);
 
   const onTagToggle = (tagName: string) => {
@@ -72,20 +72,17 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({
       ) : error ? (
         <div className="mb-4 text-red-500">{error}</div>
       ) : (
-        <div className="flex flex-wrap gap-2 mb-6">
-          {allTags.map(tag => (
-            <button
-              key={tag.id}
-              onClick={() => onTagToggle(tag.name)}
-              className={`px-3 py-1 rounded cursor-pointer border transition-colors
-                ${tags.includes(tag.name)
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-gray-200 text-gray-800 border-gray-300 hover:bg-gray-300'}`}
-            >
-              {tag.name}
-            </button>
-          ))}
-        </div>
+        <Autocomplete
+          multiple
+          options={allTags.map(tag => tag.name)}
+          value={tags}
+          onChange={(_, newValue) => setTags(newValue)}
+          renderInput={(params) => (
+            <TextField {...params} label="Теги" placeholder="Оберіть теги..." />
+          )}
+          sx={{ mb: 3 }}
+          slotProps={{ popper: { sx: { zIndex: 13010 } } }}
+        />
       )}
 
       <div className="flex justify-between">
