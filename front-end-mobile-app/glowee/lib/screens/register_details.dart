@@ -5,6 +5,7 @@ import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/login_screen.dart';
+
 import 'package:glowee/screens/otp_verification.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -281,7 +282,7 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                           MaterialPageRoute(
                             builder: (context) => BlocProvider(
                               create: (context) => AuthBloc(),
-                              child: LoginScreen(), // 🔁 Замени на фактический экран логина, если у тебя другое имя
+                              child: LoginScreen(),
                             ),
                           ),
                         );

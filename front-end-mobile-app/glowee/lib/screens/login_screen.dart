@@ -11,7 +11,7 @@ import 'package:glowee/screens/register.dart';
 import 'package:glowee/screens/forget_password.dart';
 import 'package:glowee/screens/profile.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
+import 'package:device_info_plus/device_info_plus.dart';
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onSignUpTap;
 
@@ -111,12 +111,23 @@ class _LoginScreenState extends State<LoginScreen> {
         print("User signed in with Google: ${googleUser.displayName}");
         final googleAuth = await googleUser.authentication;
         final idToken = googleAuth.idToken;
-        context.read<AuthBloc>().add(LogInWithGoogleBtnClciked(
-            codeOrIdToken: idToken != null ? idToken : ""));
+        final deviceId = await _getDeviceId();
+        context.read<AuthBloc>().add(
+            LogInWithGoogleBtnClciked(
+              codeOrIdToken: idToken ?? "",
+              deviceId: deviceId,
+            )
+        );
+
       }
     } catch (error) {
       print("Google sign-in error: $error");
     }
+  }
+  Future<String> _getDeviceId() async {
+    final deviceInfo = DeviceInfoPlugin();
+    final androidInfo = await deviceInfo.androidInfo;
+    return androidInfo.id ?? 'unknown';
   }
 
   Widget _buildGoogleSignInButton() {
@@ -172,10 +183,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 context,
                 MaterialPageRoute(builder: (context) => const EmailEnter()),
               );
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => const ForgetPassword()),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ForgetPassword()),
+              );
             },
             child: Text(
               "reset it here! ",
