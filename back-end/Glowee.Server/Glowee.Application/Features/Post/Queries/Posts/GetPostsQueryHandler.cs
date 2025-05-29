@@ -42,7 +42,7 @@ public class GetPostsQueryHandler : IRequestHandler<GetPostsQuery, IEnumerable<P
             , request.LastPostId, request.Tags, request.UserId, userId);
         
         var result = posts.Select(p => _postMapper.MapPostToPostDto(p, new UserId(userId)));
-
+        
         return result;
     }
 }

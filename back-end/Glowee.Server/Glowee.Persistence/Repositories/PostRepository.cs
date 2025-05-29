@@ -67,6 +67,7 @@ public class PostRepository : GenericRepository<Post, PostId>, IPostRepository
             .Include(x => x.Tags)
             .Include(x => x.PostType)
             .Include(x => x.UninterestingPosts)
+            .Include(x => x.SavedPosts)
             .Include(x => x.PostMedias)
             .ThenInclude(x => x.PostMediaType)
             .AsNoTracking()
