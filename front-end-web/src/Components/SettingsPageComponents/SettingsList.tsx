@@ -13,17 +13,17 @@ const SettingsList: React.FC = () => {
   const navigate = useNavigate();
 
   const options = [
-    { label: "Activity", icon: <AccessTimeIcon /> },
-    { label: "Notifications", icon: <NotificationsIcon /> },
-    { label: "Saved", icon: <BookmarkBorderIcon /> },
-    { label: "Payment", icon: <PaymentIcon /> },
-    { label: "Account", icon: <AccountCircleIcon /> },
-    { label: "Help", icon: <HelpOutlineIcon /> },
-    { label: "Interface", icon: <AccessibilityNewIcon /> },
+    { label: "Активність", icon: <AccessTimeIcon /> },
+    { label: "Сповіщення", icon: <NotificationsIcon /> },
+    { label: "Збережені", icon: <BookmarkBorderIcon /> },
+    { label: "Підписки", icon: <PaymentIcon /> },
+    { label: "Акаунт", icon: <AccountCircleIcon /> },
+    { label: "Допомога", icon: <HelpOutlineIcon /> },
+    { label: "Інтерфейс", icon: <AccessibilityNewIcon /> },
   ];
 
   const handleClick = (label: string) => {
-    if (label === "Interface") {
+    if (label === "Інтерфейс") {
       navigate("/settings/interface");
     }
   };
@@ -34,21 +34,25 @@ const SettingsList: React.FC = () => {
         <div
           key={idx}
           onClick={() => handleClick(item.label)}
-          className="flex items-center justify-between bg-white p-4 rounded-lg shadow-sm hover:bg-gray-50 transition cursor-pointer"
+          className="flex items-center justify-between bg-white p-5 rounded-xl shadow-md hover:shadow-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 ease-in-out cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 border border-gray-100 hover:border-blue-200"
         >
-          <div className="flex items-center gap-4">
-            <div className="text-gray-700">{item.icon}</div>
-            <span className="text-lg font-medium text-gray-800">{item.label}</span>
+          <div className="flex items-center gap-5">
+            <div className="text-gray-700 hover:text-blue-600 transition-colors duration-300 transform hover:scale-110">
+              {item.icon}
+            </div>
+            <span className="text-xl font-bold text-gray-900 hover:text-blue-700 transition-colors duration-300">
+              {item.label}
+            </span>
           </div>
-          <ChevronRightIcon className="text-gray-500" />
+          <ChevronRightIcon className="text-gray-500 hover:text-blue-600 transition-all duration-300 transform hover:translate-x-1" />
         </div>
       ))}
 
-      <div
-        className="flex items-center justify-between bg-white p-4 rounded-lg shadow-sm hover:bg-gray-50 transition cursor-pointer"
-      >
-        <span className="text-lg font-medium text-red-600">Log out</span>
-        <ChevronRightIcon className="text-red-500" />
+      <div className="flex items-center justify-between bg-white p-5 rounded-xl shadow-md hover:shadow-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-300 ease-in-out cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 border border-gray-100 hover:border-red-200">
+        <span className="text-xl font-bold text-red-600 hover:text-red-700 transition-colors duration-300">
+          Log out
+        </span>
+        <ChevronRightIcon className="text-red-500 hover:text-red-600 transition-all duration-300 transform hover:translate-x-1" />
       </div>
     </div>
   );
