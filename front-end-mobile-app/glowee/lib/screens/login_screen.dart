@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
+import 'package:glowee/bloc/auth_bloc/auth_events.dart';
+import 'package:glowee/bloc/auth_bloc/auth_states.dart';
+import 'package:glowee/screens/email_enter.dart';
+import 'package:glowee/screens/feed.dart';
 import 'package:glowee/screens/register.dart';
 import 'package:glowee/screens/forget_password.dart';
 import 'package:glowee/screens/profile.dart';
@@ -14,85 +21,109 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController email = TextEditingController();
-  final FocusNode emailFocus = FocusNode();
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final TextEditingController login = TextEditingController();
+  final FocusNode loginFocus = FocusNode();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'openid'],
+    serverClientId: dotenv.env['SERVER_CLIENT_ID'],
+  );
   final TextEditingController password = TextEditingController();
   final FocusNode passwordFocus = FocusNode();
 
   @override
   void dispose() {
-    email.dispose();
+    login.dispose();
     password.dispose();
-    emailFocus.dispose();
+    loginFocus.dispose();
     passwordFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(17, 140, 140, 1.0),
-              Color.fromRGBO(38, 75, 198, 1.0),
-              Color.fromRGBO(242, 188, 23, 1.0)
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              SizedBox(width: 96.w, height: 100.h),
-              Center(
-                child: Image.asset('assets/images/logo.png'),
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is Authorized) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BlocProvider(
+                create: (context) => AuthBloc(),
+                child: FeedScreen(),
               ),
-              SizedBox(height: 15.h),
-              _buildGreeting(),
-              SizedBox(height: 50.h),
-              _buildTextField(email, emailFocus, 'Username', Icons.email),
-              SizedBox(height: 15.h),
-              _buildTextField(password, passwordFocus, 'Password', Icons.lock),
-              SizedBox(height: 15.h),
-              _buildForgotPassword(),
-              SizedBox(height: 15.h),
-              _buildLoginButton(),
-              SizedBox(height: 15.h),
-              _buildGoogleSignInButton(),
-              SizedBox(height: 80.h),
-              _buildSignUpPrompt(),
-
-            ],
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(17, 140, 140, 1.0),
+                  Color.fromRGBO(38, 75, 198, 1.0),
+                  Color.fromRGBO(242, 188, 23, 1.0)
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  SizedBox(width: 96.w, height: 100.h),
+                  Center(
+                    child: Image.asset('assets/images/logo.png'),
+                  ),
+                  SizedBox(height: 15.h),
+                  _buildGreeting(),
+                  SizedBox(height: 50.h),
+                  _buildTextField(login, loginFocus, 'Username', Icons.email),
+                  SizedBox(height: 15.h),
+                  _buildTextField(
+                      password, passwordFocus, 'Password', Icons.lock),
+                  SizedBox(height: 15.h),
+                  _buildForgotPassword(),
+                  SizedBox(height: 15.h),
+                  _buildLoginButton(context),
+                  SizedBox(height: 15.h),
+                  _buildGoogleSignInButton(),
+                  SizedBox(height: 80.h),
+                  _buildSignUpPrompt(),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> _signInWithGoogle(BuildContext context) async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser != null) {
         print("User signed in with Google: ${googleUser.displayName}");
+        final googleAuth = await googleUser.authentication;
+        final idToken = googleAuth.idToken;
+        context.read<AuthBloc>().add(LogInWithGoogleBtnClciked(
+            codeOrIdToken: idToken != null ? idToken : ""));
       }
     } catch (error) {
       print("Google sign-in error: $error");
     }
   }
+
   Widget _buildGoogleSignInButton() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: InkWell(
-        onTap: _signInWithGoogle,
+        onTap: () => _signInWithGoogle(context),
         child: Container(
           alignment: Alignment.center,
           width: double.infinity,
@@ -139,8 +170,12 @@ class _LoginScreenState extends State<LoginScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ForgetPassword()),
+                MaterialPageRoute(builder: (context) => const EmailEnter()),
               );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const ForgetPassword()),
+              // );
             },
             child: Text(
               "reset it here! ",
@@ -156,7 +191,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-
   Widget _buildSignUpPrompt() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -167,9 +201,14 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         TextButton(
           onPressed: () {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) =>  Register()),
+              MaterialPageRoute(
+                builder: (context) => BlocProvider(
+                  create: (context) => AuthBloc(),
+                  child: Register(),
+                ),
+              ),
             );
           },
           child: Text(
@@ -185,18 +224,28 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildLoginButton() {
+  Widget _buildLoginButton(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: InkWell(
         onTap: () {
-          print("Email: ${email.text}");
+          print("Email: ${login.text}");
           print("Password: ${password.text}");
 
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ProfileScreen(uid: "sdsd",)),
-          );
+          context.read<AuthBloc>().add(
+                LoginBtnClicked(
+                  login: login.text,
+                  password: password.text,
+                ),
+              );
+
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //       builder: (context) => ProfileScreen(
+          //             uid: "sdsd",
+          //           )),
+          // );
         },
         child: Container(
           alignment: Alignment.center,
@@ -223,8 +272,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-
-
   Widget _buildGreeting() {
     return Padding(
       padding: EdgeInsets.only(left: 20.w),
@@ -245,11 +292,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller,
-      FocusNode focusNode,
-      String hint,
-      IconData icon,
-      ) {
+    TextEditingController controller,
+    FocusNode focusNode,
+    String hint,
+    IconData icon,
+  ) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: Container(
@@ -266,10 +313,10 @@ class _LoginScreenState extends State<LoginScreen> {
             hintText: hint,
             prefixIcon: Icon(
               icon,
-              color:  Colors.white,
+              color: Colors.white,
             ),
             contentPadding:
-            EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+                EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(5.r),
               borderSide: BorderSide(width: 2.w, color: Colors.white),
