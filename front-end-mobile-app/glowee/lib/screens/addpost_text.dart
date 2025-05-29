@@ -50,9 +50,7 @@ class _AddPostTextScreenState extends State<AddPostTextScreen> {
 
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                      builder: (context) => ProfileScreen(
-                        uid: 'current_user_id', // Replace with actual user ID
-                      ),
+                      builder: (context) => ProfileScreen(),
                     ),
                         (Route<dynamic> route) => false,
                   );

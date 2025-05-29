@@ -5,6 +5,7 @@ import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/login_screen.dart';
+
 import 'package:glowee/screens/otp_verification.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -26,7 +27,7 @@ class _RegisterDetailsState extends State<RegisterDetails> {
   final FocusNode _firstNameFocusNode = FocusNode();
   final FocusNode _lastNameFocusNode = FocusNode();
   final FocusNode _birthDateFocusNode = FocusNode();
-
+  DateTime? _birthDate;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   File? _imageFile;
   bool isPhotoSent = false;
@@ -173,27 +174,122 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                       ),
                     ),
                     SizedBox(height: 25.h),
-                    _buildTextField(
+
+                    // First Name
+                    TextFormField(
                       controller: _firstNameController,
                       focusNode: _firstNameFocusNode,
-                      label: 'First Name',
-                      icon: Icons.person,
-                      validator: _validateFirstName,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your first name';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'First Name',
+                        prefixIcon: Icon(Icons.person),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                     SizedBox(height: 15.h),
-                    _buildTextField(
+
+                    // Last Name
+                    TextFormField(
                       controller: _lastNameController,
                       focusNode: _lastNameFocusNode,
-                      label: 'Last Name',
-                      icon: Icons.person_outline,
-                      validator: _validateLastName,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your last name';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'Last Name',
+                        prefixIcon: Icon(Icons.person_outline),
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                     SizedBox(height: 15.h),
-                    _buildDateField(context),
+
+                    // Birth Date
+                    InkWell(
+                      onTap: () async {
+                        final pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime(2000),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+                        if (pickedDate != null) {
+                          setState(() {
+                            _birthDate = pickedDate;
+                          });
+                        }
+                      },
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'Birth Date',
+                          prefixIcon: Icon(Icons.calendar_today),
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(),
+                        ),
+                        child: Text(
+                          _birthDate != null
+                              ? '${_birthDate!.month.toString().padLeft(2, '0')}/'
+                              '${_birthDate!.day.toString().padLeft(2, '0')}/'
+                              '${_birthDate!.year}'
+                              : 'Select your birth date',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: _birthDate != null ? Colors.black : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 25.h),
-                    _buildNextButton(),
+
+                    // Next Button
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate() && _birthDate != null) {
+                          context.read<AuthBloc>().add(Register2BtnClicked(
+                            firstName: _firstNameController.text,
+                            lastName: _lastNameController.text,
+                            birthDate: '${_birthDate!.month.toString().padLeft(2, '0')}/'
+                                '${_birthDate!.day.toString().padLeft(2, '0')}/'
+                                '${_birthDate!.year}',
+                          ));
+                        } else if (_birthDate == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Please select your birth date')),
+                          );
+                        }
+                      },
+                      child: Text('Next'),
+                    ),
                     SizedBox(height: 15.h),
-                    _buildLoginLink(),
+
+                    // Login Link
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => BlocProvider(
+                              create: (context) => AuthBloc(),
+                              child: LoginScreen(),
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text("Already have an account? Login"),
+                    ),
+
                   ],
                 ),
               ),
@@ -203,6 +299,7 @@ class _RegisterDetailsState extends State<RegisterDetails> {
       ),
     );
   }
+
 
   Widget _buildDateField(BuildContext context) {
     return Padding(

@@ -5,6 +5,7 @@ import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/login_screen.dart';
+import 'package:glowee/screens/profile.dart';
 import 'package:glowee/screens/register.dart';
 import 'package:glowee/screens/email_enter.dart';
 
@@ -56,7 +57,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             MaterialPageRoute(
               builder: (context) => BlocProvider(
                 create: (context) => AuthBloc(),
-                child: LoginScreen(),
+                child: ProfileScreen(),
               ),
             ),
           );
