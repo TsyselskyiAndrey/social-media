@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
+import 'package:glowee/secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:uuid/uuid.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final FlutterSecureStorage storage;
+  final SecureStorageService _storageService = SecureStorageService.instance;
 
   Future<http.Response> _postJson({
     required String url,
@@ -31,11 +31,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   List<String> _createErrorList(String responseBody) {
     List<String> errors = [];
     final decoded = jsonDecode(responseBody);
-    final errorsMap = decoded["errors"] as Map<String, List<String>>;
+    final errorsMap = decoded["errors"] as Map<String, dynamic>;
     if (errorsMap.isEmpty) {
       return errors;
     }
-    for (List<String> fieldErrors in errorsMap.values) {
+    for (dynamic fieldErrors in errorsMap.values) {
       for (String error in fieldErrors) {
         errors.add(error);
       }
@@ -60,20 +60,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<String> _getDeviceId() async {
     final _uuid = Uuid();
     const key = 'device_id';
-    String? deviceId = await storage.read(key: key);
+    String? deviceId = await _storageService.read(key: key);
     if (deviceId == null) {
       deviceId = _uuid.v4();
-      await storage.write(key: key, value: deviceId);
+      await _storageService.write(key: key, value: deviceId);
     }
     return deviceId;
   }
 
   void _setCookie(http.Response response) async {
     final setCookie = response.headers['set-cookie'];
-    await storage.write(key: 'setCookie', value: setCookie);
+    await _storageService.write(key: 'setCookie', value: setCookie);
   }
 
-  AuthBloc({required this.storage}) : super(NotAuthorized()) {
+  AuthBloc() : super(NotAuthorized()) {
     on<Register1BtnClicked>((event, emit) async {
       final response = await _postJson(
         url: 'https://10.0.2.2:7048/api/Auth/registration-step-1',
@@ -94,7 +94,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<Register2BtnClicked>((event, emit) async {
-      final registrationToken = await storage.read(key: 'setCookie');
+      final registrationToken = await _storageService.read(key: 'setCookie');
       final response = await _postJson(
         url: 'https://10.0.2.2:7048/api/Auth/registration-step-2',
         body: {
@@ -114,7 +114,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AddPhotoWhileSignUpBtnClicked>(
       (event, emit) async {
-        final registrationToken = await storage.read(key: 'setCookie');
+        final registrationToken = await _storageService.read(key: 'setCookie');
         final file = File(event.file.path);
         final fileBytes = await file.readAsBytes();
         final filename = event.file.path.split('/').last;
@@ -143,5 +143,76 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       },
     );
+
+    on<VerifyYourOTPBtnClicked>((event, emit) async {
+      final registrationToken = await _storageService.read(key: 'setCookie');
+      final response = await _postJson(
+        url: 'https://10.0.2.2:7048/api/Auth/registration-step-3',
+        body: {"code": event.code},
+        cookie: registrationToken != null ? registrationToken : "",
+      );
+      print(response.body);
+      print(response.headers);
+      if (response.statusCode == 200) {
+        emit(AuthStepSucess(flow: AuthFlow.RegisterStep3));
+      } else {
+        List<String> errors = _createErrorList(response.body);
+        emit(AuthError(messages: errors));
+      }
+    });
+
+    on<LoginBtnClicked>((event, emit) async {
+      final deviceId = await _getDeviceId();
+      final response = await _postJson(
+        url: 'https://10.0.2.2:7048/api/Auth/login',
+        body: {
+          "login": event.login,
+          "password": event.password,
+          "deviceId": deviceId,
+        },
+      );
+      print(response.body);
+      print(response.headers);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decoded = jsonDecode(response.body);
+        await _storageService.write(
+            key: "accessToken", value: decoded["token"]);
+        await _storageService.write(
+            key: "refreshToken", value: response.headers["set-cookie"]);
+        //_setCookie(response);
+        emit(Authorized());
+      } else {
+        List<String> errors = _createErrorList(response.body);
+        emit(AuthError(messages: errors));
+      }
+    });
+
+    on<LogInWithGoogleBtnClciked>((event, emit) async {
+      final deviceId = await _getDeviceId();
+      final response = await _postJson(
+        url: 'https://10.0.2.2:7048/api/Auth/google-login',
+        body: {
+          "codeOrIdToken": event.codeOrIdToken,
+          "deviceId": deviceId,
+          "isMobile": event.isMobile,
+        },
+      );
+      print(response.body);
+      print(response.headers);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> decoded = jsonDecode(response.body);
+        await _storageService.write(
+            key: "accessToken", value: decoded["token"]);
+        await _storageService.write(
+            key: "refreshToken", value: response.headers["set-cookie"]);
+        // _setCookie(response);
+        emit(Authorized());
+      } else {
+        List<String> errors = _createErrorList(response.body);
+        emit(AuthError(messages: errors));
+      }
+    });
   }
 }
