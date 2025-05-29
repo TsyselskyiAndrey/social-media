@@ -63,14 +63,44 @@ export interface Tag {
   name: string;
 }
 
-export interface UserProfileInfo {
-  FirstName: string;
-  LastName: string;
-  Email: string;
-  UserName: string;
-  Biography: string | null;
-  ProfileImagePath: string | null;
-  BirthDate: Date | null;
+export interface UserProfileInfo{
+  firstName : string;
+  lastName  : string;
+  email : string
+  userName : string
+  biography : string | null;
+  profileImagePath : string | null;
+  birthDate : Date | null;
+  followed : number;
+  followers : number;
+  postsAmount : number;
+}
+
+export interface Post{
+  id : number; 
+  authorName : string;
+  authorIconUrl : string;
+  caption : string | null;
+  postType : string;
+  tags : string[];
+  likes : number;
+  views : number;
+  isLiked : boolean;
+  isSaved : boolean;
+  isUninteresting : boolean;
+  postMedias : PostMedia[]
+}
+
+interface PostMedia{
+  id : number;
+  mediaUrl : string;
+  postMediaType : string;
+  thumbnailUrl : string | null;
+  duration : number | null;
+  format : string;
+  size : number;
+  isUploaded : boolean;
+  position : number;
 }
 
 const Auth = {
@@ -166,7 +196,32 @@ const Payment = {
 };
 
 const Posts = {
-  getPosts: () => {},
+   getPosts: async (
+    postTitle: string | null,
+    postAmount: number,
+    postId: number | null,
+    tags: number[] | null,
+    userId: number | null
+  ) => {
+    const params: any = { postAmount };
+
+    if (postTitle !== null) params.postTitle = postTitle;
+    if (postId !== null) params.postId = postId;
+    if (tags !== null) params.tags = tags;
+    if (userId !== null) params.userId = userId;
+
+    return await axiosWithToken.get<Post[]>("/api/Post/getPosts", {
+      params,
+      withCredentials: true,
+    });
+  },
+
+  getSavedPosts: async () => {
+    return await axiosWithToken.get<Post[]>("/api/Post/getSavedPosts", {
+      withCredentials: true,
+    });
+  },
+
   createPost: async ({ caption, tags, postMedias, thumbnail }: CreatePostRequest) => {
     const formData = new FormData();
     formData.append("Caption", caption);
@@ -174,13 +229,35 @@ const Posts = {
     postMedias.forEach((file) => formData.append("PostMedias", file));
     if (thumbnail) formData.append("Thumbnail", thumbnail);
 
-    return await axiosWithToken.post("/api/post/createPost", formData, {
+    return await axiosWithToken.post("/api/Post/createPost", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
       withCredentials: true,
     });
   },
+
+  likePost: async (postId: number) => {
+    return await axiosWithToken.post<boolean>(
+      `/api/post/like`,
+      { PostId: postId },
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      }
+    );
+  },
+
+  savePost: async (postId: number) => {
+    return await axiosWithToken.post<boolean>(
+      `/api/post/save`,
+      { PostId: postId },
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      }
+    );
+  }
 };
 
 const Tags = {

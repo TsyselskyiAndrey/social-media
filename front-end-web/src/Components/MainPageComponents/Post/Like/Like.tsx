@@ -1,22 +1,25 @@
 import React, { useState } from "react";
-import UnlikeIcon from "../../..//../Assets/Post/likeAsStar.png";      // твоя іконка лайка
-import LikeIcon from "../../../../Assets/Post/likeAsStarActive.png";  // іконка "не лайк" або пусте серце
+import UnlikeIcon from "../../../../Assets/Post/likeAsStar.png";
+import LikeIcon from "../../../../Assets/Post/likeAsStarActive.png";
 
 type LikeProps = {
   initialCount?: number;
+  initiallyLiked?: boolean;
+  onLike?: () => Promise<boolean>;
 };
 
-const Like: React.FC<LikeProps> = ({ initialCount = 0 }) => {
-  const [liked, setLiked] = useState(false);
+const Like: React.FC<LikeProps> = ({ initialCount = 0, initiallyLiked = false, onLike }) => {
+  const [liked, setLiked] = useState(initiallyLiked);
   const [likeCount, setLikeCount] = useState(initialCount);
 
-  const toggleLike = () => {
-    if (liked) {
-      setLiked(false);
-      setLikeCount((prev) => prev - 1);
+  const toggleLike = async () => {
+    if (onLike) {
+      const result = await onLike();
+      setLiked(result);
+      setLikeCount(prev => prev + (result ? 1 : -1));
     } else {
-      setLiked(true);
-      setLikeCount((prev) => prev + 1);
+      setLiked(prev => !prev);
+      setLikeCount(prev => prev + (liked ? -1 : 1));
     }
   };
 
@@ -33,3 +36,4 @@ const Like: React.FC<LikeProps> = ({ initialCount = 0 }) => {
 };
 
 export default Like;
+

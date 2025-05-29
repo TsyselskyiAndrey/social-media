@@ -3,6 +3,7 @@ import DropzoneStep from './DropzoneStep';
 import ConfirmStep from './ConfirmStep';
 import PreviewStep from './PreviewStep';
 import SuccessStep from './SuccessStep';
+import Agent from '../../../API/agent';
 
 type PostMediaFile = File & { previewUrl: string };
 
@@ -33,7 +34,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
 
   const removeFile = (index: number) => {
     setPostMedias((prev) => {
-      URL.revokeObjectURL(prev[index].previewUrl); // Очищення URL
+      URL.revokeObjectURL(prev[index].previewUrl);
       return prev.filter((_, i) => i !== index);
     });
   };
@@ -77,7 +78,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
           onClose={onClose}
         />
       )}
-
+      
       {step === 'preview' && (
         <div className="w-full flex justify-center">
           <div className="min-w-[900px] max-w-[1200px] w-full">
@@ -86,40 +87,28 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
               caption={caption}
               tags={tags}
               thumbnail={thumbnail}
-              addFiles={addFiles}
-              onRemoveMedia={removeMedia}
-              onBack={() => setStep('confirm')}
-              onSubmit={async () => {
-                const formData = new FormData();
-                formData.append('Caption', caption);
-                tags.forEach((tag) => formData.append('Tags', tag));
-                postMedias.forEach((file) => formData.append('PostMedias', file));
-                if (thumbnail) formData.append('Thumbnail', thumbnail);
-
-                try {
-                  const res = await fetch('/api/post/createPost', {
-                    method: 'POST',
-                    headers: {
-                      Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-                    },
-                    body: formData,
+                addFiles={addFiles}
+                onRemoveMedia={removeMedia}  
+                onBack={() => setStep('confirm')}
+                onSubmit={async () => {
+                  try {
+                    await Agent.Posts.createPost({
+                      caption,
+                      tags,
+                      postMedias,
+                      thumbnail,
                   });
-                  if (!res.ok) {
-                    const errorText = await res.text();
-                    alert('Помилка при створенні поста: ' + errorText);
-                  } else {
                     setStep('success');
+                  } catch (error) {
+                    alert('Помилка при створенні поста');
+                    console.error(error);
                   }
-                } catch (error) {
-                  alert('Помилка мережі');
-                }
-              }}
-              onClose={onClose}
+                }}
+                onClose={onClose}
             />
           </div>
         </div>
       )}
-
       {step === 'success' && (
         <SuccessStep
           onReset={() => {

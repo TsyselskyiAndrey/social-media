@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import agent, { Tag } from '../../../API/agent';
+import Agent, { Tag } from '../../../API/agent';
 import { Autocomplete, TextField } from '@mui/material';
 
 interface ConfirmStepProps {
@@ -31,17 +31,18 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({
     const fetchTags = async () => {
       setLoading(true);
       try {
-        const response = await agent.Tags.getAllTags();
-        setAllTags(response.data);
+        const response = await Agent.Tags.getAllTags();
+        const tags = response.data;
+        setAllTags(tags);
       } catch (err) {
-        setAllTags([]);
-        setError('Failed to load tags');
+        setError('Не вдалося завантажити теги');
       } finally {
         setLoading(false);
       }
     };
     fetchTags();
   }, []);
+
 
   const onTagToggle = (tagName: string) => {
     if (tags.includes(tagName)) {
