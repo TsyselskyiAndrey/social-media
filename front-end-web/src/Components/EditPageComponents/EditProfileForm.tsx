@@ -6,12 +6,12 @@ import validateControl from "../../Utils/GeneralValidation";
 
 interface EditProfileFormProps {
   userProfile: UserProfileInfo;
-  onSave: (updatedProfile: UserProfileInfo) => void;
+  onSave: (updatedProfile: UserProfileInfo, profileImage?: File | null) => void;
   onCancel: () => void;
 }
 
 type EditFormControls = {
-  [K in keyof Pick<UserProfileInfo, 'FirstName' | 'LastName' | 'UserName' | 'Email' | 'Biography' | 'BirthDate'>]: FormControl;
+  [K in keyof Pick<UserProfileInfo, 'firstName' | 'lastName' | 'userName' | 'email' | 'biography' | 'birthDate'>]: FormControl;
 };
 
 const EditProfileForm: React.FC<EditProfileFormProps> = ({ 
@@ -21,12 +21,12 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
 }) => {
 
   const [formControls, setFormControls] = useState<EditFormControls>({
-    FirstName: {
+    firstName: {
       type: "text",
       name: "FirstName",
       label: "Ім'я:",
       errorMessage: "",
-      value: userProfile.FirstName || "",
+      value: userProfile.firstName || "",
       valid: true,
       validation: {
         required: true,
@@ -37,12 +37,12 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
       touched: false,
       shake: false,
     },
-    LastName: {
+    lastName: {
       type: "text",
       name: "LastName",
       label: "Прізвище:",
       errorMessage: "",
-      value: userProfile.LastName || "",
+      value: userProfile.lastName || "",
       valid: true,
       validation: {
         required: true,
@@ -53,12 +53,12 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
       touched: false,
       shake: false,
     },
-    UserName: {
+    userName: {
       type: "text",
       name: "UserName",
       label: "Ім'я користувача:",
       errorMessage: "",
-      value: userProfile.UserName || "",
+      value: userProfile.userName || "",
       valid: true,
       validation: {
         required: true,
@@ -70,12 +70,12 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
       touched: false,
       shake: false,
     },
-    Email: {
+    email: {
       type: "email",
       name: "Email",
       label: "Email:",
       errorMessage: "",
-      value: userProfile.Email || "",
+      value: userProfile.email || "",
       valid: true,
       validation: {
         required: true,
@@ -85,12 +85,12 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
       touched: false,
       shake: false,
     },
-    Biography: {
+    biography: {
       type: "textarea",
       name: "Biography",
       label: "Біографія:",
       errorMessage: "",
-      value: userProfile.Biography || "",
+      value: userProfile.biography || "",
       valid: true,
       validation: {
         required: false,
@@ -100,12 +100,12 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
       touched: false,
       shake: false,
     },
-    BirthDate: {
+    birthDate: {
       type: "date",
       name: "BirthDate",
       label: "Дата народження:",
       errorMessage: "",
-      value: userProfile.BirthDate ? new Date(userProfile.BirthDate).toISOString().split('T')[0] : "",
+      value: userProfile.birthDate ? new Date(userProfile.birthDate).toISOString().split('T')[0] : "",
       valid: false,
       validation: {
         required: true,
@@ -118,12 +118,14 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
 
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImagePreview, setProfileImagePreview] = useState<string>(
-    userProfile.ProfileImagePath || ""
+    userProfile.profileImagePath || ""
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (name: string, value: string) => {
-    const updatedControl = { ...formControls[name as keyof EditFormControls] };
+    const camelCaseName = name.charAt(0).toLowerCase() + name.slice(1) as keyof EditFormControls;
+    
+    const updatedControl = { ...formControls[camelCaseName] };
     updatedControl.value = value;
     updatedControl.touched = true;
     
@@ -131,10 +133,10 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
     updatedControl.valid = isValid;
     updatedControl.errorMessage = errorMessage;
     updatedControl.shake = !isValid;
-
+  
     setFormControls(prev => ({
       ...prev,
-      [name]: updatedControl
+      [camelCaseName]: updatedControl
     }));
   };
 
@@ -151,13 +153,45 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   };
 
   const isFormValid = () => {
-
-    const requiredFields = ['FirstName', 'LastName', 'UserName', 'Email', 'BirthDate'];
+    const isPhotoChanged = profileImage !== null;
     
-    return requiredFields.every(fieldName => {
-      const control = formControls[fieldName as keyof EditFormControls];
-      return control.valid && control.value.trim() !== '';
+    const hasChanges = isPhotoChanged || Object.keys(formControls).some(key => {
+      const fieldName = key as keyof EditFormControls;
+      const control = formControls[fieldName];
+      const originalValue = userProfile[fieldName] || "";
+      const currentValue = control.value;
+
+      if (fieldName === 'birthDate' && userProfile.birthDate) {
+        const originalDateStr = new Date(userProfile.birthDate).toISOString().split('T')[0];
+        return originalDateStr !== currentValue;
+      }
+      
+      return String(originalValue) !== String(currentValue);
     });
+
+    const allChangedFieldsValid = Object.keys(formControls).every(key => {
+      const fieldName = key as keyof EditFormControls;
+      const control = formControls[fieldName];
+      const originalValue = userProfile[fieldName] || "";
+      const currentValue = control.value;
+
+      let isChanged = false;
+
+      if (fieldName === 'birthDate' && userProfile.birthDate) {
+        const originalDateStr = new Date(userProfile.birthDate).toISOString().split('T')[0];
+        isChanged = originalDateStr !== currentValue;
+      } else {
+        isChanged = String(originalValue) !== String(currentValue);
+      }
+      
+      if (!isChanged) {
+        return true;
+      }
+
+      return control.valid;
+    });
+
+    return hasChanges && allChangedFieldsValid;
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -170,17 +204,20 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
     setIsSubmitting(true);
     
     try {
-      const updatedProfile: UserProfileInfo = {
-        FirstName: formControls.FirstName.value,
-        LastName: formControls.LastName.value,
-        UserName: formControls.UserName.value,
-        Email: formControls.Email.value,
-        Biography: formControls.Biography.value || null,
-        BirthDate: formControls.BirthDate.value ? new Date(formControls.BirthDate.value) : null,
-        ProfileImagePath: userProfile.ProfileImagePath,
-      };
+    const updatedProfile: UserProfileInfo = {
+      firstName: formControls.firstName.value,
+      lastName: formControls.lastName.value,
+      userName: formControls.userName.value,
+      email: formControls.email.value,
+      biography: formControls.biography.value || null,
+      birthDate: formControls.birthDate.value ? new Date(formControls.birthDate.value) : null,
+      profileImagePath: userProfile.profileImagePath,
+      followed: userProfile.followed,
+      followers: userProfile.followers,
+      postsAmount: userProfile.postsAmount
+    };
       
-      onSave(updatedProfile);
+      onSave(updatedProfile, profileImage);
     } catch (error) {
       console.error("Помилка збереження профілю:", error);
     } finally {
@@ -234,60 +271,60 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             <Input
               type="text"
               name="FirstName"
-              value={formControls.FirstName.value}
+              value={formControls.firstName.value}
               label="Введіть ваше ім'я"
-              errorMessage={formControls.FirstName.errorMessage}
-              valid={formControls.FirstName.valid}
-              touched={formControls.FirstName.touched}
-              shake={formControls.FirstName.shake}
+              errorMessage={formControls.firstName.errorMessage}
+              valid={formControls.firstName.valid}
+              touched={formControls.firstName.touched}
+              shake={formControls.firstName.shake}
               onChange={(e) => handleInputChange('FirstName', e.target.value)}
             />
             <Input
               type="text"
               name="LastName"
-              value={formControls.LastName.value}
+              value={formControls.lastName.value}
               label="Введіть ваше прізвище"
-              errorMessage={formControls.LastName.errorMessage}
-              valid={formControls.LastName.valid}
-              touched={formControls.LastName.touched}
-              shake={formControls.LastName.shake}
+              errorMessage={formControls.lastName.errorMessage}
+              valid={formControls.lastName.valid}
+              touched={formControls.lastName.touched}
+              shake={formControls.lastName.shake}
               onChange={(e) => handleInputChange('LastName', e.target.value)}
             />
             <Input
               type="text"
               name="UserName"
-              value={formControls.UserName.value}
+              value={formControls.userName.value}
               label="Username"
-              errorMessage={formControls.UserName.errorMessage}
-              valid={formControls.UserName.valid}
-              touched={formControls.UserName.touched}
-              shake={formControls.UserName.shake}
+              errorMessage={formControls.userName.errorMessage}
+              valid={formControls.userName.valid}
+              touched={formControls.userName.touched}
+              shake={formControls.userName.shake}
               onChange={(e) => handleInputChange('UserName', e.target.value)}
             />
             <Input
               type="email"
               name="Email"
-              value={formControls.Email.value}
+              value={formControls.email.value}
               label="Email"
-              errorMessage={formControls.Email.errorMessage}
-              valid={formControls.Email.valid}
-              touched={formControls.Email.touched}
-              shake={formControls.Email.shake}
+              errorMessage={formControls.email.errorMessage}
+              valid={formControls.email.valid}
+              touched={formControls.email.touched}
+              shake={formControls.email.shake}
               onChange={(e) => handleInputChange('Email', e.target.value)}
             />
           </div>
           
           <div className="mt-2">
             <Input
-              type={formControls.BirthDate.type}
-              name={formControls.BirthDate.name}
-              value={formControls.BirthDate.value}
-              label={formControls.BirthDate.label}
-              errorMessage={formControls.BirthDate.errorMessage}
-              valid={formControls.BirthDate.valid}
-              touched={formControls.BirthDate.touched}
-              shake={formControls.BirthDate.shake}
-              onChange={(e) => handleInputChange(formControls.BirthDate.name, e.target.value)}
+              type={formControls.birthDate.type}
+              name={formControls.birthDate.name}
+              value={formControls.birthDate.value}
+              label={formControls.birthDate.label}
+              errorMessage={formControls.birthDate.errorMessage}
+              valid={formControls.birthDate.valid}
+              touched={formControls.birthDate.touched}
+              shake={formControls.birthDate.shake}
+              onChange={(e) => handleInputChange(formControls.birthDate.name, e.target.value)}
             />
           </div>
         </div>
@@ -295,18 +332,18 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
         <div className="form-section">
           <h3 className="section-title">📖 Біографія</h3>
           <textarea
-            value={formControls.Biography.value}
+            value={formControls.biography.value}
             onChange={(e) => handleInputChange('Biography', e.target.value)}
             placeholder="✨ Розкажіть про себе щось цікаве... Ваші хобі, інтереси, досягнення або просто те, що робить вас унікальним! 🌟"
             className="w-full p-3 border border-gray-300 rounded-lg resize-none h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:font-medium placeholder:text-gray-500"
             maxLength={500}
           />
           <div className="character-counter">
-            {formControls.Biography.value.length}/500 символів
+            {formControls.biography.value.length}/500 символів
           </div>
-          {formControls.Biography.errorMessage && (
+          {formControls.biography.errorMessage && (
             <div className="text-red-500 text-sm mt-1">
-              {formControls.Biography.errorMessage}
+              {formControls.biography.errorMessage}
             </div>
           )}
         </div>

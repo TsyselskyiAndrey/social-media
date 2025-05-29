@@ -7,6 +7,7 @@ import { UserProfileInfo } from "../../API/agent"
 import Agent from "../../API/agent";
 import CreatePost from "../../Components/MainPageComponents/CreatePost/CreatePost";
 
+
 const ProfilePage: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [profileInfo, setProfileInfo] = useState<UserProfileInfo | null>(null);
