@@ -10,10 +10,10 @@ import 'package:glowee/screens/profile_image_notifier.dart';
 import 'dart:io';
 
 class ProfileScreen extends StatefulWidget {
-  final String uid;
+
   final void Function(bool isDarkTheme)? onThemeChange;
 
-  const ProfileScreen({Key? key, required this.uid, this.onThemeChange}) : super(key: key);
+  const ProfileScreen({Key? key, this.onThemeChange}) : super(key: key);
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();

@@ -58,7 +58,7 @@ class NavigationMenu extends StatelessWidget {
           GestureDetector(
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => ProfileScreen(uid: "")),
+                MaterialPageRoute(builder: (_) => ProfileScreen()),
               );
             },
             child: CircleAvatar(
