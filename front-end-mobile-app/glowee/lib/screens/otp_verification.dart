@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
+import 'package:glowee/bloc/auth_bloc/auth_events.dart';
+import 'package:glowee/bloc/auth_bloc/auth_states.dart';
+import 'package:glowee/screens/login_screen.dart';
 import 'package:glowee/screens/register.dart';
 import 'package:glowee/screens/email_enter.dart';
 
@@ -11,8 +16,6 @@ class OtpVerificationScreen extends StatefulWidget {
   @override
   State<OtpVerificationScreen> createState() => _OtpVerificationScreenState();
 }
-
-
 
 class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final email = TextEditingController();
@@ -45,41 +48,102 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(17, 140, 140, 1.0),
-              Color.fromRGBO(38, 75, 198, 1.0),
-              Color.fromRGBO(242, 188, 23, 1.0)
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: Form(
-            key:_formKey,
-            child: Column(
-              children: [
-                SizedBox(height: 20.h),
-                Center(child: Image.asset('assets/images/logo.png')),
-                SizedBox(height: 30.h),
-                headerText(),
-                SizedBox(height: 20.h),
-                EnterEmailText(),
-                SizedBox(height: 15.h),
-                DisplayedEmail(),
-                SizedBox(height: 25.h),
-
-                SizedBox(height: 20.h),
-                SendEmailBtn(),
-                SizedBox(height: 15.h),
-                BackBtn(),
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthStepSucess && state.flow == AuthFlow.RegisterStep3) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BlocProvider(
+                create: (context) => AuthBloc(),
+                child: LoginScreen(),
+              ),
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromRGBO(17, 140, 140, 1.0),
+                Color.fromRGBO(38, 75, 198, 1.0),
+                Color.fromRGBO(242, 188, 23, 1.0)
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: SafeArea(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  SizedBox(height: 20.h),
+                  Center(child: Image.asset('assets/images/logo.png')),
+                  SizedBox(height: 30.h),
+                  headerText(),
+                  SizedBox(height: 20.h),
+                  EnterEmailText(),
+                  SizedBox(height: 15.h),
+                  DisplayedEmail(),
+                  SizedBox(height: 25.h),
+                  SizedBox(height: 20.h),
+                  TextFormField(
+                    controller: email,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      labelStyle: TextStyle(
+                        color: Colors.deepPurple,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      hintText: 'Введите ваш email',
+                      hintStyle: TextStyle(color: Colors.deepPurple.shade200),
+                      filled: true,
+                      fillColor: Colors.deepPurple.shade50,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.deepPurple,
+                          width: 2,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.deepPurpleAccent,
+                          width: 3,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                          width: 2,
+                        ),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.redAccent,
+                          width: 3,
+                        ),
+                      ),
+                    ),
+                    style: TextStyle(
+                      color: Colors.deepPurple.shade900,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SendEmailBtn(context),
+                  SizedBox(height: 15.h),
+                  BackBtn(),
+                ],
+              ),
             ),
           ),
         ),
@@ -124,8 +188,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 
-
-
   Widget BackBtn() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
@@ -136,12 +198,15 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =>  EmailEnter()),
+                MaterialPageRoute(builder: (context) => EmailEnter()),
               );
             },
             child: Text(
               "Back",
-              style: TextStyle(fontSize: 15.sp, color: Colors.black, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 15.sp,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
             ),
           )
         ],
@@ -149,16 +214,19 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 
-  Widget SendEmailBtn() {
+  Widget SendEmailBtn(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: InkWell(
         onTap: () {
           if (_formKey.currentState!.validate()) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) =>  Register()),
-            );
+            context
+                .read<AuthBloc>()
+                .add(VerifyYourOTPBtnClicked(code: email.text));
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => Register()),
+            // );
           }
         },
         child: Container(
@@ -194,15 +262,13 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     );
   }
 
-
-
   Padding Textfild(
-      TextEditingController controll,
-      FocusNode focusNode,
-      String typename,
-      IconData icon, {
-        String? Function(String?)? validator,
-      }) {
+    TextEditingController controll,
+    FocusNode focusNode,
+    String typename,
+    IconData icon, {
+    String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: TextFormField(
@@ -212,8 +278,10 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         validator: validator,
         decoration: InputDecoration(
           hintText: typename,
-          prefixIcon: Icon(icon, color: focusNode.hasFocus ? Colors.black : Colors.grey[600]),
-          contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+          prefixIcon: Icon(icon,
+              color: focusNode.hasFocus ? Colors.black : Colors.grey[600]),
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
           filled: true,
           fillColor: Colors.white,
           enabledBorder: OutlineInputBorder(
@@ -236,7 +304,4 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       ),
     );
   }
-
-
-
 }
