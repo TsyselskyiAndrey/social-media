@@ -31,17 +31,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   List<String> _createErrorList(String responseBody) {
     List<String> errors = [];
     final decoded = jsonDecode(responseBody);
-    final errorsMap = decoded["errors"] as Map<String, dynamic>;
-    if (errorsMap.isEmpty) {
+
+    if (decoded["errors"] == null) {
+      print("❗ Ошибок нет или поле 'errors' отсутствует в ответе: $responseBody");
       return errors;
     }
+
+    final errorsMap = decoded["errors"] as Map<String, dynamic>;
+
+    if (errorsMap.isEmpty) {
+      print("❗ errorsMap пустой");
+      return errors;
+    }
+
     for (dynamic fieldErrors in errorsMap.values) {
       for (String error in fieldErrors) {
         errors.add(error);
       }
     }
+
+    print("🛑 Список ошибок: $errors");  // Здесь печатаем все ошибки
+
     return errors;
   }
+
 
   String _getMimeType(String filename) {
     final ext = filename.toLowerCase();
