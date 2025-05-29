@@ -6,4 +6,5 @@ export interface User {
   email: string;
   profileImageUrl?: string;
   roles: string[];
+  subscriptions: Subscription[];
 }
