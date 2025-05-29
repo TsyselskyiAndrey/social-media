@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
+import 'package:glowee/bloc/auth_bloc/auth_events.dart';
+import 'package:glowee/bloc/auth_bloc/auth_states.dart';
+import 'package:glowee/screens/email_password_text_comfirmation_screen.dart';
+import 'package:glowee/screens/forget_password.dart';
 import 'package:glowee/screens/register.dart';
 import 'package:glowee/screens/register_details.dart';
 import 'package:glowee/screens/otp_verification.dart';
@@ -12,8 +18,6 @@ class EmailEnter extends StatefulWidget {
   @override
   State<EmailEnter> createState() => _EmailEnterState();
 }
-
-
 
 class _EmailEnterState extends State<EmailEnter> {
   final email = TextEditingController();
@@ -46,52 +50,64 @@ class _EmailEnterState extends State<EmailEnter> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.white,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(17, 140, 140, 1.0),
-              Color.fromRGBO(38, 75, 198, 1.0),
-              Color.fromRGBO(242, 188, 23, 1.0)
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: SafeArea(
-          child: Form(
-            key:_formKey,
-            child: Column(
-              children: [
-                SizedBox(height: 20.h),
-                Center(child: Image.asset('assets/images/logo.png')),
-                SizedBox(height: 30.h),
-                EnterEmailText(),
-                SizedBox(height: 35.h),
-                SizedBox(height: 25.h),
-              Textfild(
-                email,
-                email_F,
-                'Email',
-                Icons.email,
-                // validator: (value) {
-                //   if (value == null || value.isEmpty) return 'Email is required';
-                //   final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
-                //   if (!emailRegex.hasMatch(value)) return 'Invalid email format';
-                //   if (widget.emailText != null && value != widget.emailText) {
-                //     return 'Email does not match';
-                //   }
-                //   return null;
-                // },
-              ),
-                SizedBox(height: 20.h),
-                SendEmailBtn(),
-                SizedBox(height: 15.h),
-                BackBtn(),
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthStepSucess && state.flow == AuthFlow.ForgotPassword) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EmailPasswordConfirmationScreen(),
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.white,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromRGBO(17, 140, 140, 1.0),
+                Color.fromRGBO(38, 75, 198, 1.0),
+                Color.fromRGBO(242, 188, 23, 1.0)
               ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: SafeArea(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  SizedBox(height: 20.h),
+                  Center(child: Image.asset('assets/images/logo.png')),
+                  SizedBox(height: 30.h),
+                  EnterEmailText(),
+                  SizedBox(height: 35.h),
+                  SizedBox(height: 25.h),
+                  Textfild(
+                    email,
+                    email_F,
+                    'Email',
+                    Icons.email,
+                    // validator: (value) {
+                    //   if (value == null || value.isEmpty) return 'Email is required';
+                    //   final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
+                    //   if (!emailRegex.hasMatch(value)) return 'Invalid email format';
+                    //   if (widget.emailText != null && value != widget.emailText) {
+                    //     return 'Email does not match';
+                    //   }
+                    //   return null;
+                    // },
+                  ),
+                  SizedBox(height: 20.h),
+                  SendEmailBtn(context),
+                  SizedBox(height: 15.h),
+                  BackBtn(),
+                ],
+              ),
             ),
           ),
         ),
@@ -121,8 +137,6 @@ class _EmailEnterState extends State<EmailEnter> {
     );
   }
 
-
-
   Widget BackBtn() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
@@ -138,7 +152,10 @@ class _EmailEnterState extends State<EmailEnter> {
             },
             child: Text(
               "Back",
-              style: TextStyle(fontSize: 15.sp, color: Colors.black, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 15.sp,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
             ),
           )
         ],
@@ -146,16 +163,20 @@ class _EmailEnterState extends State<EmailEnter> {
     );
   }
 
-  Widget SendEmailBtn() {
+  Widget SendEmailBtn(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: InkWell(
         onTap: () {
           if (_formKey.currentState!.validate()) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) =>  OtpVerificationScreen(emailText: email.text)),
-            );
+            context.read<AuthBloc>().add(
+                  ForgotPaswordBtnClicked(email: email.text),
+                );
+
+            //Navigator.push(
+            //  context,
+            //MaterialPageRoute(builder: (context) =>  OtpVerificationScreen(emailText: email.text)),
+            //);
           }
         },
         child: Container(
@@ -177,12 +198,12 @@ class _EmailEnterState extends State<EmailEnter> {
   }
 
   Padding Textfild(
-      TextEditingController controll,
-      FocusNode focusNode,
-      String typename,
-      IconData icon, {
-        String? Function(String?)? validator,
-      }) {
+    TextEditingController controll,
+    FocusNode focusNode,
+    String typename,
+    IconData icon, {
+    String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: TextFormField(
@@ -192,8 +213,10 @@ class _EmailEnterState extends State<EmailEnter> {
         validator: validator,
         decoration: InputDecoration(
           hintText: typename,
-          prefixIcon: Icon(icon, color: focusNode.hasFocus ? Colors.black : Colors.grey[600]),
-          contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+          prefixIcon: Icon(icon,
+              color: focusNode.hasFocus ? Colors.black : Colors.grey[600]),
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
           filled: true,
           fillColor: Colors.white,
           enabledBorder: OutlineInputBorder(
@@ -216,7 +239,4 @@ class _EmailEnterState extends State<EmailEnter> {
       ),
     );
   }
-
-
-
 }
