@@ -9,7 +9,6 @@ import 'package:glowee/screens/otp_verification.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 
 class RegisterDetails extends StatefulWidget {
   final String? emailText;
@@ -32,24 +31,15 @@ class _RegisterDetailsState extends State<RegisterDetails> {
   File? _imageFile;
   bool isPhotoSent = false;
   bool isInfoSent = false;
-  DateTime? _selectedDate;
-
-  @override
-  void initState() {
-    super.initState();
-
-  }
 
   @override
   void dispose() {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _birthDateController.dispose();
-
     _firstNameFocusNode.dispose();
     _lastNameFocusNode.dispose();
     _birthDateFocusNode.dispose();
-
     super.dispose();
   }
 
@@ -71,13 +61,13 @@ class _RegisterDetailsState extends State<RegisterDetails> {
       lastDate: DateTime.now(),
     );
     if (picked != null) {
+      // Format the date as "yyyy-MM-dd" which is a common API-friendly format
       final formattedDate = DateFormat('MM/dd/yyyy').format(picked);
       setState(() {
         _birthDateController.text = formattedDate;
       });
     }
   }
-
 
   String? _validateFirstName(String? value) {
     if (value == null || value.isEmpty) {
@@ -103,13 +93,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
     if (value == null || value.isEmpty) {
       return 'Birth date is required';
     }
-
-    // Дополнительная проверка формата, если нужно
-    final dateRegex = RegExp(r'^\d{2}/\d{2}/\d{4}$');
-    if (!dateRegex.hasMatch(value)) {
-      return 'Please use MM/DD/YYYY format';
-    }
-
     return null;
   }
 
@@ -119,7 +102,7 @@ class _RegisterDetailsState extends State<RegisterDetails> {
         Register2BtnClicked(
           firstName: _firstNameController.text,
           lastName: _lastNameController.text,
-          birthDate: _birthDateController.text,
+          birthDate: _birthDateController.text, // Already a string
         ),
       );
     }
@@ -133,7 +116,10 @@ class _RegisterDetailsState extends State<RegisterDetails> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => OtpVerificationScreen(),
+              builder: (context) => BlocProvider(
+                create: (context) => AuthBloc(),
+                child: OtpVerificationScreen(),
+              ),
             ),
           );
         } else if (state is AuthStepSucess && state.flow == AuthFlow.RegisterStep2) {
@@ -228,7 +214,7 @@ class _RegisterDetailsState extends State<RegisterDetails> {
         onTap: () => _selectDate(context),
         validator: _validateBirthDate,
         decoration: InputDecoration(
-          hintText: 'Birth Date',
+          hintText: 'Birth Date (YYYY-MM-DD)',
           prefixIcon: Icon(Icons.calendar_today,
               color: _birthDateFocusNode.hasFocus ? Colors.black : Colors.grey[600]),
           contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
@@ -254,7 +240,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
       ),
     );
   }
-
 
   Widget _buildLoginLink() {
     return Padding(
