@@ -7,47 +7,128 @@ import 'package:glowee/screens/email_enter.dart';
 
 class RegisterDetails extends StatefulWidget {
   final String? emailText;
-  const RegisterDetails({super.key,this.emailText});
+  const RegisterDetails({super.key, this.emailText});
 
   @override
   State<RegisterDetails> createState() => _RegisterDetailsState();
 }
 
 class _RegisterDetailsState extends State<RegisterDetails> {
+  // Контролери для текстових полів
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _bioController = TextEditingController();
+
+  // Фокус ноди для керування фокусом полів вводу
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+  final FocusNode _confirmPasswordFocusNode = FocusNode();
+  final FocusNode _usernameFocusNode = FocusNode();
+  final FocusNode _bioFocusNode = FocusNode();
+
+  // Ключ для форми
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  // Змінна для збереження обраного зображення
   File? _imageFile;
-  final email = TextEditingController();
-  final password = TextEditingController();
-  final passwordConfirme = TextEditingController();
-  final username = TextEditingController();
-  final bio = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  final email_F = FocusNode();
-  final password_F = FocusNode();
-  final passwordConfirme_F = FocusNode();
-  final username_F = FocusNode();
-  final bio_F = FocusNode();
 
   @override
   void initState() {
     super.initState();
+    // Якщо email переданий, встановлюємо його в контролер
+    if (widget.emailText != null) {
+      _emailController.text = widget.emailText!;
+    }
   }
 
   @override
   void dispose() {
-    email.dispose();
-    password.dispose();
-    passwordConfirme.dispose();
-    username.dispose();
-    bio.dispose();
+    // Обов'язково звільняємо ресурси
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _usernameController.dispose();
+    _bioController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _confirmPasswordFocusNode.dispose();
+    _usernameFocusNode.dispose();
+    _bioFocusNode.dispose();
     super.dispose();
   }
 
+  // Метод для вибору зображення з галереї
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
+    }
+  }
+
+  // Метод для валідації email
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Email is required';
+    }
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+      return 'Please enter a valid email';
+    }
+    return null;
+  }
+
+  // Метод для валідації пароля
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Password is required';
+    }
+    if (value.length < 6) {
+      return 'Password must be at least 6 characters';
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(value)) {
+      return 'Password must contain an uppercase letter';
+    }
+    if (!RegExp(r'[0-9]').hasMatch(value)) {
+      return 'Password must contain a number';
+    }
+    return null;
+  }
+
+  // Метод для підтвердження пароля
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please confirm your password';
+    }
+    if (value != _passwordController.text) {
+      return 'Passwords do not match';
+    }
+    return null;
+  }
+
+  // Метод для валідації імені користувача
+  String? _validateUsername(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Username is required';
+    }
+    if (RegExp(r'[@?,\*^]').hasMatch(value)) {
+      return 'Username contains invalid characters';
+    }
+    return null;
+  }
+
+  // Метод для обробки події реєстрації
+  void _handleRegistration() {
+    if (_formKey.currentState!.validate()) {
+      // Якщо форма валідна, продовжуємо
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => EmailEnter(emailText: _emailController.text),
+        ),
+      );
     }
   }
 
@@ -58,18 +139,17 @@ class _RegisterDetailsState extends State<RegisterDetails> {
       backgroundColor: Colors.white,
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color.fromRGBO(27, 36, 136, 0.7019607843137254),
-              Color.fromRGBO(242, 188, 23, 0.5)
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
+            gradient: LinearGradient(
+              colors: [
+                Color.fromRGBO(27, 36, 136, 0.7019607843137254),
+                Color.fromRGBO(242, 188, 23, 0.5)
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            )),
         child: SafeArea(
           child: Form(
-            key:_formKey,
+            key: _formKey,
             child: Column(
               children: [
                 SizedBox(height: 20.h),
@@ -93,54 +173,46 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                     ),
                   ),
                 ),
-                createAccountText(),
+                _createAccountText(),
                 SizedBox(height: 25.h),
                 SizedBox(height: 5.h),
-                Textfild(
-                  username,
-                  username_F,
-                  'Username',
-                  Icons.person,
-                  // validator: (value) {
-                  //   if (value == null || value.isEmpty) return 'Username is required';
-                  //   if (RegExp(r'[@?,\*^]').hasMatch(value)) {
-                  //     return 'Username contains invalid characters';
-                  //   }
-                  //
-                  //   return null;
-                  // },
+                _buildTextField(
+                  controller: _usernameController,
+                  focusNode: _usernameFocusNode,
+                  label: 'Username',
+                  icon: Icons.person,
+                  validator: _validateUsername,
                 ),
                 SizedBox(height: 5.h),
-                Textfild(
-                  password,
-                  password_F,
-                  'Password',
-                  Icons.lock,
-                  // validator: (value) {
-                  //   if (value == null || value.isEmpty) return 'Password is required';
-                  //   if (value.length < 6) return 'Password must be at least 6 characters';
-                  //   if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Password must contain an uppercase letter';
-                  //   if (!RegExp(r'[0-9]').hasMatch(value)) return 'Password must contain a number';
-                  //   if (RegExp(r'[ @?,*^]').hasMatch(value)) return 'Password contains invalid characters';
-                  //   return null;
-                  // },
+                _buildTextField(
+                  controller: _emailController,
+                  focusNode: _emailFocusNode,
+                  label: 'Email',
+                  icon: Icons.email,
+                  validator: _validateEmail,
                 ),
                 SizedBox(height: 5.h),
-                Textfild(
-                    passwordConfirme,
-                    passwordConfirme_F,
-                    'Confirm Password',
-                    Icons.lock_outline,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) return 'Please confirm your password';
-                    //   if (value != password.text) return 'Passwords do not match';
-                    //   return null;
-                    // }
+                _buildTextField(
+                  controller: _passwordController,
+                  focusNode: _passwordFocusNode,
+                  label: 'Password',
+                  icon: Icons.lock,
+                  obscureText: true,
+                  validator: _validatePassword,
+                ),
+                SizedBox(height: 5.h),
+                _buildTextField(
+                  controller: _confirmPasswordController,
+                  focusNode: _confirmPasswordFocusNode,
+                  label: 'Confirm Password',
+                  icon: Icons.lock_outline,
+                  obscureText: true,
+                  validator: _validateConfirmPassword,
                 ),
                 SizedBox(height: 20.h),
-                Next(),
+                _buildNextButton(),
                 SizedBox(height: 15.h),
-                Have(),
+                _buildLoginLink(),
               ],
             ),
           ),
@@ -149,7 +221,8 @@ class _RegisterDetailsState extends State<RegisterDetails> {
     );
   }
 
-  Widget createAccountText() {
+  // Виджет для тексту "Create An Account"
+  Widget _createAccountText() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 70.w),
       child: Row(
@@ -164,7 +237,8 @@ class _RegisterDetailsState extends State<RegisterDetails> {
     );
   }
 
-  Widget Have() {
+  // Виджет для посилання на сторінку входу
+  Widget _buildLoginLink() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: Row(
@@ -183,7 +257,10 @@ class _RegisterDetailsState extends State<RegisterDetails> {
             },
             child: Text(
               "Login",
-              style: TextStyle(fontSize: 15.sp, color: Colors.black, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  fontSize: 15.sp,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -191,49 +268,12 @@ class _RegisterDetailsState extends State<RegisterDetails> {
     );
   }
 
-  // Widget Signup() {
-  //   return Padding(
-  //     padding: EdgeInsets.symmetric(horizontal: 10.w),
-  //     child: InkWell(
-  //       onTap: () {
-  //         if (_formKey.currentState!.validate()) {
-  //           // Всё ок, можно продолжать
-  //           print("Signup Email: ${email.text}");
-  //         } else {
-  //           print("Форма содержит ошибки");
-  //         }
-  //       },
-  //       child: Container(
-  //         alignment: Alignment.center,
-  //         width: double.infinity,
-  //         height: 44.h,
-  //         decoration: BoxDecoration(
-  //           color: Colors.blue.withOpacity(0.1),
-  //           borderRadius: BorderRadius.circular(10.r),
-  //           border: Border.all(color: Colors.black, width: 1.w),
-  //         ),
-  //         child: Text(
-  //           'Next',
-  //           style: TextStyle(fontSize: 23.sp, color: Colors.black),
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  Widget Next() {
+  // Виджет для кнопки "Next"
+  Widget _buildNextButton() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: InkWell(
-        onTap: () {
-          if (_formKey.currentState!.validate()) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => EmailEnter(emailText: email.text)),
-
-            );
-          }
-        },
+        onTap: _handleRegistration,
         child: Container(
           alignment: Alignment.center,
           width: double.infinity,
@@ -252,24 +292,29 @@ class _RegisterDetailsState extends State<RegisterDetails> {
     );
   }
 
-  Padding Textfild(
-      TextEditingController controll,
-      FocusNode focusNode,
-      String typename,
-      IconData icon, {
-        String? Function(String?)? validator,
-      }) {
+  // Загальний виджет для текстових полів
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required FocusNode focusNode,
+    required String label,
+    required IconData icon,
+    bool obscureText = false,
+    required String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: TextFormField(
-        style: TextStyle(fontSize: 18.sp, color: Colors.black),
-        controller: controll,
+        controller: controller,
         focusNode: focusNode,
+        obscureText: obscureText,
         validator: validator,
+        style: TextStyle(fontSize: 18.sp, color: Colors.black),
         decoration: InputDecoration(
-          hintText: typename,
-          prefixIcon: Icon(icon, color: focusNode.hasFocus ? Colors.black : Colors.grey[600]),
-          contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+          hintText: label,
+          prefixIcon: Icon(icon,
+              color: focusNode.hasFocus ? Colors.black : Colors.grey[600]),
+          contentPadding:
+          EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
           filled: true,
           fillColor: Colors.white,
           enabledBorder: OutlineInputBorder(
@@ -292,7 +337,4 @@ class _RegisterDetailsState extends State<RegisterDetails> {
       ),
     );
   }
-
-
-
 }
