@@ -7,13 +7,19 @@ import SendIcon from "@mui/icons-material/Send";
 import Like from "./Like/Like";
 import Comments from "./Comment/Comment";
 import Bookmark from "./Bookmark/Bookmark";
-import Photo1 from "../../../Assets/Post/Photo1.png";
+import { Post as PostType} from "../../../API/agent";
+import Agent from "../../../API/agent";
 
-const Post: React.FC = () => {
+interface PostProps {
+  post: PostType;
+}
+
+const Post: React.FC<PostProps> = ({ post }) => {
+  const [likesCount, setLikesCount] = React.useState(post.likes);
+  const [isSaved, setIsSaved] = React.useState(post.isSaved);
+  const [isLiked, setIsLiked] = React.useState(post.isLiked);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [showComments, setShowComments] = React.useState(false);
-
-  const initialComments = [{ id: 1, text: "Супер фото!" }, { id: 2, text: "Круто!" }, { id: 3, text: "Чудово!" }, { id: 4, text: "Дуже гарно!" }];
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -26,6 +32,31 @@ const Post: React.FC = () => {
   const handleCommentIconClick = () => {
     setShowComments((prev) => !prev);
   };
+
+  const handleLike = async () => {
+    try {
+      const result = await Agent.Posts.likePost(post.id);
+      setIsLiked(result.data);
+      setLikesCount((prev) => prev + (result ? 1 : -1));
+      return result.data;
+    } catch (error) {
+      console.error("Ошибка при лайке поста", error);
+      return isLiked;
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const result = await Agent.Posts.savePost(post.id);
+      setIsSaved(result.data);
+      return result.data;
+    } catch (error) {
+      console.error("Ошибка при сохранении поста", error);
+      return isSaved;
+    }
+  };
+
+  const media = post.postMedias[0];
 
   return (
     <Box
@@ -51,8 +82,8 @@ const Post: React.FC = () => {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <Avatar sx={{ bgcolor: "gray" }}>U</Avatar>
-          <Typography fontWeight="bold">user_name</Typography>
+          <Avatar src={post.authorIconUrl} />
+          <Typography fontWeight="bold">{post.authorName}</Typography>
         </Box>
         <IconButton onClick={handleMenuClick} aria-label="settings" size="small">
           <MoreVertIcon />
@@ -69,26 +100,41 @@ const Post: React.FC = () => {
         </Menu>
       </Box>
 
-      <Box
-        component="img"
-        src={Photo1}
-        alt="Post"
-        sx={{ width: "100%", height: "auto", objectFit: "cover" }}
-      />
+      {media && media.postMediaType === "Photo" && (
+        <img
+          src={media.mediaUrl}
+          alt="Post"
+          style={{ width: "100%", height: "auto", objectFit: "cover" }}
+        />
+      )}
+
+      {media && media.postMediaType === "Video" && (
+        <video
+          controls
+          poster={media.thumbnailUrl ?? undefined}
+          src={media.mediaUrl}
+          style={{ width: "100%", height: "auto", objectFit: "cover" }}
+        />
+      )}
 
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           px: 2,
           py: 1.5,
-          borderTop: '1px solid',
-          borderColor: 'divider',
+          borderTop: "1px solid",
+          borderColor: "divider",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Like initialCount={10} />
+          <Like
+            initialCount={likesCount}
+            initiallyLiked={isLiked}
+            onLike={handleLike}
+          />
+
           <IconButton aria-label="comment" onClick={handleCommentIconClick} size="small">
             <ChatBubbleOutlineIcon />
           </IconButton>
@@ -96,22 +142,19 @@ const Post: React.FC = () => {
             <SendIcon />
           </IconButton>
         </Box>
-        <Bookmark initiallySaved={false} />
+        <Bookmark
+          initiallySaved={isSaved}
+          onSave={handleSave}
+        />
       </Box>
 
       <Box sx={{ px: 2, pb: 1 }}>
-        <Typography component="span" fontWeight="bold">
-          user_name{" "}
-        </Typography>
-        <Typography component="span">Це приклад підпису до фото...</Typography>
+        <Typography component="span">{post.caption}</Typography>
       </Box>
 
       <Box sx={{ px: 3, pb: 2 }}>
         {showComments && (
-          <Comments
-            initialComments={initialComments}
-            showCommentInput={showComments}
-          />
+          <Comments initialComments={[]} showCommentInput={showComments} />
         )}
       </Box>
     </Box>

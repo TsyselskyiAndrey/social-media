@@ -1,43 +1,80 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Agent from "../../../API/agent";
+import { Post } from "../../../API/agent";
 import PostModal from "./PostModal";
 
-const savedImages = Array.from({ length: 9 }, (_, i) =>
-  `https://picsum.photos/seed/saved${i}/600/600`
-);
-
 const SavedTab: React.FC = () => {
+  const [hoveredVideoId, setHoveredVideoId] = useState<number | null>(null);
+  const [savedPosts, setSavedPosts] = useState<Post[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
-  const openModal = (src: string) => {
-    setSelectedImage(src);
+  useEffect(() => {
+    const fetchSavedPosts = async () => {
+      try {
+        const response = await Agent.Posts.getSavedPosts();
+        setSavedPosts(response.data);
+      } catch (error) {
+        console.error("Помилка при завантаженні збережених постів:", error);
+      }
+    };
+
+    fetchSavedPosts();
+  }, []);
+
+  const openModal = (post: Post) => {
+    setSelectedPost(post);
     setModalOpen(true);
   };
 
   const closeModal = () => {
     setModalOpen(false);
-    setSelectedImage(null);
+    setSelectedPost(null);
   };
 
   return (
     <div className="grid grid-cols-3 gap-2">
-      {savedImages.map((src, i) => (
-        <div
-          key={i}
-          className="aspect-square overflow-hidden rounded-md cursor-pointer bg-gray-100"
-          onClick={() => openModal(src)}
-        >
-          <img
-            src={src}
-            alt={`saved-post-${i}`}
-            className="object-cover w-full h-full hover:scale-105 transition-transform duration-200"
-            loading="lazy"
-          />
-        </div>
-      ))}
+      {savedPosts.map((post) => {
+        const media = post.postMedias[0];
+        if (!media) return null;
 
-      {selectedImage && (
-        <PostModal isOpen={modalOpen} onClose={closeModal} imageSrc={selectedImage} />
+        return (
+          <div
+            key={post.id}
+            className="aspect-square overflow-hidden rounded-md cursor-pointer bg-gray-100"
+            onClick={() => openModal(post)}
+          >
+            {media.postMediaType.startsWith("Video") ? (
+              <video
+                src={media.mediaUrl}
+                className={`object-cover w-full h-full transition-transform duration-200 ${
+                  hoveredVideoId === post.id ? "scale-105 z-10" : ""
+                }`}
+                muted={hoveredVideoId !== post.id}
+                loop
+                playsInline
+                autoPlay={hoveredVideoId === post.id}
+                onMouseEnter={() => setHoveredVideoId(post.id)}
+                onMouseLeave={() => setHoveredVideoId(null)}
+              />
+            ): (
+              <img
+                src={media.mediaUrl}
+                alt={`saved-post-${post.id}`}
+                className="object-cover w-full h-full hover:scale-105 transition-transform duration-200"
+                loading="lazy"
+              />
+            )}
+          </div>
+        );
+      })}
+
+      {selectedPost && (
+        <PostModal
+          isOpen={modalOpen}
+          onClose={closeModal}
+          post={selectedPost}
+        />
       )}
     </div>
   );

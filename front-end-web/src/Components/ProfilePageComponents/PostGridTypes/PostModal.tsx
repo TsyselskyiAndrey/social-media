@@ -1,24 +1,28 @@
 import React, { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
+import { Post } from "../../../API/agent";
 
 interface PostModalProps {
   isOpen: boolean;
   onClose: () => void;
-  imageSrc: string;
+  post: Post;
 }
 
-const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, imageSrc }) => {
+const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, post }) => {
   const [likes, setLikes] = useState(0);
   const [comments, setComments] = useState<string[]>([]);
   const [commentText, setCommentText] = useState("");
 
-  const handleLike = () => setLikes(likes + 1);
+  const handleLike = () => setLikes((prev) => prev + 1);
 
   const handleAddComment = () => {
     if (commentText.trim() === "") return;
-    setComments([...comments, commentText.trim()]);
+    setComments((prev) => [...prev, commentText.trim()]);
     setCommentText("");
   };
+
+  const media = post.postMedias[0];
+  const isVideo = media?.format.startsWith("video");
 
   return (
     <Dialog
@@ -37,13 +41,26 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, imageSrc }) => {
           &times;
         </button>
 
-        <img
-          src={imageSrc}
-          alt="Post"
-          className="w-full h-auto object-cover max-h-72"
-        />
+        {isVideo ? (
+          <video
+            src={media.mediaUrl}
+            controls
+            className="w-full max-h-72 object-contain bg-black"
+          />
+        ) : (
+          <img
+            src={media.mediaUrl}
+            alt="Post"
+            className="w-full h-auto object-cover max-h-72"
+          />
+        )}
 
         <div className="p-4 flex flex-col gap-3 flex-grow overflow-auto">
+          <h3 className="font-semibold">{post.authorName}</h3>
+          {post.caption && (
+            <p className="text-gray-700 text-sm">{post.caption}</p>
+          )}
+
           <button
             onClick={handleLike}
             className="self-start text-red-600 hover:text-red-700 font-semibold"
@@ -51,6 +68,7 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, imageSrc }) => {
           >
             ❤️ {likes > 0 ? `Лайки: ${likes}` : "Поставити лайк"}
           </button>
+
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
               <input
@@ -79,7 +97,10 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, imageSrc }) => {
                 <p className="italic text-gray-400">Немає коментарів</p>
               ) : (
                 comments.map((c, i) => (
-                  <p key={i} className="border-b border-gray-200 pb-1 last:border-0">
+                  <p
+                    key={i}
+                    className="border-b border-gray-200 pb-1 last:border-0"
+                  >
                     {c}
                   </p>
                 ))
