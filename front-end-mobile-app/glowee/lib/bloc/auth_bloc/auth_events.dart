@@ -26,12 +26,12 @@ class ForgotPaswordBtnClicked extends AuthEvent {
 
 class LogInWithGoogleBtnClciked extends AuthEvent {
   final String codeOrIdToken;
-  final String deviceId;
+  final String? deviceId;
   final bool isMobile;
 
   LogInWithGoogleBtnClciked({
     required this.codeOrIdToken,
-    required this.deviceId,
+    this.deviceId,
     this.isMobile = true,
   });
 }

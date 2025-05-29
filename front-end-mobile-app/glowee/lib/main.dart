@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/screens/login_screen.dart';
@@ -10,6 +11,7 @@ import 'package:glowee/util/locale_notifier.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
   await loadTheme();
   await loadLocale();
   HttpOverrides.global = MyHttpOverrides();
