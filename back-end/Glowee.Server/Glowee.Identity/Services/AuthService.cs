@@ -628,6 +628,7 @@ namespace Glowee.Identity.Services
                 throw new UnauthorizedAccessException("Refresh token is invalid or expired.");
             }
 
+
             return await GenerateAuthResponse(authUser, deviceId);
         }
 

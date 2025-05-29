@@ -30,6 +30,7 @@ namespace Glowee.Identity.Services
                         {
                             Audience = new List<string>
                             {
+                                _googleSettings.WebClientId,
                                 _googleSettings.AndroidClientId,
                                 _googleSettings.IOSClientId
                             }
