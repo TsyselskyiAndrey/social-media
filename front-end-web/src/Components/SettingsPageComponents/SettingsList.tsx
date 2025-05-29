@@ -22,11 +22,34 @@ const SettingsList: React.FC = () => {
     { label: "Інтерфейс", icon: <AccessibilityNewIcon /> },
   ];
 
-  const handleClick = (label: string) => {
-    if (label === "Інтерфейс") {
+const handleClick = (label: string) => {
+  switch (label) {
+    case "Активність":
+      navigate("/settings/activity");
+      break;
+    case "Сповіщення":
+      navigate("/settings/notifications");
+      break;
+    case "Збережені":
+      navigate("/settings/saved");
+      break;
+    case "Підписки":
+      navigate("../subscriptions");
+      break;
+    case "Акаунт":
+      navigate("/settings/account");
+      break;
+    case "Допомога":
+      navigate("/settings/help");
+      break;
+    case "Інтерфейс":
       navigate("/settings/interface");
-    }
-  };
+      break;
+    default:
+      break;
+  }
+};
+
 
   return (
     <div className="space-y-4">

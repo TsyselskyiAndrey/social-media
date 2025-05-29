@@ -12,12 +12,15 @@ import ResetPasswordPage from "./Pages/Authentication/ResetPasswordPage/ResetPas
 import ProfilePage from "./Pages/ProfilePage/ProfilePage";
 import SettingsPage from "./Pages/Settings/Settings";
 import InterfaceSettingsPage from "./Pages/Settings/InterfaceSettingsPage";
+import NotificationsPage from "./Pages/Settings/NotificationsPage";
+import ActivityPage from "./Pages/Settings/ActivityPage";
 import { ThemeProviderCustom } from "./Contexts/ThemeContext";
 import { CssBaseline } from "@mui/material";
 import SubscriptionsPage from "./Pages/SubscriptionsPage/SubscriptionsPage";
 import PaymentSuccessPage from "./Pages/PaymentCompletionPages/PaymentSuccessPage";
 import PaymentCancelPage from "./Pages/PaymentCompletionPages/PaymentCancelPage";
 import EditPage from "./Pages/EditPage/EditPage";
+import Saved from "./Pages/Settings/SavedPosts";
 function App() {
   const interceptorsReady = useAxiosWithToken();
 
@@ -37,6 +40,9 @@ function App() {
           <Route path="profile" element={<ProfilePage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="settings/interface" element={<InterfaceSettingsPage />} />
+          <Route path="settings/activity" element={<ActivityPage />} />
+          <Route path="settings/notifications" element={<NotificationsPage />} />
+          <Route path="settings/saved" element={<Saved />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Route>
