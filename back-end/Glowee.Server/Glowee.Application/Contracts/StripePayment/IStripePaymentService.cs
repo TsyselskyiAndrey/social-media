@@ -1,4 +1,5 @@
 ﻿using Glowee.Application.Models.StripePayment;
+using Glowee.Domain.Entities.Users;
 
 namespace Glowee.Application.Contracts.StripePayment
 {
@@ -6,6 +7,9 @@ namespace Glowee.Application.Contracts.StripePayment
     {
         string Config();
         Task<CreateCheckoutSessionResponse> CreateCheckoutSessionAsync(string priceId);
+        Task<CreateCheckoutSessionResponse> UpgradeSubscriptionAsync(string newPriceId);
         Task<List<SubscriptionPlanDto>> GetAvailableSubscriptionsAsync();
+        Task<List<ActiveSubscriptionDto>> GetUserSubscriptionsAsync(UserId userId);
+        Task HandleStripeWebhookAsync(string json, string stripeSignatureHeader);
     }
 }

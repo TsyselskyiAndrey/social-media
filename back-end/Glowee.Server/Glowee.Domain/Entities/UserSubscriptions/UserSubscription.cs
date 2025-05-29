@@ -10,6 +10,13 @@ namespace Glowee.Domain.Entities.UserSubscriptions
         public User User { get; set; }
         public SubscriptionId SubscriptionId { get; set; }
         public Subscription Subscription { get; set; }
-        public DateTime ActivationDate { get; set; }
+        public string StripeSubscriptionId { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+        public DateTime CurrentPeriodStart { get; set; }
+        public DateTime CurrentPeriodEnd { get; set; }
+        public DateTime? CancelAt { get; set; }
+        public DateTime? CanceledAt { get; set; }
+        public bool IsActive { get; set; }
     }
 }

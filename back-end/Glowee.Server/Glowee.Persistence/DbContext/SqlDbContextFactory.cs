@@ -11,7 +11,7 @@ namespace Glowee.Persistence
             var optionsBuilder = new DbContextOptionsBuilder<SqlDbContext>();
 
             var connectionString =
-                "Server=DESKTOP-LCBASFT;Database=GloweeServer;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True;Pooling=true;Min Pool Size=5;Max Pool Size=100;";
+                "Server=ANDREYTS_PC;Database=GloweeServer;Trusted_Connection=True;MultipleActiveResultSets=true; TrustServerCertificate=True;Pooling=true; Min Pool Size=5; Max Pool Size=100;";
 
             optionsBuilder.UseSqlServer(connectionString);
 

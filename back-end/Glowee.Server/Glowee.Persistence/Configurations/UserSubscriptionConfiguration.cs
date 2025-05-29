@@ -38,9 +38,35 @@ namespace Glowee.Persistence.Configurations
                    .OnDelete(DeleteBehavior.Cascade)
                    .IsRequired();
 
-            builder.Property(us => us.ActivationDate)
+            builder.Property(s => s.StripeSubscriptionId)
+                   .IsRequired()
+                   .HasMaxLength(255);
+
+            builder.Property(s => s.Status)
+                  .IsRequired()
+                  .HasMaxLength(50);
+
+            builder.Property(us => us.StartDate)
                    .IsRequired()
                    .HasDefaultValueSql("getdate()");
+
+            builder.Property(us => us.CurrentPeriodStart)
+                   .IsRequired()
+                   .HasDefaultValueSql("getdate()");
+
+            builder.Property(us => us.CurrentPeriodEnd)
+                   .IsRequired()
+                   .HasDefaultValueSql("getdate()");
+
+            builder.Property(us => us.CancelAt)
+                   .IsRequired(false);
+
+            builder.Property(us => us.CanceledAt)
+                   .IsRequired(false);
+
+            builder.Property(us => us.IsActive)
+                   .IsRequired()
+                   .HasDefaultValue(false);
         }
     }
 }

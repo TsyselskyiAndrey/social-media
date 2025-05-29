@@ -29,12 +29,30 @@ namespace Glowee.Persistence.Configurations
             builder.Property(s => s.Price)
                    .IsRequired();
 
+            builder.Property(s => s.StripePriceId)
+                   .IsRequired()
+                   .HasMaxLength(255);
+
+            builder.Property(s => s.StripeProductId)
+                   .IsRequired()
+                   .HasMaxLength(255);
+
+            builder.Property(s => s.Currency)
+                   .IsRequired()
+                   .HasMaxLength(10);
+
+            builder.Property(s => s.Interval)
+                   .IsRequired()
+                   .HasMaxLength(50);
+
             builder.Property(s => s.Description)
                    .IsRequired()
                    .HasMaxLength(4095);
 
-            builder.Property(s => s.Duration)
-                   .IsRequired();
+            builder.Property(s => s.IsActive)
+                   .IsRequired()
+                   .HasDefaultValue(false);
+
         }
     }
 }

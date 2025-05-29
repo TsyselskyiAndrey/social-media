@@ -3,6 +3,7 @@ using Glowee.Application.Contracts.Email;
 using Glowee.Application.Contracts.Identity;
 using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Contracts.Storage;
+using Glowee.Application.Contracts.StripePayment;
 using Glowee.Application.Exceptions;
 using Glowee.Application.Models.Email;
 using Glowee.Application.Models.Identity.FacebookAuth;
@@ -47,8 +48,9 @@ namespace Glowee.Identity.Services
         private readonly IGoogleAuthService _googleAuthService;
         private readonly IFacebookAuthService _facebookAuthService;
         private readonly IProfileImageStorageService _profileImageStorageService;
+        private readonly IStripePaymentService _stripePaymentService;
 
-        public AuthService(UserManager<AuthUser> userManager, SignInManager<AuthUser> signInManager, IOptions<JwtSettings> jwtSettings, IOptions<AuthSettings> authSettings, IOptions<DefaultFiles> defaultFiles, AuthenticationDbContext context, IUserRepository userRepository, IEmailSender emailSender, IUserService userService, IGoogleAuthService googleAuthService, IFacebookAuthService facebookAuthService, IProfileImageStorageService profileImageStorageService)
+        public AuthService(UserManager<AuthUser> userManager, SignInManager<AuthUser> signInManager, IOptions<JwtSettings> jwtSettings, IOptions<AuthSettings> authSettings, IOptions<DefaultFiles> defaultFiles, AuthenticationDbContext context, IUserRepository userRepository, IEmailSender emailSender, IUserService userService, IGoogleAuthService googleAuthService, IFacebookAuthService facebookAuthService, IProfileImageStorageService profileImageStorageService, IStripePaymentService stripePaymentService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -62,6 +64,7 @@ namespace Glowee.Identity.Services
             _googleAuthService = googleAuthService;
             _facebookAuthService = facebookAuthService;
             _profileImageStorageService = profileImageStorageService;
+            _stripePaymentService = stripePaymentService;
         }
 
         public async Task<CompleteAuthResponse> FacebookLogin(FacebookAuthRequest request)
@@ -765,6 +768,7 @@ namespace Glowee.Identity.Services
                 Email = authUser.Email ?? "",
                 ProfileImageUrl = _profileImageStorageService.GetProfileImageUrl(user.ProfileImagePath ?? _defaultFiles.DefaultProfilePicture),
                 Roles = await _userManager.GetRolesAsync(authUser),
+                Subscriptions = (await _stripePaymentService.GetUserSubscriptionsAsync(user.Id)).Where(us => us.Status == "active").ToList(),
                 Token = accessToken
             };
             var refreshTokenResponse = new RefreshTokenResponse

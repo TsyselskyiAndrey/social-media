@@ -45,6 +45,10 @@ namespace Glowee.Persistence.Configurations
                    .IsRequired(false)
                    .HasMaxLength(1024);
 
+            builder.Property(c => c.StripeCustomerId)
+                   .IsRequired(false)
+                   .HasMaxLength(255);
+
             builder.Property(c => c.ProfileImagePath)
                    .IsRequired(false)
                    .HasMaxLength(512);
