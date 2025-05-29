@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:glowee/screens/add_post.dart';
+import 'package:glowee/screens/addPostScreen.dart';
 import 'package:glowee/screens/feed.dart';
 import 'package:glowee/screens/profile.dart';
 import 'package:glowee/screens/recommendation.dart';
