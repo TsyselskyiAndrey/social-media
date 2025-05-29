@@ -37,9 +37,19 @@ public class CreatePostCommandHandler : IRequestHandler<CreatePostCommand>
         if (!validationResult.IsValid)
             throw new BadRequestException(string.Join("; ", validationResult.Errors.Select(e => e.ErrorMessage)));
 
-        var mediaStreams = request.PostMedias
-            .Select(file => (file.OpenReadStream(), file.FileName, file.Length))
-            .ToList();
+        // var mediaStreams = request.PostMedias
+        //     .Select(file => (file.OpenReadStream(), file.FileName, file.Length))
+        //     .ToList();
+        var mediaStreams = new List<(Stream stream, string fileName, long size)>();
+
+        foreach (var file in request.PostMedias)
+        {
+            var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream, cancellationToken);
+            memoryStream.Position = 0;
+
+            mediaStreams.Add((memoryStream, file.FileName, memoryStream.Length));
+        }
 
         var postTypeId = DeterminePostTypeId(request.PostMedias);
 

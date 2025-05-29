@@ -20,13 +20,12 @@ public class PostMapper : IPostMapper
         _profileImageStorageService = profileImageStorageService;
     }
 
-    public PostDto MapPostToPostDtoAsync(Post post, UserId? currentUserId)
+    public PostDto MapPostToPostDto(Post post, UserId? currentUserId)
     {
         var dto = new PostDto
         {
             Id = post.Id.Value,
-            AuthorName = post.UserId.Value,
-            AuthorIconUrl = _profileImageStorageService.GetProfileImageUrl(post.User.ProfileImagePath) ?? "",
+            AuthorName = post.User.UserName,
             Caption = post.Caption,
             PostType = post.PostType.Name,
             Likes = post.LikedPosts.Count,
@@ -35,12 +34,17 @@ public class PostMapper : IPostMapper
             IsSaved = post.SavedPosts.Any(x => x.UserId == currentUserId),
             IsUninteresting = post.UninterestingPosts.Any(x => x.UserId == currentUserId),
             Tags = post.Tags.Select(x => x.Name).ToList(),
-            PostMediaDtos = new List<PostMediaDto>()
+            PostMedias = new List<PostMediaDto>()
         };
+
+        if (post.User.ProfileImagePath != null)
+        {
+            dto.AuthorIconUrl = _profileImageStorageService.GetProfileImageUrl(post.User.ProfileImagePath);
+        }
 
         foreach (var media in post.PostMedias)
         {
-            dto.PostMediaDtos.Add(new PostMediaDto
+            dto.PostMedias.Add(new PostMediaDto
             {
                 Id = media.Id.Value,
                 MediaUrl = _postMediaStorageService.GetPostMediaUrl(media.MediaPath),

@@ -6,6 +6,6 @@ namespace Glowee.Application.Contracts.Mappers
 {
     public interface IPostMapper
     {
-        PostDto MapPostToPostDtoAsync(Post post, UserId? currentUserId);
+        PostDto MapPostToPostDto(Post post, UserId? currentUserId);
     }
 }

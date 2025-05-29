@@ -8,8 +8,9 @@ namespace Glowee.Application.Features.Post.Queries.Posts;
 
 public class GetPostsQuery : IRequest<IEnumerable<PostDto>>
 {
+    public string? PostTitle { get; set; } = String.Empty;
     public int PostsAmount { get; set; } = 20;
-    public PostId? LastPostId { get; set; } = null;
+    public long? LastPostId { get; set; } = null;
     public List<TagId>? Tags { get; set; } = null;
-    public UserId? UserId { get; set; } = null;
+    public long? UserId { get; set; } = null;
 }

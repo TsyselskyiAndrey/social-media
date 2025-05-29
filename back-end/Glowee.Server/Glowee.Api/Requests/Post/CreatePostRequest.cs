@@ -7,7 +7,7 @@ public class CreatePostRequest
 
     public List<string> Tags { get; set; } = new List<string>();
 
-    public List<IFormFile>? PostMedias { get; set; }
+    public List<IFormFile> PostMedias { get; set; }
 
     public IFormFile? Thumbnail { get; set; }
 }

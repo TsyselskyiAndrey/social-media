@@ -2,6 +2,7 @@
 using Glowee.Application.Exceptions;
 using Glowee.Domain.Entities.Users;
 using Glowee.Persistence.DbContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace Glowee.Persistence.Repositories
 {
@@ -50,6 +51,15 @@ namespace Glowee.Persistence.Repositories
 
             user.ProfileImagePath = imagePath;
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<User?> GetUserPersonalInfoAsync(UserId userId)
+        {
+            return await _context.Users
+                .Include(x => x.Posts)
+                .Include(x => x.Followers)
+                .Include(x => x.Followings)
+                .FirstOrDefaultAsync(x => x.Id == userId);
         }
     }
 }

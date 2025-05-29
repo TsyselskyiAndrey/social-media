@@ -32,7 +32,7 @@ public class GetSavedPostsQueryHandler : IRequestHandler<GetSavedPostsQuery, IEn
         var userSavedPosts = await _savedPostRepository.GetUserSavedPostsAsync(request.UserId);
         
         var result = userSavedPosts
-            .Select(post => _postMapper.MapPostToPostDtoAsync(post, request.UserId)).ToList();
+            .Select(post => _postMapper.MapPostToPostDto(post, request.UserId)).ToList();
 
         return result;
     }

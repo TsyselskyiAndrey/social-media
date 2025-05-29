@@ -31,11 +31,12 @@ public class PostController : ControllerBase
     private readonly ILikeRepository _likeRepository;
     private readonly ISavedPostRepository _savedPostRepository;
     private readonly IAppLogger<PostController> _logger;
+    private readonly IUserRepository _userRepository;
 
 
     public PostController(IPostRepository postRepository, IPostMapper postMapper, IUserService userService,
     ITagRepository tagRepository, IPostMediaRepository postMediaRepository, IPostMediaStorageService postMediaStorageService,
-    ILikeRepository likeRepository, ISavedPostRepository savedPostRepository, IAppLogger<PostController> logger)
+    ILikeRepository likeRepository, ISavedPostRepository savedPostRepository, IUserRepository userRepository,IAppLogger<PostController> logger)
     {
         _postRepository = postRepository;
         _userService = userService;
@@ -45,27 +46,43 @@ public class PostController : ControllerBase
         _postMediaStorageService = postMediaStorageService;
         _likeRepository = likeRepository;
         _savedPostRepository = savedPostRepository;
+        _userRepository = userRepository;
         _logger = logger;
     }
 
     [HttpGet("getPosts")]
-    public async Task<IActionResult> GetPostsAsync([FromQuery] int postAmount,
-        [FromQuery] long postId, [FromQuery] List<long> tags, [FromQuery] long userId)
+    public async Task<IActionResult> GetPostsAsync([FromQuery] string? postTitle,[FromQuery] int postAmount,
+        [FromQuery] long? postId, [FromQuery] List<long>? tags, [FromQuery] long? userId)
     {
+        List<TagId> list = new List<TagId>();
+        if (tags != null)
+            foreach (var t in tags) list.Add(new TagId(t));
+
         var request = new GetPostsQuery()
         {
+            PostTitle = postTitle,
             PostsAmount = postAmount,
-            LastPostId = new PostId(postId),
-            Tags = tags.Select(t => new TagId(t)).ToList(),
-            UserId = new UserId(userId),
+            LastPostId = postId,
+            Tags = list,
+            UserId = userId,
         };
 
-        var handler = new GetPostsQueryHandler(_postRepository, _postMapper, _userService);
+        var handler = new GetPostsQueryHandler(_postRepository, _postMapper, _userService, _userRepository);
         var posts = await handler.Handle(request, new CancellationToken());
 
         return Ok(posts);
     }
 
+    [HttpGet("getSavedPosts")]
+    public async Task<IActionResult> GetUsersSavedPostsAsync()
+    {
+        var request = new GetSavedPostsQuery();
+        var handler = new GetSavedPostsQueryHandler(_postRepository, _postMapper, _userService);
+        
+        var result = await handler.Handle(request, CancellationToken.None);
+        return Ok(result);
+    }
+    
     [HttpPost("createPost")]
     public async Task<IActionResult> CreatePostAsync([FromForm] CreatePostRequest postDto)
     {

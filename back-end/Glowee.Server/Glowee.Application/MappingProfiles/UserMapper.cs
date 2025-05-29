@@ -24,6 +24,9 @@ public class UserMapper
             BirthDate = user.BirthDate,
             Biography = user.Biography,
             ProfileImagePath = _profileImageStorageService.GetProfileImageUrl(user.ProfileImagePath),
+            Followed = user.Followings.Count,
+            Followers = user.Followers.Count,
+            PostsAmount = user.Posts.Count,
         };
     }
 }

@@ -29,7 +29,7 @@ public class GetUserProfileInfoQueryHandler : IRequestHandler<GetUserProfileInfo
         var userId = long.Parse(_userService.UserId);
         var userStrongId = new UserId(userId);
         
-        var user = await _userRepository.GetByIdAsync(userStrongId);
+        var user = await _userRepository.GetUserPersonalInfoAsync(userStrongId);
         
         if(user == null)
             throw new UnauthorizedAccessException("User not found.");

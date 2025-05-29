@@ -3,7 +3,7 @@
 public class PostDto
 {
     public long Id { get; set; }
-    public long AuthorName { get; set; }
+    public string AuthorName { get; set; }
     public string AuthorIconUrl { get; set; }
     public string? Caption { get; set; }
     public string PostType { get; set; }
@@ -13,5 +13,5 @@ public class PostDto
     public bool IsLiked { get; set; }
     public bool IsSaved { get; set; }
     public bool IsUninteresting { get; set; }
-    public List<PostMediaDto> PostMediaDtos { get; set; } = new();
+    public List<PostMediaDto> PostMedias { get; set; } = new();
 }
