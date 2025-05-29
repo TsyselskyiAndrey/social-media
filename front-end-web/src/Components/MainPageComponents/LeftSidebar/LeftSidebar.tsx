@@ -8,13 +8,19 @@ import logoSrc from "../../../Assets/logo.png";
 import MenuItems from "./MenuItems/MenuItems";
 import CreateButton from "./CreateButton/CreateButton";
 import { useNavigate } from "react-router-dom";
+import SettingsIcon from "@mui/icons-material/Settings";
 
 type LeftSidebarProps = {
   onCreateClick: () => void;
   hideCreateButton?: boolean;
+  customHeight?: string; // Новий пропс
 };
 
-const LeftSidebar: React.FC<LeftSidebarProps> = ({ onCreateClick, hideCreateButton = false }) => {
+const LeftSidebar: React.FC<LeftSidebarProps> = ({ 
+  onCreateClick, 
+  hideCreateButton = false, 
+  customHeight 
+}) => {
   const navigate = useNavigate();
 
   const items = [
@@ -31,6 +37,9 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ onCreateClick, hideCreateButt
     
     { text: "Пошук", icon: <SearchIcon sx={{ fontSize: 28 }} /> },
     { text: "Повідомлення", icon: <MessageIcon sx={{ fontSize: 28 }} /> },
+    { text: "Налаштування", 
+      icon: <SettingsIcon sx={{ fontSize: 28 }} />,
+      onClick: () => navigate("/settings"), },
   ];
 
   return (
@@ -38,9 +47,10 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({ onCreateClick, hideCreateButt
       sx={{
         bgcolor: "white",
         color: "black",
-        height: "100vh",
+        height: customHeight || "90vh", // Використовуємо customHeight якщо передано
         width: 300,
         borderRight: "1px solid #d1d5db",
+        borderRadius: 3, // Додано border-radius: 3px
         display: "flex",
         flexDirection: "column",
         position: "fixed",

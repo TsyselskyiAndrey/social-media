@@ -27,8 +27,8 @@ const CreateButton: React.FC<CreateButtonProps> = ({ onClick }) => {
         </ListItemIcon>
         <ListItemText
           primary={
-            <Typography fontWeight="bold" fontSize="1rem">
-              Створити
+            <Typography fontWeight="bold" fontSize="1.05rem">
+              Створити допис
             </Typography>
           }
         />

@@ -42,7 +42,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items }) => {
           </ListItemIcon>
           <ListItemText
             primary={
-              <Typography fontWeight="bold" fontSize="1rem">
+              <Typography fontWeight="bold" fontSize="1.1rem">
                 {text}
               </Typography>
             }
