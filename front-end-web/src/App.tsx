@@ -37,8 +37,8 @@ function App() {
         <Route path="signup" element={<SignupPage />} />
         <Route path="forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="resetpassword" element={<ResetPasswordPage />} />
-      
-          <Route path="mainpage" element={<MainPage />} />
+        <Route element={<ProtectedRoutes />}>
+          <Route index element={<MainPage />} />
           <Route path="editpage" element={<EditPage />} />
           <Route path="search" element={<SearchPage />} />
           <Route path="subscriptions" element={<SubscriptionsPage />} />
@@ -50,7 +50,7 @@ function App() {
           <Route path="settings/activity" element={<ActivityPage />} />
           <Route path="settings/notifications" element={<NotificationsPage />} />
           <Route path="settings/saved" element={<Saved />} />
-       
+       </Route>
         <Route path="*" element={<NotFound />} />
       </Route>
     )
