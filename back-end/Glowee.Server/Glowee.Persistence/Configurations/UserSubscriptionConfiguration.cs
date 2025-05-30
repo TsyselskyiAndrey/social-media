@@ -42,6 +42,8 @@ namespace Glowee.Persistence.Configurations
                    .IsRequired()
                    .HasMaxLength(255);
 
+            builder.HasIndex(us => us.StripeSubscriptionId).IsUnique();
+
             builder.Property(s => s.Status)
                   .IsRequired()
                   .HasMaxLength(50);

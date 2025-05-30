@@ -8,6 +8,7 @@ namespace Glowee.Application.Contracts.StripePayment
         string Config();
         Task<CreateCheckoutSessionResponse> CreateCheckoutSessionAsync(string priceId);
         Task<CreateCheckoutSessionResponse> UpgradeSubscriptionAsync(string newPriceId);
+        Task CancelSubscriptionAsync(string priceId);
         Task<List<SubscriptionPlanDto>> GetAvailableSubscriptionsAsync();
         Task<List<ActiveSubscriptionDto>> GetUserSubscriptionsAsync(UserId userId);
         Task HandleStripeWebhookAsync(string json, string stripeSignatureHeader);

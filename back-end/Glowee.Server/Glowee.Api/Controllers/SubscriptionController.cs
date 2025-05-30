@@ -46,6 +46,13 @@ namespace Glowee.Api.Controllers
             return Ok(session);
         }
 
+        [HttpPost("cancel")]
+        public async Task<IActionResult> CancelSubscriptionAsync([FromBody] CancelSubscriptionRequest request)
+        {
+            await _stripePaymentService.CancelSubscriptionAsync(request.PriceId);
+            return Ok();
+        }
+
         [HttpGet("availableSubscriptions")]
         public async Task<IActionResult> GetAvailaleSubscriptionsAsync()
         {

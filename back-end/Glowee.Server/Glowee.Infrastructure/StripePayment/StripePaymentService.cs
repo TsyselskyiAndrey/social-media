@@ -1,8 +1,10 @@
-﻿using Glowee.Application.Contracts.Identity;
+﻿using Glowee.Application.Contracts.Email;
+using Glowee.Application.Contracts.Identity;
 using Glowee.Application.Contracts.Logging;
 using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Contracts.StripePayment;
 using Glowee.Application.Exceptions;
+using Glowee.Application.Models.Email;
 using Glowee.Application.Models.StripePayment;
 using Glowee.Domain.Entities.Users;
 using Glowee.Domain.Entities.UserSubscriptions;
@@ -21,8 +23,9 @@ namespace Glowee.Infrastructure.StripePayment
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly IUserSubscriptionRepository _userSubscriptionRepository;
         private readonly IAppLogger<StripePaymentService> _appLogger;
+        private readonly IEmailSender _emailSender;
 
-        public StripePaymentService(IOptions<StripePaymentSettings> stripePaymentSettings, IUserService userService, IUserRepository userRepository, ISubscriptionRepository subscriptionRepository, IUserSubscriptionRepository userSubscriptionRepository, IAppLogger<StripePaymentService> appLogger)
+        public StripePaymentService(IOptions<StripePaymentSettings> stripePaymentSettings, IUserService userService, IUserRepository userRepository, ISubscriptionRepository subscriptionRepository, IUserSubscriptionRepository userSubscriptionRepository, IAppLogger<StripePaymentService> appLogger, IEmailSender emailSender)
         {
             _stripePaymentSettings = stripePaymentSettings.Value;
             _userService = userService;
@@ -30,6 +33,7 @@ namespace Glowee.Infrastructure.StripePayment
             _subscriptionRepository = subscriptionRepository;
             _userSubscriptionRepository = userSubscriptionRepository;
             _appLogger = appLogger;
+            _emailSender = emailSender;
             StripeConfiguration.ApiKey = _stripePaymentSettings.SecretKey;
         }
 
@@ -110,18 +114,6 @@ namespace Glowee.Infrastructure.StripePayment
             if (currentSub == null)
                 throw new BadRequestException("No active subscription to upgrade.");
 
-            var stripeSubscriptionService = new SubscriptionService();
-            await stripeSubscriptionService.CancelAsync(currentSub.StripeSubscriptionId, new SubscriptionCancelOptions
-            {
-                InvoiceNow = true,
-                Prorate = true
-            });
-
-            currentSub.IsActive = false;
-            currentSub.CanceledAt = DateTime.UtcNow;
-            currentSub.Status = "canceled";
-            await _userSubscriptionRepository.CreateOrUpdateAsync(currentSub);
-
             var options = new SessionCreateOptions
             {
                 Mode = "subscription",
@@ -135,13 +127,50 @@ namespace Glowee.Infrastructure.StripePayment
                     }
                 },
                 SuccessUrl = "http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}",
-                CancelUrl = "http://localhost:3000/payment-cancel"
+                CancelUrl = "http://localhost:3000/payment-cancel",
+                Metadata = new Dictionary<string, string>
+                {
+                    { "oldSubscriptionId", currentSub.StripeSubscriptionId }
+                }
             };
 
             var sessionService = new SessionService();
             var session = await sessionService.CreateAsync(options);
 
             return new CreateCheckoutSessionResponse { SessionId = session.Id };
+        }
+
+        public async Task CancelSubscriptionAsync(string priceId)
+        {
+            if (string.IsNullOrEmpty(_userService.UserId))
+                throw new UnauthorizedAccessException("User must be authenticated.");
+
+            var userId = long.Parse(_userService.UserId);
+            var user = await _userRepository.GetByIdAsync(new UserId(userId));
+            if (user == null)
+                throw new NotFoundException("User not found.");
+
+            var userSubscriptions = await _userSubscriptionRepository.GetByUserIdAsync(user.Id);
+
+            var targetSubscription = userSubscriptions.FirstOrDefault(us =>
+                us.IsActive && us.Subscription?.StripePriceId == priceId);
+
+            if (targetSubscription == null)
+                throw new BadRequestException("No active subscription found for the specified price ID.");
+
+            var subscriptionService = new SubscriptionService();
+            await subscriptionService.CancelAsync(targetSubscription.StripeSubscriptionId, new SubscriptionCancelOptions
+            {
+                InvoiceNow = true,
+                Prorate = true
+            });
+
+            targetSubscription.IsActive = false;
+            targetSubscription.CanceledAt = DateTime.UtcNow;
+            targetSubscription.Status = "canceled";
+            targetSubscription.CurrentPeriodEnd = DateTime.UtcNow;
+
+            await _userSubscriptionRepository.CreateOrUpdateAsync(targetSubscription);
         }
 
         public async Task<List<SubscriptionPlanDto>> GetAvailableSubscriptionsAsync()
@@ -178,6 +207,7 @@ namespace Glowee.Infrastructure.StripePayment
                     PlanName = product.Name,
                     Description = product.Description,
                     PriceId = price.Id,
+                    ProductId = product.Id,
                     Price = $"{(price.UnitAmount ?? 0) / 100.0:F2} {price.Currency.ToUpper()} / {price.Recurring?.Interval}",
                     Features = product.Metadata.TryGetValue("features", out var rawFeatures)
                         ? rawFeatures.Split(',').Select(f => f.Trim()).ToList()
@@ -199,6 +229,8 @@ namespace Glowee.Infrastructure.StripePayment
                     Name = us.Subscription.Name,
                     Description = us.Subscription.Description,
                     Price = us.Subscription.Price,
+                    ProductId = us.Subscription.StripeProductId,
+                    PriceId = us.Subscription.StripePriceId,
                     Currency = us.Subscription.Currency,
                     Interval = us.Subscription.Interval,
                     StartDate = us.StartDate,
@@ -238,6 +270,7 @@ namespace Glowee.Infrastructure.StripePayment
             Invoice? invoice;
             var subscriptionService = new SubscriptionService();
             Subscription? stripeSubscription;
+            var customerService = new CustomerService();
 
             switch (stripeEvent.Type)
             {
@@ -259,6 +292,28 @@ namespace Glowee.Infrastructure.StripePayment
                     }
 
                     await ProcessSubscriptionCreatedOrUpdated(session.SubscriptionId, session.CustomerId);
+
+                    if (session.Metadata != null && session.Metadata.TryGetValue("oldSubscriptionId", out var oldSubId))
+                    {
+                        subscriptionService = new SubscriptionService();
+                        await subscriptionService.CancelAsync(oldSubId, new SubscriptionCancelOptions
+                        {
+                            InvoiceNow = true,
+                            Prorate = true
+                        });
+
+                        var oldUserSub = await _userSubscriptionRepository.GetByStripeSubscriptionIdAsync(oldSubId);
+                        if (oldUserSub != null)
+                        {
+                            oldUserSub.IsActive = false;
+                            oldUserSub.Status = "canceled";
+                            oldUserSub.CanceledAt = DateTime.UtcNow;
+                            oldUserSub.CurrentPeriodEnd = DateTime.UtcNow;
+
+                            await _userSubscriptionRepository.CreateOrUpdateAsync(oldUserSub);
+                        }
+                    }
+
                     break;
 
                 case "customer.subscription.created":
@@ -271,6 +326,42 @@ namespace Glowee.Infrastructure.StripePayment
                     }
 
                     await ProcessSubscriptionCreatedOrUpdated(createdOrUpdatedSubscription.Id, createdOrUpdatedSubscription.CustomerId);
+
+                    string subject;
+                    string header;
+                    string bodyText;
+
+                    if (stripeEvent.Type == "customer.subscription.created")
+                    {
+                        subject = "Welcome! Your Subscription Has Started";
+                        header = "Subscription Started";
+                        bodyText = "Thank you for subscribing. Your subscription has been successfully created.";
+                    }
+                    else
+                    {
+                        subject = "Your Subscription Has Been Updated";
+                        header = "Subscription Updated";
+                        bodyText = "Your subscription has been updated successfully.";
+                    }
+
+                    await _emailSender.SendEmailAsync(new EmailMessage()
+                    {
+                        To = (await customerService.GetAsync(createdOrUpdatedSubscription.CustomerId)).Email,
+                        Body = $@"
+                                <html>
+                                    <body style='font-family: Arial, sans-serif;'>
+                                        <div style='max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc;'>
+                                            <h2 style='color: #337ab7;'>{header}</h2>
+                                            <p style='font-size: 16px; color: #555;'>{bodyText}</p>
+                                            <p style='font-size: 16px; color: #555;'>You can manage your subscription from your account settings.</p>
+                                            <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Glowee Team</p>
+                                        </div>
+                                    </body>
+                                </html>",
+                        Subject = subject,
+                        IsBodyHtml = true
+                    });
+
                     break;
 
                 case "customer.subscription.deleted":
@@ -291,6 +382,25 @@ namespace Glowee.Infrastructure.StripePayment
                     userSubscription.CurrentPeriodEnd = (DateTime?)deletedSubscription.CurrentPeriodEnd ?? DateTime.UtcNow;
 
                     await _userSubscriptionRepository.CreateOrUpdateAsync(userSubscription);
+
+                    await _emailSender.SendEmailAsync(new EmailMessage()
+                    {
+                        To = (await customerService.GetAsync(deletedSubscription.CustomerId)).Email,
+                        Body = $@"
+                                <html>
+                                    <body style='font-family: Arial, sans-serif;'>
+                                        <div style='max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc;'>
+                                            <h2 style='color: #f0ad4e;'>Subscription Cancelled</h2>
+                                            <p style='font-size: 16px; color: #555;'>Your subscription to <strong>{userSubscription.Subscription.Name ?? "Your Subscription Plan"}</strong> has been successfully cancelled.</p>
+                                            <p style='font-size: 16px; color: #555;'>If this was a mistake or you change your mind, you can resubscribe anytime from your account settings.</p>
+                                            <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Glowee Team</p>
+                                        </div>
+                                    </body>
+                                </html>",
+                        Subject = "Subscription Cancelled",
+                        IsBodyHtml = true
+                    });
+
                     break;
 
                 case "invoice.payment_succeeded":
@@ -314,6 +424,26 @@ namespace Glowee.Infrastructure.StripePayment
                     userSubscription.CurrentPeriodEnd = (DateTime?)stripeSubscription.CurrentPeriodEnd ?? DateTime.UtcNow;
 
                     await _userSubscriptionRepository.CreateOrUpdateAsync(userSubscription);
+
+                    await _emailSender.SendEmailAsync(new EmailMessage()
+                    {
+                        To = (await customerService.GetAsync(stripeSubscription.CustomerId)).Email,
+                        Body = $@"
+                                <html>
+                                    <body style='font-family: Arial, sans-serif;'>
+                                        <div style='max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc;'>
+                                            <h2 style='color: #333;'>Payment Successful</h2>
+                                            <p style='font-size: 16px; color: #555;'>Thank you for your payment. Your subscription to <strong>{userSubscription.Subscription.Name ?? "Your Subscription Plan"}</strong> has been successfully renewed.</p>
+                                            <p style='font-size: 16px; color: #555;'>Your current billing period is from <strong>{userSubscription.CurrentPeriodStart:MMMM d, yyyy}</strong> to <strong>{userSubscription.CurrentPeriodEnd:MMMM d, yyyy}</strong>.</p>
+                                            <p style='font-size: 16px; color: #555;'>You can manage your subscription anytime in your account settings.</p>
+                                            <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Glowee Team</p>
+                                        </div>
+                                    </body>
+                                </html>",
+                        Subject = "Payment Successful – Subscription Updated",
+                        IsBodyHtml = true
+                    });
+
                     break;
 
                 case "invoice.payment_failed":
@@ -335,6 +465,26 @@ namespace Glowee.Infrastructure.StripePayment
                     userSubscription.CurrentPeriodEnd = (DateTime?)stripeSubscription.CurrentPeriodEnd ?? DateTime.UtcNow;
 
                     await _userSubscriptionRepository.CreateOrUpdateAsync(userSubscription);
+
+                    await _emailSender.SendEmailAsync(new EmailMessage()
+                    {
+                        To = (await customerService.GetAsync(stripeSubscription.CustomerId)).Email,
+                        Body = $@"
+                                <html>
+                                    <body style='font-family: Arial, sans-serif;'>
+                                        <div style='max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc;'>
+                                            <h2 style='color: #d9534f;'>Payment Failed</h2>
+                                            <p style='font-size: 16px; color: #555;'>Unfortunately, we were unable to process the payment for your subscription to <strong>{userSubscription.Subscription.Name ?? "Your Subscription Plan"}</strong>.</p>
+                                            <p style='font-size: 16px; color: #555;'>Please check your payment method and try again to avoid interruption of your service.</p>
+                                            <p style='font-size: 16px; color: #555;'>You can update your payment details in your account settings.</p>
+                                            <p style='font-size: 14px; color: #aaa;'>Best regards,<br>Your Glowee Team</p>
+                                        </div>
+                                    </body>
+                                </html>",
+                        Subject = "Payment Failed – Action Required",
+                        IsBodyHtml = true
+                    });
+
                     break;
 
                 default:

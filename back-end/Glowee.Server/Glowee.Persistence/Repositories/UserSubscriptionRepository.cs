@@ -17,9 +17,7 @@ namespace Glowee.Persistence.Repositories
 
         public async Task CreateOrUpdateAsync(UserSubscription userSubscription)
         {
-            var existing = await _context.UserSubscriptions.FirstOrDefaultAsync(us =>
-                            us.UserId == userSubscription.UserId &&
-                            us.SubscriptionId == userSubscription.SubscriptionId);
+            var existing = await _context.UserSubscriptions.FirstOrDefaultAsync(us => us.StripeSubscriptionId == userSubscription.StripeSubscriptionId);
 
 
             if (existing == null)
@@ -43,7 +41,7 @@ namespace Glowee.Persistence.Repositories
 
         public async Task<UserSubscription?> GetByStripeSubscriptionIdAsync(string stripeSubscriptionId)
         {
-            return await _context.UserSubscriptions.FirstOrDefaultAsync(x => x.StripeSubscriptionId == stripeSubscriptionId);
+            return await _context.UserSubscriptions.Include(x => x.Subscription).FirstOrDefaultAsync(x => x.StripeSubscriptionId == stripeSubscriptionId);
         }
 
         public async Task<IEnumerable<UserSubscription>> GetByUserIdAsync(UserId userId)
