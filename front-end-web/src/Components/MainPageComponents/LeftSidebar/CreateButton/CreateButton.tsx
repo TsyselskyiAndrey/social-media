@@ -12,7 +12,7 @@ const CreateButton: React.FC<CreateButtonProps> = ({ onClick }) => {
       <ListItemButton
         onClick={onClick}
         sx={{
-          backgroundColor: "#1e90ff",
+          backgroundColor: "#118c8c",
           color: "white",
           mt: 3,
           borderRadius: 2,
