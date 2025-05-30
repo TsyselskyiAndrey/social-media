@@ -214,5 +214,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(AuthError(messages: errors));
       }
     });
+
+    on<ForgotPaswordBtnClicked>(
+      (event, emit) async {
+        final response = await http.post(
+          Uri.parse('https://10.0.2.2:7048/api/Auth/forgotpassword'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(
+            {
+              "email": event.email,
+              "clientUri": "http://localhost:3000/resetpassword",
+            },
+          ),
+        );
+        if (response.statusCode == 200) {
+          emit(AuthStepSucess(flow: AuthFlow.EmailSent));
+        } else {
+          List<String> errors = _createErrorList(response.body);
+          emit(AuthError(messages: errors));
+        }
+      },
+    );
   }
 }
