@@ -119,3 +119,23 @@
   font-weight: bold;
   text-align: center;
 }
+
+.cancel-button {
+  background-color: #e53e3e;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.cancel-button:hover {
+  background-color: #c53030;
+}
+.cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

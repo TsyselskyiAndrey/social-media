@@ -63,44 +63,44 @@ export interface Tag {
   name: string;
 }
 
-export interface UserProfileInfo{
-  firstName : string;
-  lastName  : string;
-  email : string
-  userName : string
-  biography : string | null;
-  profileImagePath : string | null;
-  birthDate : Date | null;
-  followed : number;
-  followers : number;
-  postsAmount : number;
+export interface UserProfileInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  userName: string;
+  biography: string | null;
+  profileImagePath: string | null;
+  birthDate: Date | null;
+  followed: number;
+  followers: number;
+  postsAmount: number;
 }
 
-export interface Post{
-  id : number; 
-  authorName : string;
-  authorIconUrl : string;
-  caption : string | null;
-  postType : string;
-  tags : string[];
-  likes : number;
-  views : number;
-  isLiked : boolean;
-  isSaved : boolean;
-  isUninteresting : boolean;
-  postMedias : PostMedia[]
+export interface Post {
+  id: number;
+  authorName: string;
+  authorIconUrl: string;
+  caption: string | null;
+  postType: string;
+  tags: string[];
+  likes: number;
+  views: number;
+  isLiked: boolean;
+  isSaved: boolean;
+  isUninteresting: boolean;
+  postMedias: PostMedia[];
 }
 
-interface PostMedia{
-  id : number;
-  mediaUrl : string;
-  postMediaType : string;
-  thumbnailUrl : string | null;
-  duration : number | null;
-  format : string;
-  size : number;
-  isUploaded : boolean;
-  position : number;
+interface PostMedia {
+  id: number;
+  mediaUrl: string;
+  postMediaType: string;
+  thumbnailUrl: string | null;
+  duration: number | null;
+  format: string;
+  size: number;
+  isUploaded: boolean;
+  position: number;
 }
 
 const Auth = {
@@ -173,6 +173,15 @@ const Auth = {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
+
+  logout: () =>
+    axiosWithToken.post(
+      "/api/auth/logout",
+      {},
+      {
+        withCredentials: true,
+      }
+    ),
 };
 
 const Payment = {
@@ -193,16 +202,22 @@ const Payment = {
         withCredentials: true,
       })
       .then((res) => res.data),
+  upgradeSubscription: (body: { priceId: string }) =>
+    axiosWithToken
+      .post("/api/subscription/upgrade", body, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+      .then((res) => res.data),
+  cancelSubscription: (body: { priceId: string }) =>
+    axiosWithToken.post("/api/subscription/cancel", body, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    }),
 };
 
 const Posts = {
-   getPosts: async (
-    postTitle: string | null,
-    postAmount: number,
-    postId: number | null,
-    tags: number[] | null,
-    userId: number | null
-  ) => {
+  getPosts: async (postTitle: string | null, postAmount: number, postId: number | null, tags: number[] | null, userId: number | null) => {
     const params: any = { postAmount };
 
     if (postTitle !== null) params.postTitle = postTitle;
@@ -257,7 +272,7 @@ const Posts = {
         withCredentials: true,
       }
     );
-  }
+  },
 };
 
 const Tags = {
