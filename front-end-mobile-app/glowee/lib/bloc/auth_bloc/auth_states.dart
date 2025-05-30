@@ -2,9 +2,8 @@ enum AuthFlow {
   RegisterStep1,
   RegisterStep2,
   RegisterStep3,
-  ForgotPassword,
+  EmailSent,
   UploadPhoto,
-  ResetPassword,
 }
 
 abstract class AuthState {}
