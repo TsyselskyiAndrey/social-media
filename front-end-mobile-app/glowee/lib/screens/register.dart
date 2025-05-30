@@ -6,6 +6,7 @@ import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/login_screen.dart';
 import 'package:glowee/screens/register_details.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:glowee/util/error_dialog.dart';
 
 class Register extends StatefulWidget {
   Register({super.key});
@@ -56,6 +57,8 @@ class _RegisterState extends State<Register> {
               ),
             ),
           );
+        } else if (state is AuthError) {
+          await showErrorDialog(context, state.messages);
         }
       },
       child: Scaffold(

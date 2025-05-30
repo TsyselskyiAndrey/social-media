@@ -6,6 +6,7 @@ import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/email_password_text_comfirmation_screen.dart';
 import 'package:glowee/screens/login_screen.dart';
+import 'package:glowee/util/error_dialog.dart';
 
 class EmailEnter extends StatefulWidget {
   final String? emailText;
@@ -48,7 +49,7 @@ class _EmailEnterState extends State<EmailEnter> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is AuthStepSucess && state.flow == AuthFlow.EmailSent) {
           Navigator.pushReplacement(
             context,
@@ -59,6 +60,8 @@ class _EmailEnterState extends State<EmailEnter> {
               ),
             ),
           );
+        } else if (state is AuthError) {
+          await showErrorDialog(context, state.messages);
         }
       },
       child: Scaffold(

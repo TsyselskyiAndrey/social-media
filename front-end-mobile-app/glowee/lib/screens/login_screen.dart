@@ -8,6 +8,7 @@ import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/email_enter.dart';
 import 'package:glowee/screens/feed.dart';
 import 'package:glowee/screens/register.dart';
+import 'package:glowee/util/error_dialog.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
@@ -42,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is Authorized) {
           Navigator.pushReplacement(
             context,
@@ -53,6 +54,8 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           );
+        } else if (state is AuthError) {
+          await showErrorDialog(context, state.messages);
         }
       },
       child: Scaffold(
@@ -111,7 +114,7 @@ class _LoginScreenState extends State<LoginScreen> {
         final deviceId = await _getDeviceId();
         context.read<AuthBloc>().add(LogInWithGoogleBtnClciked(
               codeOrIdToken: idToken ?? "",
-              deviceId: deviceId,
+              //deviceId: deviceId,
             ));
       }
     } catch (error) {

@@ -5,7 +5,9 @@ import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/email_enter.dart';
+import 'package:glowee/screens/login_screen.dart';
 import 'package:glowee/screens/profile.dart';
+import 'package:glowee/util/error_dialog.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String? emailText;
@@ -48,7 +50,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is AuthStepSucess && state.flow == AuthFlow.RegisterStep3) {
           Navigator.pushReplacement(
             context,
@@ -59,6 +61,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               ),
             ),
           );
+        } else if (state is AuthError) {
+          await showErrorDialog(context, state.messages);
         }
       },
       child: Scaffold(
@@ -200,7 +204,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 MaterialPageRoute(
                   builder: (context) => BlocProvider(
                     create: (context) => AuthBloc(),
-                    child: EmailEnter(),
+                    child: LoginScreen(),
                   ),
                 ),
               );

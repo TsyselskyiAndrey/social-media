@@ -114,7 +114,7 @@ class _RegisterDetailsState extends State<RegisterDetails> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is AuthStepSucess && state.flow == AuthFlow.RegisterStep2) {
           Navigator.pushReplacement(
             context,
@@ -129,9 +129,7 @@ class _RegisterDetailsState extends State<RegisterDetails> {
             state.flow == AuthFlow.UploadPhoto) {
           isPhotoSent = true;
         } else if (state is AuthError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.messages.join(', '))),
-          );
+          await showErrorDialog(context, state.messages);
         }
       },
       child: Scaffold(
