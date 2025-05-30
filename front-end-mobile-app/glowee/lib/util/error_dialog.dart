@@ -21,6 +21,7 @@ Future<void> showErrorDialog(
                   (message) => Text(
                     message,
                     style: TextStyle(fontSize: 20.sp),
+                    textAlign: TextAlign.center,
                   ),
                 )
                 .toList(),
