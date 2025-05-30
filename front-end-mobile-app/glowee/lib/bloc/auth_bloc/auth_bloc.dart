@@ -113,16 +113,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<AddPhotoWhileSignUpBtnClicked>(
-      (event, emit) async {
+          (event, emit) async {
         final registrationToken =
-            await _storageService.read(key: 'registrationToken');
+        await _storageService.read(key: 'registrationToken');
         final file = File(event.file.path);
         final fileBytes = await file.readAsBytes();
-        final filename = event.file.path.split('/').last;
+        final filename = event.file.path
+            .split('/')
+            .last;
         final mimeTypeStr = _getMimeType(filename);
         final mimeTypeParts = mimeTypeStr.split('/');
         final uri =
-            Uri.parse('https://10.0.2.2:7048/api/Auth/upload-profile-image');
+        Uri.parse('https://10.0.2.2:7048/api/Auth/upload-profile-image');
         final request = http.MultipartRequest('POST', uri);
         request.files.add(
           http.MultipartFile.fromBytes(
@@ -146,7 +148,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<VerifyYourOTPBtnClicked>((event, emit) async {
       final registrationToken =
-          await _storageService.read(key: 'registrationToken');
+      await _storageService.read(key: 'registrationToken');
       final response = await _postJson(
         url: 'https://10.0.2.2:7048/api/Auth/registration-step-3',
         body: {"code": event.code},
@@ -203,7 +205,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<ForgotPaswordBtnClicked>(
-      (event, emit) async {
+          (event, emit) async {
         final response = await http.post(
           Uri.parse('https://10.0.2.2:7048/api/Auth/forgotpassword'),
           headers: {'Content-Type': 'application/json'},
@@ -222,5 +224,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       },
     );
+
+    on<LogoutBtnClicked>((event, emit) async {
+      print("Logout: emitting NotAuthorized");
+      emit(NotAuthorized());
+    });
   }
 }

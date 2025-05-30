@@ -87,3 +87,5 @@ class ResetPasswordBtnClicked extends AuthEvent {
     this.token,
   });
 }
+
+class LogoutBtnClicked extends AuthEvent {}

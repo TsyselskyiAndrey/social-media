@@ -8,6 +8,11 @@ import 'package:glowee/screens/interface.dart';
 import 'package:glowee/data/post_data.dart';
 import 'package:glowee/screens/profile_image_notifier.dart';
 import 'dart:io';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
+import 'package:glowee/bloc/auth_bloc/auth_events.dart';
+import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 
 class ProfileScreen extends StatefulWidget {
 
@@ -29,171 +34,177 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        backgroundColor: const Color.fromRGBO(27, 97, 103, 1),
-        appBar: AppBar(
-          title: ValueListenableBuilder<String>(
-            valueListenable: usernameNotifier,
-            builder: (context, name, _) {
-              return Text(
-                name,
-                style: const TextStyle(color: Colors.white),
-              );
-            },
-          ),
-          backgroundColor: const Color.fromRGBO(36, 54, 66, 1),
-          elevation: 0,
-          iconTheme: const IconThemeData(color: Colors.white),
-          actions: [
-            Builder(
-              builder: (context) => IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openEndDrawer();
-                },
-              ),
-            )
-          ],
-        ),
-        endDrawer: Drawer(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: const BoxDecoration(color: Colors.teal),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ValueListenableBuilder<File?>(
-                      valueListenable: profileImageNotifier,
-                      builder: (context, file, _) {
-                        return Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 30.r,
-                              backgroundImage: file != null
-                                  ? FileImage(file)
-                                  : const AssetImage('assets/images/default_profile_picture.jpg') as ImageProvider,
-                            ),
-                            SizedBox(width: 10.w),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is NotAuthorized) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+                (Route<dynamic> route) => false,
+          );
+        }
+      },
+      child: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          backgroundColor: const Color.fromRGBO(27, 97, 103, 1),
+          appBar: AppBar(
+            title: ValueListenableBuilder<String>(
+              valueListenable: usernameNotifier,
+              builder: (context, name, _) {
+                return Text(
+                  name,
+                  style: const TextStyle(color: Colors.white),
+                );
+              },
+            ),
+            backgroundColor: const Color.fromRGBO(36, 54, 66, 1),
+            elevation: 0,
+            iconTheme: const IconThemeData(color: Colors.white),
+            actions: [
+              Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openEndDrawer();
+                  },
                 ),
-              ),
-              ListTile(
-                leading: Icon(Icons.save, color: Theme.of(context).iconTheme.color),
-                title: const Text('Saved'),
-                onTap: () {
-                  Navigator.pop(context);
-                  print('Settings tapped');
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.settings, color: Theme.of(context).iconTheme.color),
-                title: const Text('Payment'),
-                onTap: () {
-                  Navigator.pop(context);
-                  print('Settings tapped');
-                },
-
-              ),
-              ListTile(
-                leading: Icon(Icons.person, color: Theme.of(context).iconTheme.color),
-                title: const Text('Account'),
-                onTap: () {
-                  Navigator.pop(context);
-                  print('Settings tapped');
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => EditProfileScreen()),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.payment, color: Theme.of(context).iconTheme.color),
-                title: const Text('Help'),
-                onTap: () {
-                  Navigator.pop(context);
-                  print('Settings tapped');
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.sunny, color: Theme.of(context).iconTheme.color),
-                title: const Text('Interface'),
-                onTap: () {
-                  Navigator.pop(context);
-                  print('Interface tapped');
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => InterfaceScreen(
-                        onThemeChange: widget.onThemeChange,
+              )
+            ],
+          ),
+          endDrawer: Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                DrawerHeader(
+                  decoration: const BoxDecoration(color: Colors.teal),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ValueListenableBuilder<File?>(
+                        valueListenable: profileImageNotifier,
+                        builder: (context, file, _) {
+                          return Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 30.r,
+                                backgroundImage: file != null
+                                    ? FileImage(file)
+                                    : const AssetImage('assets/images/default_profile_picture.jpg') as ImageProvider,
+                              ),
+                              SizedBox(width: 10.w),
+                            ],
+                          );
+                        },
                       ),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.exit_to_app, color: Theme.of(context).iconTheme.color),
-                title: const Text('Logout'),
+                    ],
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(Icons.save, color: Theme.of(context).iconTheme.color),
+                  title: const Text('Saved'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    print('Settings tapped');
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.settings, color: Theme.of(context).iconTheme.color),
+                  title: const Text('Payment'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    print('Settings tapped');
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.person, color: Theme.of(context).iconTheme.color),
+                  title: const Text('Account'),
                   onTap: () {
                     Navigator.pop(context);
                     print('Settings tapped');
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                      MaterialPageRoute(builder: (context) => EditProfileScreen()),
                     );
                   },
-              ),
-            ],
-          ),
-        ),
-        body: SafeArea(
-          child: Stack(
-            children: [
-              CustomScrollView(
-                slivers: [
-                  SliverToBoxAdapter(child: _buildHead()),
-                  SliverGrid(
-                    delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                        if (index >= posts.length) {
-                          return Container(); // Return empty container if no more posts
-                        }
-                        return GestureDetector(
-                          onTap: () {},
-                          child: Image.file(
-                            posts[index].image,
-                            fit: BoxFit.cover,
-                          ),
-                        );
-                      },
-                      childCount: posts.length, // Use actual post count
-                    ),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 4,
-                      mainAxisSpacing: 4,
-                    ),
-                  ),
-                ],
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  padding: EdgeInsets.only(bottom: 10.h),
-                  color: Colors.transparent,
-                  child: const NavigationMenu(),
                 ),
-              ),
-            ],
+                ListTile(
+                  leading: Icon(Icons.payment, color: Theme.of(context).iconTheme.color),
+                  title: const Text('Help'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    print('Settings tapped');
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.sunny, color: Theme.of(context).iconTheme.color),
+                  title: const Text('Interface'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    print('Interface tapped');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => InterfaceScreen(
+                          onThemeChange: widget.onThemeChange,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.exit_to_app, color: Theme.of(context).iconTheme.color),
+                  title: const Text('Logout'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.read<AuthBloc>().add(LogoutBtnClicked());
+                  },
+                ),
+              ],
+            ),
+          ),
+          body: SafeArea(
+            child: Stack(
+              children: [
+                CustomScrollView(
+                  slivers: [
+                    SliverToBoxAdapter(child: _buildHead()),
+                    SliverGrid(
+                      delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                          if (index >= posts.length) {
+                            return Container();
+                          }
+                          return GestureDetector(
+                            onTap: () {},
+                            child: Image.file(
+                              posts[index].image,
+                              fit: BoxFit.cover,
+                            ),
+                          );
+                        },
+                        childCount: posts.length,
+                      ),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 4,
+                        mainAxisSpacing: 4,
+                      ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: EdgeInsets.only(bottom: 10.h),
+                    color: Colors.transparent,
+                    child: const NavigationMenu(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -343,7 +354,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-
-
 
 }
