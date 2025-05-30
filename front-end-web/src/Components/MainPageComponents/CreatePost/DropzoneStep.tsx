@@ -36,8 +36,8 @@ const DropzoneStep: React.FC<DropzoneStepProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 max-w-3xl mx-auto font-sans">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 max-w-3xl mx-auto font-sans transition-colors">
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
         Завантажте фото чи відео (до {maxFiles})
       </h2>
 
@@ -50,10 +50,14 @@ const DropzoneStep: React.FC<DropzoneStepProps> = ({
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
         className={`border-2 border-dashed ${
-          isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+          isDragging
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-950'
+            : 'border-gray-300 dark:border-gray-600'
         } rounded-xl p-6 text-center cursor-pointer transition-colors mb-6`}
       >
-        <p className="text-gray-600">Перетягніть файли сюди або натисніть для вибору</p>
+        <p className="text-gray-600 dark:text-gray-300">
+          Перетягніть файли сюди або натисніть для вибору
+        </p>
         <input
           ref={inputRef}
           type="file"
@@ -69,7 +73,7 @@ const DropzoneStep: React.FC<DropzoneStepProps> = ({
         {postMedias.map((file, i) => (
           <div
             key={i}
-            className="relative w-24 aspect-square rounded-md overflow-hidden border border-gray-300"
+            className="relative w-24 aspect-square rounded-md overflow-hidden border border-gray-300 dark:border-gray-600"
           >
             {file.type.startsWith('image') ? (
               <img

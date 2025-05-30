@@ -1,18 +1,9 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Paper,
-  Typography,
-  Avatar,
-  Button,
-  Stack,
-  Divider,
-} from '@mui/material';
+import React, { useState } from "react";
 
 const recommendedUsers = [
-  { id: 1, name: 'Ірина Сидоренко', handle: '@iryna' },
-  { id: 2, name: 'Андрій Коваленко', handle: '@andrii' },
-  { id: 3, name: 'Марія Литвин', handle: '@maria' },
+  { id: 1, name: "Ірина Сидоренко", handle: "@iryna" },
+  { id: 2, name: "Андрій Коваленко", handle: "@andrii" },
+  { id: 3, name: "Марія Литвин", handle: "@maria" },
 ];
 
 const RecommendedUsers: React.FC = () => {
@@ -25,53 +16,47 @@ const RecommendedUsers: React.FC = () => {
   };
 
   return (
-    <Paper sx={{ p: 2 }}>
-      <Typography variant="h6" fontWeight="bold" gutterBottom>
+    <div className="bg-white dark:bg-cyan-950 rounded-lg shadow-md dark:shadow-none p-4">
+      <h2 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">
         Рекомендовані для вас
-      </Typography>
-      <Stack spacing={2} divider={<Divider flexItem />}>
+      </h2>
+
+      <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-700">
         {recommendedUsers.map((user) => {
           const isFollowing = following.includes(user.id);
           return (
-            <Box
+            <div
               key={user.id}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
+              className="flex items-center justify-between py-3"
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Avatar>{user.name[0]}</Avatar>
-                <Box>
-                  <Typography fontWeight="bold">{user.name}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {user.handle}
-                  </Typography>
-                </Box>
-              </Box>
-              <Button
-                variant={isFollowing ? 'contained' : 'outlined'}
-                size="small"
-                sx={{
-                  bgcolor: isFollowing ? '#00bfff' : 'transparent',
-                  color: isFollowing ? '#fff' : '#00bfff',
-                  borderColor: '#00bfff',
-                  textTransform: 'none',
-                  fontWeight: 'bold',
-                  '&:hover': {
-                    bgcolor: isFollowing ? '#00a6d6' : 'rgba(0,191,255,0.1)',
-                  },
-                }}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-400 text-black font-bold flex items-center justify-center text-lg">
+                  {user.name[0]}
+                </div>
+                <div>
+                  <div className="font-medium text-gray-900 dark:text-gray-100">
+                    {user.name}
+                  </div>
+                  <div className="text-sm text-gray-500">{user.handle}</div>
+                </div>
+              </div>
+
+              <button
+                className={`px-4 py-1.5 rounded-full text-sm font-semibold border transition 
+                  ${
+                    isFollowing
+                      ? "bg-teal-500 text-white border-teal-500 hover:bg-teal-600"
+                      : "border-teal-500 text-teal-500 hover:bg-teal-500/10"
+                  }`}
                 onClick={() => toggleFollow(user.id)}
               >
-                {isFollowing ? 'Підписано' : 'Підписатися'}
-              </Button>
-            </Box>
+                {isFollowing ? "Підписано" : "Підписатися"}
+              </button>
+            </div>
           );
         })}
-      </Stack>
-    </Paper>
+      </div>
+    </div>
   );
 };
 

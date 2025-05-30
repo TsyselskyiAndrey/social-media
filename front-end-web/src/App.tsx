@@ -21,6 +21,8 @@ import PaymentSuccessPage from "./Pages/PaymentCompletionPages/PaymentSuccessPag
 import PaymentCancelPage from "./Pages/PaymentCompletionPages/PaymentCancelPage";
 import EditPage from "./Pages/EditPage/EditPage";
 import Saved from "./Pages/Settings/SavedPosts";
+import MuiThemeProvider from "./Contexts/MuiThemeProvider";
+
 function App() {
   const interceptorsReady = useAxiosWithToken();
 
@@ -53,9 +55,12 @@ function App() {
 
   return (
     <ThemeProviderCustom>
-      <RouterProvider router={router} />
-      <ToastContainer position="top-right" autoClose={3000} />
-    </ThemeProviderCustom>
+      <CssBaseline />
+        <MuiThemeProvider>
+          <RouterProvider router={router} />
+          <ToastContainer position="top-right" autoClose={3000} />
+        </MuiThemeProvider>
+      </ThemeProviderCustom>
   );
 }
 

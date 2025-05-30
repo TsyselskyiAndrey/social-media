@@ -42,10 +42,10 @@ const PreviewStep: React.FC<PreviewStepProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-[1200px] mx-auto font-sans flex gap-6">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 w-full max-w-[1200px] mx-auto font-sans flex gap-6 transition-colors">
       <div className="w-2/3 relative flex items-center justify-center">
         {currentMedia && (
-          <div className="relative w-full h-[550px] rounded-lg overflow-hidden border border-gray-300 flex items-center justify-center">
+          <div className="relative w-full h-[550px] rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600 flex items-center justify-center">
             {currentMedia.type.startsWith('image') ? (
               <img
                 src={currentMedia.previewUrl}
@@ -65,7 +65,7 @@ const PreviewStep: React.FC<PreviewStepProps> = ({
                 onRemoveMedia(currentIndex);
                 setCurrentIndex((prev) => (prev > 0 ? prev - 1 : 0));
               }}
-              className="absolute top-2 right-2 bg-white text-red-600 hover:bg-red-500 hover:text-white p-2 rounded-full transition"
+              className="absolute top-2 right-2 bg-white dark:bg-gray-800 text-red-600 hover:bg-red-500 hover:text-white p-2 rounded-full transition"
               title="Видалити медіа"
             >
               ×
@@ -96,7 +96,7 @@ const PreviewStep: React.FC<PreviewStepProps> = ({
       </div>
 
       <div className="w-1/3 flex flex-col justify-between">
-        <div className="mb-4 text-gray-700 break-words max-w-full space-y-2">
+        <div className="mb-4 text-gray-700 dark:text-gray-200 break-words max-w-full space-y-2">
           <p>
             <span className="font-semibold">Підпис:</span>{' '}
             {caption || '—'}
@@ -109,13 +109,13 @@ const PreviewStep: React.FC<PreviewStepProps> = ({
 
         {postMedias.length < 10 && (
           <div className="mb-6">
-            <h3 className="text-gray-800 font-semibold mb-2">Додати ще медіа</h3>
+            <h3 className="text-gray-800 dark:text-gray-100 font-semibold mb-2">Додати ще медіа</h3>
             <input
               type="file"
               accept="image/*,video/*"
               multiple
               onChange={onFileChange}
-              className="block w-full text-sm text-gray-700 file:hidden"
+              className="block w-full text-sm text-gray-700 dark:text-gray-300 file:hidden"
             />
           </div>
         )}
@@ -123,7 +123,7 @@ const PreviewStep: React.FC<PreviewStepProps> = ({
         <div className="flex justify-between gap-4">
           <button
             onClick={onBack}
-            className="w-full py-2 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-md transition"
+            className="w-full py-2 px-4 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-semibold rounded-md transition"
           >
             Назад
           </button>
