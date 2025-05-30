@@ -33,7 +33,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     final decoded = jsonDecode(responseBody);
 
     if (decoded["errors"] == null) {
-      print("❗ Ошибок нет или поле 'errors' отсутствует в ответе: $responseBody");
+      print(
+          "❗ Ошибок нет или поле 'errors' отсутствует в ответе: $responseBody");
       return errors;
     }
 
@@ -50,11 +51,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
     }
 
-    print("🛑 Список ошибок: $errors");  // Здесь печатаем все ошибки
+    print("🛑 Список ошибок: $errors"); // Здесь печатаем все ошибки
 
     return errors;
   }
-
 
   String _getMimeType(String filename) {
     final ext = filename.toLowerCase();
@@ -81,9 +81,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     return deviceId;
   }
 
-  void _setCookie(http.Response response) async {
-    final setCookie = response.headers['set-cookie'];
-    await _storageService.write(key: 'setCookie', value: setCookie);
+  void _setCookie(String title, String? toSet) async {
+    await _storageService.write(key: title, value: toSet);
   }
 
   AuthBloc() : super(NotAuthorized()) {
@@ -98,7 +97,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         },
       );
       if (response.statusCode == 200) {
-        _setCookie(response);
+        _setCookie("registrationToken", response.headers['set-cookie']);
         emit(AuthStepSucess(flow: AuthFlow.RegisterStep1));
       } else {
         List<String> errors = _createErrorList(response.body);
@@ -107,7 +106,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<Register2BtnClicked>((event, emit) async {
-      final registrationToken = await _storageService.read(key: 'setCookie');
+      final registrationToken =
+          await _storageService.read(key: 'registrationToken');
       final response = await _postJson(
         url: 'https://10.0.2.2:7048/api/Auth/registration-step-2',
         body: {
@@ -115,7 +115,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           "lastName": event.lastName,
           "birthDate": event.birthDate,
         },
-        cookie: registrationToken != null ? registrationToken : "",
+        cookie: registrationToken ?? "",
       );
       if (response.statusCode == 200) {
         emit(AuthStepSucess(flow: AuthFlow.RegisterStep2));
@@ -127,7 +127,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AddPhotoWhileSignUpBtnClicked>(
       (event, emit) async {
-        final registrationToken = await _storageService.read(key: 'setCookie');
+        final registrationToken =
+            await _storageService.read(key: 'registrationToken');
         final file = File(event.file.path);
         final fileBytes = await file.readAsBytes();
         final filename = event.file.path.split('/').last;
@@ -144,8 +145,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             contentType: MediaType(mimeTypeParts[0], mimeTypeParts[1]),
           ),
         );
-        request.headers['Cookie'] =
-            registrationToken != null ? registrationToken : "";
+        request.headers['Cookie'] = registrationToken ?? "";
         final response = await request.send();
         final responseBody = await http.Response.fromStream(response);
         if (response.statusCode == 200) {
@@ -158,14 +158,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     on<VerifyYourOTPBtnClicked>((event, emit) async {
-      final registrationToken = await _storageService.read(key: 'setCookie');
+      final registrationToken =
+          await _storageService.read(key: 'registrationToken');
       final response = await _postJson(
         url: 'https://10.0.2.2:7048/api/Auth/registration-step-3',
         body: {"code": event.code},
-        cookie: registrationToken != null ? registrationToken : "",
+        cookie: registrationToken ?? "",
       );
-      print(response.body);
-      print(response.headers);
       if (response.statusCode == 200) {
         emit(AuthStepSucess(flow: AuthFlow.RegisterStep3));
       } else {
@@ -184,16 +183,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           "deviceId": deviceId,
         },
       );
-      print(response.body);
-      print(response.headers);
-
       if (response.statusCode == 200) {
         final Map<String, dynamic> decoded = jsonDecode(response.body);
-        await _storageService.write(
-            key: "accessToken", value: decoded["token"]);
-        await _storageService.write(
-            key: "refreshToken", value: response.headers["set-cookie"]);
-        //_setCookie(response);
+        _setCookie("accessToken", decoded["token"]);
+        _setCookie("refreshToken", response.headers['set-cookie']);
         emit(Authorized());
       } else {
         List<String> errors = _createErrorList(response.body);
@@ -211,16 +204,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           "isMobile": event.isMobile,
         },
       );
-      print(response.body);
-      print(response.headers);
-
       if (response.statusCode == 200) {
         final Map<String, dynamic> decoded = jsonDecode(response.body);
-        await _storageService.write(
-            key: "accessToken", value: decoded["token"]);
-        await _storageService.write(
-            key: "refreshToken", value: response.headers["set-cookie"]);
-        // _setCookie(response);
+        _setCookie("accessToken", decoded["token"]);
+        _setCookie("refreshToken", response.headers['set-cookie']);
         emit(Authorized());
       } else {
         List<String> errors = _createErrorList(response.body);
