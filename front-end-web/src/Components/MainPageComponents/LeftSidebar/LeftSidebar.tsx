@@ -33,10 +33,14 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
       icon: <HomeIcon sx={{ fontSize: 28 }} />,
       onClick: () => navigate("/mainpage"),
     },
-    { text: "Пошук", icon: <SearchIcon sx={{ fontSize: 28 }} /> },
+    { 
+      text: "Пошук", 
+      icon: <SearchIcon sx={{ fontSize: 28 }} />,
+      onClick: () => navigate("/search"),
+    },
     { text: "Повідомлення", icon: <MessageIcon sx={{ fontSize: 28 }} /> },
-    {
-      text: "Налаштування",
+    { 
+      text: "Налаштування", 
       icon: <SettingsIcon sx={{ fontSize: 28 }} />,
       onClick: () => navigate("/settings"),
     },
