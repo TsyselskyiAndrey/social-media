@@ -5,10 +5,7 @@ import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/email_password_text_comfirmation_screen.dart';
-import 'package:glowee/screens/forget_password.dart';
-import 'package:glowee/screens/register.dart';
-import 'package:glowee/screens/register_details.dart';
-import 'package:glowee/screens/otp_verification.dart';
+import 'package:glowee/screens/login_screen.dart';
 
 class EmailEnter extends StatefulWidget {
   final String? emailText;
@@ -52,11 +49,14 @@ class _EmailEnterState extends State<EmailEnter> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthStepSucess && state.flow == AuthFlow.ForgotPassword) {
-          Navigator.push(
+        if (state is AuthStepSucess && state.flow == AuthFlow.EmailSent) {
+          Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => const EmailPasswordConfirmationScreen(),
+              builder: (context) => BlocProvider(
+                create: (context) => AuthBloc(),
+                child: const EmailPasswordConfirmationScreen(),
+              ),
             ),
           );
         }
@@ -145,17 +145,23 @@ class _EmailEnterState extends State<EmailEnter> {
         children: [
           GestureDetector(
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => RegisterDetails()),
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider(
+                    create: (context) => AuthBloc(),
+                    child: LoginScreen(),
+                  ),
+                ),
               );
             },
             child: Text(
               "Back",
               style: TextStyle(
-                  fontSize: 15.sp,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
+                fontSize: 15.sp,
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           )
         ],
@@ -169,14 +175,9 @@ class _EmailEnterState extends State<EmailEnter> {
       child: InkWell(
         onTap: () {
           if (_formKey.currentState!.validate()) {
-            context.read<AuthBloc>().add(
-                  ForgotPaswordBtnClicked(email: email.text),
-                );
-
-            //Navigator.push(
-            //  context,
-            //MaterialPageRoute(builder: (context) =>  OtpVerificationScreen(emailText: email.text)),
-            //);
+            context
+                .read<AuthBloc>()
+                .add(ForgotPaswordBtnClicked(email: email.text));
           }
         },
         child: Container(

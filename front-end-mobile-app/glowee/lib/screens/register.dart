@@ -5,7 +5,6 @@ import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/login_screen.dart';
 import 'package:glowee/screens/register_details.dart';
-import 'package:glowee/screens/email_enter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class Register extends StatefulWidget {
@@ -46,7 +45,7 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is AuthStepSucess && state.flow == AuthFlow.RegisterStep1) {
           Navigator.pushReplacement(
             context,
@@ -57,9 +56,6 @@ class _RegisterState extends State<Register> {
               ),
             ),
           );
-        } else if (state is AuthError) {
-          print('err');
-          // show dialog with erros
         }
       },
       child: Scaffold(
@@ -185,7 +181,7 @@ class _RegisterState extends State<Register> {
                 MaterialPageRoute(
                   builder: (context) => BlocProvider(
                     create: (context) => AuthBloc(),
-                    child: LoginScreen(),
+                    child: const LoginScreen(),
                   ),
                 ),
               );
@@ -210,19 +206,14 @@ class _RegisterState extends State<Register> {
       child: InkWell(
         onTap: () {
           if (_formKey.currentState!.validate()) {
-            print('validated');
-            context.read<AuthBloc>().add(Register1BtnClicked(
-                  email: email.text,
-                  userName: username.text,
-                  password: password.text,
-                  confirmPassword: passwordConfirme.text,
-                ));
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //       builder: (context) => RegisterDetails(emailText: email.text)),
-            // );
-            // TODO remove comment
+            context.read<AuthBloc>().add(
+                  Register1BtnClicked(
+                    email: email.text,
+                    userName: username.text,
+                    password: password.text,
+                    confirmPassword: passwordConfirme.text,
+                  ),
+                );
           }
         },
         child: Container(

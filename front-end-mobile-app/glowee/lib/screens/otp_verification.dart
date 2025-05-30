@@ -4,10 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
-import 'package:glowee/screens/login_screen.dart';
-import 'package:glowee/screens/profile.dart';
-import 'package:glowee/screens/register.dart';
 import 'package:glowee/screens/email_enter.dart';
+import 'package:glowee/screens/profile.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String? emailText;
@@ -199,7 +197,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => EmailEnter()),
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider(
+                    create: (context) => AuthBloc(),
+                    child: EmailEnter(),
+                  ),
+                ),
               );
             },
             child: Text(
@@ -224,10 +227,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
             context
                 .read<AuthBloc>()
                 .add(VerifyYourOTPBtnClicked(code: email.text));
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => Register()),
-            // );
           }
         },
         child: Container(

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:glowee/screens/register.dart';
-import 'package:glowee/screens/forget_password.dart';
+import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
+
 import 'package:glowee/screens/email_enter.dart';
-import 'package:glowee/screens/profile.dart';
+
 class EmailPasswordConfirmationScreen extends StatefulWidget {
   final VoidCallback? onSignUpTap;
-  const EmailPasswordConfirmationScreen({this.onSignUpTap,  super.key});
-
+  const EmailPasswordConfirmationScreen({this.onSignUpTap, super.key});
 
   @override
-  State<EmailPasswordConfirmationScreen> createState() => _EmailPasswordConfirmationScreenState();
+  State<EmailPasswordConfirmationScreen> createState() =>
+      _EmailPasswordConfirmationScreenState();
 }
 
-
-
-class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmationScreen> {
+class _EmailPasswordConfirmationScreenState
+    extends State<EmailPasswordConfirmationScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
   final passwordConfirme = TextEditingController();
@@ -62,7 +62,7 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
         ),
         child: SafeArea(
           child: Form(
-            key:_formKey,
+            key: _formKey,
             child: Column(
               children: [
                 SizedBox(height: 70.h),
@@ -73,7 +73,6 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
                 buildForgotPassword(),
                 SizedBox(height: 20.h),
                 SizedBox(height: 15.h),
-
               ],
             ),
           ),
@@ -96,7 +95,12 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =>  const EmailEnter()),
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider(
+                    create: (context) => AuthBloc(),
+                    child: const EmailEnter(),
+                  ),
+                ),
               );
             },
             child: Text(
@@ -136,12 +140,12 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
   }
 
   Padding Textfild(
-      TextEditingController controll,
-      FocusNode focusNode,
-      String typename,
-      IconData icon, {
-        String? Function(String?)? validator,
-      }) {
+    TextEditingController controll,
+    FocusNode focusNode,
+    String typename,
+    IconData icon, {
+    String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: TextFormField(
@@ -151,8 +155,10 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
         validator: validator,
         decoration: InputDecoration(
           hintText: typename,
-          prefixIcon: Icon(icon, color: focusNode.hasFocus ? Colors.black : Colors.grey[600]),
-          contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+          prefixIcon: Icon(icon,
+              color: focusNode.hasFocus ? Colors.black : Colors.grey[600]),
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
           filled: true,
           fillColor: Colors.white,
           enabledBorder: OutlineInputBorder(
@@ -175,7 +181,4 @@ class _EmailPasswordConfirmationScreenState extends State<EmailPasswordConfirmat
       ),
     );
   }
-
-
-
 }

@@ -7,6 +7,7 @@ import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/login_screen.dart';
 
 import 'package:glowee/screens/otp_verification.dart';
+import 'package:glowee/util/error_dialog.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -31,7 +32,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   File? _imageFile;
   bool isPhotoSent = false;
-  bool isInfoSent = false;
 
   @override
   void dispose() {
@@ -45,12 +45,15 @@ class _RegisterDetailsState extends State<RegisterDetails> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
-      context.read<AuthBloc>().add(AddPhotoWhileSignUpBtnClicked(file: _imageFile!));
+      context
+          .read<AuthBloc>()
+          .add(AddPhotoWhileSignUpBtnClicked(file: _imageFile!));
     }
   }
 
@@ -62,7 +65,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
       lastDate: DateTime.now(),
     );
     if (picked != null) {
-      // Format the date as "yyyy-MM-dd" which is a common API-friendly format
       final formattedDate = DateFormat('MM/dd/yyyy').format(picked);
       setState(() {
         _birthDateController.text = formattedDate;
@@ -97,15 +99,15 @@ class _RegisterDetailsState extends State<RegisterDetails> {
     return null;
   }
 
-  void _handleRegistration(BuildContext context) {
+  void _handleRegistration(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       context.read<AuthBloc>().add(
-        Register2BtnClicked(
-          firstName: _firstNameController.text,
-          lastName: _lastNameController.text,
-          birthDate: _birthDateController.text, // Already a string
-        ),
-      );
+            Register2BtnClicked(
+              firstName: _firstNameController.text,
+              lastName: _lastNameController.text,
+              birthDate: _birthDateController.text, // Already a string
+            ),
+          );
     }
   }
 
@@ -113,7 +115,7 @@ class _RegisterDetailsState extends State<RegisterDetails> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthStepSucess && isPhotoSent && state.flow == AuthFlow.RegisterStep2) {
+        if (state is AuthStepSucess && state.flow == AuthFlow.RegisterStep2) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -123,9 +125,8 @@ class _RegisterDetailsState extends State<RegisterDetails> {
               ),
             ),
           );
-        } else if (state is AuthStepSucess && state.flow == AuthFlow.RegisterStep2) {
-          isInfoSent = true;
-        } else if (state is AuthStepSucess && state.flow == AuthFlow.UploadPhoto) {
+        } else if (state is AuthStepSucess &&
+            state.flow == AuthFlow.UploadPhoto) {
           isPhotoSent = true;
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -164,13 +165,14 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                         backgroundColor: Colors.grey,
                         child: _imageFile == null
                             ? CircleAvatar(
-                          radius: 34.r,
-                          backgroundImage: AssetImage('assets/images/stars.png'),
-                        )
+                                radius: 34.r,
+                                backgroundImage:
+                                    AssetImage('assets/images/stars.png'),
+                              )
                             : CircleAvatar(
-                          radius: 34.r,
-                          backgroundImage: FileImage(_imageFile!),
-                        ),
+                                radius: 34.r,
+                                backgroundImage: FileImage(_imageFile!),
+                              ),
                       ),
                     ),
                     SizedBox(height: 25.h),
@@ -241,12 +243,13 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                         child: Text(
                           _birthDate != null
                               ? '${_birthDate!.month.toString().padLeft(2, '0')}/'
-                              '${_birthDate!.day.toString().padLeft(2, '0')}/'
-                              '${_birthDate!.year}'
+                                  '${_birthDate!.day.toString().padLeft(2, '0')}/'
+                                  '${_birthDate!.year}'
                               : 'Select your birth date',
                           style: TextStyle(
                             fontSize: 16.sp,
-                            color: _birthDate != null ? Colors.black : Colors.grey,
+                            color:
+                                _birthDate != null ? Colors.black : Colors.grey,
                           ),
                         ),
                       ),
@@ -255,18 +258,27 @@ class _RegisterDetailsState extends State<RegisterDetails> {
 
                     // Next Button
                     ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate() && _birthDate != null) {
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate() &&
+                            _birthDate != null) {
+                          if (!isPhotoSent) {
+                            return await showErrorDialog(
+                              context,
+                              ["Information can't be send without a photo"],
+                            );
+                          }
                           context.read<AuthBloc>().add(Register2BtnClicked(
-                            firstName: _firstNameController.text,
-                            lastName: _lastNameController.text,
-                            birthDate: '${_birthDate!.month.toString().padLeft(2, '0')}/'
-                                '${_birthDate!.day.toString().padLeft(2, '0')}/'
-                                '${_birthDate!.year}',
-                          ));
+                                firstName: _firstNameController.text,
+                                lastName: _lastNameController.text,
+                                birthDate:
+                                    '${_birthDate!.month.toString().padLeft(2, '0')}/'
+                                    '${_birthDate!.day.toString().padLeft(2, '0')}/'
+                                    '${_birthDate!.year}',
+                              ));
                         } else if (_birthDate == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Please select your birth date')),
+                            SnackBar(
+                                content: Text('Please select your birth date')),
                           );
                         }
                       },
@@ -289,7 +301,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                       },
                       child: Text("Already have an account? Login"),
                     ),
-
                   ],
                 ),
               ),
@@ -299,7 +310,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
       ),
     );
   }
-
 
   Widget _buildDateField(BuildContext context) {
     return Padding(
@@ -313,8 +323,11 @@ class _RegisterDetailsState extends State<RegisterDetails> {
         decoration: InputDecoration(
           hintText: 'Birth Date (YYYY-MM-DD)',
           prefixIcon: Icon(Icons.calendar_today,
-              color: _birthDateFocusNode.hasFocus ? Colors.black : Colors.grey[600]),
-          contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+              color: _birthDateFocusNode.hasFocus
+                  ? Colors.black
+                  : Colors.grey[600]),
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
           filled: true,
           fillColor: Colors.white,
           enabledBorder: OutlineInputBorder(
@@ -350,9 +363,14 @@ class _RegisterDetailsState extends State<RegisterDetails> {
           ),
           GestureDetector(
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider(
+                    create: (context) => AuthBloc(),
+                    child: const LoginScreen(),
+                  ),
+                ),
               );
             },
             child: Text(
@@ -414,7 +432,8 @@ class _RegisterDetailsState extends State<RegisterDetails> {
           hintText: label,
           prefixIcon: Icon(icon,
               color: focusNode.hasFocus ? Colors.black : Colors.grey[600]),
-          contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
+          contentPadding:
+              EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
           filled: true,
           fillColor: enabled ? Colors.white : Colors.grey[200],
           enabledBorder: OutlineInputBorder(
