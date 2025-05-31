@@ -113,7 +113,7 @@ class _RegisterDetailsState extends State<RegisterDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) async {
         if (state is AuthStepSucess && state.flow == AuthFlow.RegisterStep2) {
           Navigator.pushReplacement(
@@ -132,180 +132,197 @@ class _RegisterDetailsState extends State<RegisterDetails> {
           await showErrorDialog(context, state.messages);
         }
       },
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.white,
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(27, 36, 136, 0.7),
-                Color.fromRGBO(242, 188, 23, 0.5)
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: SafeArea(
-            child: Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(
-                  children: [
-                    SizedBox(height: 20.h),
-                    Center(child: Image.asset('assets/images/logo.png')),
-                    SizedBox(height: 10.h),
-                    InkWell(
-                      onTap: _pickImage,
-                      child: CircleAvatar(
-                        radius: 36.r,
-                        backgroundColor: Colors.grey,
-                        child: _imageFile == null
-                            ? CircleAvatar(
-                                radius: 34.r,
-                                backgroundImage:
-                                    AssetImage('assets/images/stars.png'),
-                              )
-                            : CircleAvatar(
-                                radius: 34.r,
-                                backgroundImage: FileImage(_imageFile!),
-                              ),
-                      ),
-                    ),
-                    SizedBox(height: 25.h),
-
-                    // First Name
-                    TextFormField(
-                      controller: _firstNameController,
-                      focusNode: _firstNameFocusNode,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your first name';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'First Name',
-                        prefixIcon: Icon(Icons.person),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(height: 15.h),
-
-                    // Last Name
-                    TextFormField(
-                      controller: _lastNameController,
-                      focusNode: _lastNameFocusNode,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your last name';
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Last Name',
-                        prefixIcon: Icon(Icons.person_outline),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(height: 15.h),
-
-                    // Birth Date
-                    InkWell(
-                      onTap: () async {
-                        final pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime(2000),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime.now(),
-                        );
-                        if (pickedDate != null) {
-                          setState(() {
-                            _birthDate = pickedDate;
-                          });
-                        }
-                      },
-                      child: InputDecorator(
-                        decoration: InputDecoration(
-                          labelText: 'Birth Date',
-                          prefixIcon: Icon(Icons.calendar_today),
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(),
-                        ),
-                        child: Text(
-                          _birthDate != null
-                              ? '${_birthDate!.month.toString().padLeft(2, '0')}/'
-                                  '${_birthDate!.day.toString().padLeft(2, '0')}/'
-                                  '${_birthDate!.year}'
-                              : 'Select your birth date',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            color:
-                                _birthDate != null ? Colors.black : Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 25.h),
-
-                    // Next Button
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState!.validate() &&
-                            _birthDate != null) {
-                          if (!isPhotoSent) {
-                            return await showErrorDialog(
-                              context,
-                              ["Information can't be send without a photo"],
-                            );
-                          }
-                          context.read<AuthBloc>().add(Register2BtnClicked(
-                                firstName: _firstNameController.text,
-                                lastName: _lastNameController.text,
-                                birthDate:
-                                    '${_birthDate!.month.toString().padLeft(2, '0')}/'
-                                    '${_birthDate!.day.toString().padLeft(2, '0')}/'
-                                    '${_birthDate!.year}',
-                              ));
-                        } else if (_birthDate == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Please select your birth date')),
-                          );
-                        }
-                      },
-                      child: Text('Next'),
-                    ),
-                    SizedBox(height: 15.h),
-
-                    // Login Link
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider(
-                              create: (context) => AuthBloc(),
-                              child: LoginScreen(),
-                            ),
-                          ),
-                        );
-                      },
-                      child: Text("Already have an account? Login"),
-                    ),
-                  ],
-                ),
+      builder: (context, state) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: Colors.white,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(27, 36, 136, 0.7),
+                  Color.fromRGBO(242, 188, 23, 0.5)
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
+            child: (state is Authorizing ||
+                    (state is AuthStepSucess &&
+                        state.flow == AuthFlow.RegisterStep2))
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  )
+                : SafeArea(
+                    child: Form(
+                      key: _formKey,
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.symmetric(horizontal: 20.w),
+                        child: Column(
+                          children: [
+                            SizedBox(height: 20.h),
+                            Center(
+                                child: Image.asset('assets/images/logo.png')),
+                            SizedBox(height: 10.h),
+                            InkWell(
+                              onTap: _pickImage,
+                              child: CircleAvatar(
+                                radius: 36.r,
+                                backgroundColor: Colors.grey,
+                                child: _imageFile == null
+                                    ? CircleAvatar(
+                                        radius: 34.r,
+                                        backgroundImage: AssetImage(
+                                            'assets/images/stars.png'),
+                                      )
+                                    : CircleAvatar(
+                                        radius: 34.r,
+                                        backgroundImage: FileImage(_imageFile!),
+                                      ),
+                              ),
+                            ),
+                            SizedBox(height: 25.h),
+
+                            // First Name
+                            TextFormField(
+                              controller: _firstNameController,
+                              focusNode: _firstNameFocusNode,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your first name';
+                                }
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'First Name',
+                                prefixIcon: Icon(Icons.person),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            SizedBox(height: 15.h),
+
+                            // Last Name
+                            TextFormField(
+                              controller: _lastNameController,
+                              focusNode: _lastNameFocusNode,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter your last name';
+                                }
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                labelText: 'Last Name',
+                                prefixIcon: Icon(Icons.person_outline),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            SizedBox(height: 15.h),
+
+                            // Birth Date
+                            InkWell(
+                              onTap: () async {
+                                final pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime(2000),
+                                  firstDate: DateTime(1900),
+                                  lastDate: DateTime.now(),
+                                );
+                                if (pickedDate != null) {
+                                  setState(() {
+                                    _birthDate = pickedDate;
+                                  });
+                                }
+                              },
+                              child: InputDecorator(
+                                decoration: InputDecoration(
+                                  labelText: 'Birth Date',
+                                  prefixIcon: Icon(Icons.calendar_today),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(),
+                                ),
+                                child: Text(
+                                  _birthDate != null
+                                      ? '${_birthDate!.month.toString().padLeft(2, '0')}/'
+                                          '${_birthDate!.day.toString().padLeft(2, '0')}/'
+                                          '${_birthDate!.year}'
+                                      : 'Select your birth date',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    color: _birthDate != null
+                                        ? Colors.black
+                                        : Colors.grey,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 25.h),
+
+                            // Next Button
+                            ElevatedButton(
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate() &&
+                                    _birthDate != null) {
+                                  if (!isPhotoSent) {
+                                    return await showErrorDialog(
+                                      context,
+                                      [
+                                        "Information can't be send without a photo"
+                                      ],
+                                    );
+                                  }
+                                  context
+                                      .read<AuthBloc>()
+                                      .add(Register2BtnClicked(
+                                        firstName: _firstNameController.text,
+                                        lastName: _lastNameController.text,
+                                        birthDate:
+                                            '${_birthDate!.month.toString().padLeft(2, '0')}/'
+                                            '${_birthDate!.day.toString().padLeft(2, '0')}/'
+                                            '${_birthDate!.year}',
+                                      ));
+                                } else if (_birthDate == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Please select your birth date')),
+                                  );
+                                }
+                              },
+                              child: Text('Next'),
+                            ),
+                            SizedBox(height: 15.h),
+
+                            // Login Link
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BlocProvider(
+                                      create: (context) => AuthBloc(),
+                                      child: LoginScreen(),
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text("Already have an account? Login"),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
