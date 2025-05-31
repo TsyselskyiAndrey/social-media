@@ -5,7 +5,6 @@ import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/email_password_text_comfirmation_screen.dart';
-import 'package:glowee/screens/login_screen.dart';
 import 'package:glowee/util/error_dialog.dart';
 
 class EmailEnter extends StatefulWidget {
@@ -153,7 +152,7 @@ class _EmailEnterState extends State<EmailEnter> {
                 MaterialPageRoute(
                   builder: (context) => BlocProvider(
                     create: (context) => AuthBloc(),
-                    child: LoginScreen(),
+                    child: EmailPasswordConfirmationScreen(),
                   ),
                 ),
               );

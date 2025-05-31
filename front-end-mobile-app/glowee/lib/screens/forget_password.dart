@@ -146,7 +146,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           if (_formKey.currentState!.validate()) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) =>  EmailPasswordConfirmationScreen()),
+              MaterialPageRoute(builder: (context) =>  LoginScreen()),
             );
           }
         },

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 
-import 'package:glowee/screens/email_enter.dart';
+import 'package:glowee/screens/login_screen.dart';
 
 class EmailPasswordConfirmationScreen extends StatefulWidget {
   final VoidCallback? onSignUpTap;
@@ -98,13 +98,13 @@ class _EmailPasswordConfirmationScreenState
                 MaterialPageRoute(
                   builder: (context) => BlocProvider(
                     create: (context) => AuthBloc(),
-                    child: const EmailEnter(),
+                    child: const LoginScreen(),
                   ),
                 ),
               );
             },
             child: Text(
-              "Resend email ",
+              "Back to Login",
               style: TextStyle(
                 fontSize: 18,
                 color: Colors.yellow,
