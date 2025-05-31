@@ -144,3 +144,62 @@ button {
   margin: 30px;
   margin-bottom: 0;
 }
+
+/* === DARK MODE for Auth Window === */
+html.dark .authWindow {
+  background-color: #0a3a4b;
+  color: #f9fafb;
+}
+
+html.dark .authContainer {
+  background-color: #103444;
+  border: 1px solid #083444;
+  box-shadow: 0 0 8px 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Form content remains flex layout — no change needed for dark mode */
+
+/* Submit button */
+html.dark .submitBtn {
+  background-color: #08948c;
+  color: #f9fafb;
+}
+
+html.dark .submitBtn:disabled,
+html.dark .submitBtn[disabled] {
+  background-color: #374151;
+  color: #9ca3af;
+}
+
+html.dark .submitBtn:not(:disabled):hover {
+  background-color: #155e75;
+  color: #f9fafb;
+}
+
+html.dark .submitBtn:not(:disabled):active {
+  background-color: #164e63;
+  color: #f9fafb;
+}
+
+/* Link styling */
+html.dark .link {
+  color: #60a5fa;
+}
+
+html.dark .link:visited {
+  color: #3b82f6;
+}
+
+html.dark .link:hover {
+  color: #93c5fd;
+}
+
+/* Dash under logo */
+html.dark .dash {
+  background-color: #08948c;
+}
+
+/* Info text */
+html.dark .infoText {
+  color: #d1d5db;
+}

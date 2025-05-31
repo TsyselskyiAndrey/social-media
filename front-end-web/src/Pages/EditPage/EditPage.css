@@ -42,7 +42,7 @@
 }
 
 .btn-primary {
-  background-color: #3b82f6;
+  background-color: #3bc1f6;
   color: white;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
@@ -246,4 +246,99 @@ textarea {
     font-size: 1.125rem;
   }
 }
-  
+
+/* === DARK MODE === */
+html.dark .edit-page {
+  background-color: #103444; /* dark slate */
+}
+
+html.dark .edit-form-container {
+  background: #103444; /* darker container */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.7), 0 2px 4px -1px rgba(0, 0, 0, 0.5);
+}
+
+html.dark .section-title {
+  color: #f3f4f6; /* light gray */
+  border-bottom-color: #098a83; /* lighter blue */
+}
+
+html.dark .form-actions {
+  border-top-color: #374151;
+}
+
+html.dark .btn-primary {
+  background-color: #08948c;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(147, 197, 253, 0.3);
+}
+
+html.dark .btn-primary:hover {
+  background-color: #08948c;
+  box-shadow: 0 4px 8px rgba(147, 197, 253, 0.4);
+}
+
+html.dark .btn-primary:disabled {
+  background-color: #0b485e;
+  color: #9ca3af;
+}
+
+html.dark .btn-secondary {
+  background-color: #123a4b;
+  color: #d1d5db;
+  border-color: #083444;
+}
+
+html.dark .btn-secondary:hover {
+  background-color: #374151;
+  border-color: #c95252;
+}
+
+html.dark .profile-image-preview {
+  border-color: #077973;
+  box-shadow: 0 4px 8px rgba(147, 197, 253, 0.3);
+}
+
+html.dark .image-upload-btn {
+  background-color: #08948c;
+  color: white;
+  box-shadow: 0 2px 4px rgba(147, 197, 253, 0.3);
+}
+
+html.dark .image-upload-btn:hover {
+  background-color: #1d4ed8;
+  box-shadow: 0 4px 8px rgba(147, 197, 253, 0.4);
+}
+
+html.dark .character-counter {
+  color: #9ca3af;
+}
+
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="date"],
+html.dark textarea {
+  background-color: #0c4c5c;
+  color: #f9fafb;
+  border-color: #083444;
+}
+
+html.dark input[type="text"]::placeholder,
+html.dark input[type="email"]::placeholder,
+html.dark input[type="date"]::placeholder,
+html.dark textarea::placeholder {
+  color: #9ca3af;
+}
+
+html.dark input[type="text"]:focus,
+html.dark input[type="email"]:focus,
+html.dark input[type="date"]:focus,
+html.dark textarea:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.1);
+}
+
+html.dark input:focus,
+html.dark textarea:focus {
+  border-color: #60a5fa;
+  box-shadow: inset 0 0 0 2px rgba(147, 197, 253, 0.2);
+}

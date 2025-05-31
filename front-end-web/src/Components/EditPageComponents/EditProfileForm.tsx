@@ -228,7 +228,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   return (
     <div className="edit-form-container">
       <div className="form-header mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">📝 Форма редагування профілю</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2">📝 Форма редагування профілю</h2>
       </div>
       
       <form onSubmit={handleSubmit}>
@@ -335,7 +335,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             value={formControls.biography.value}
             onChange={(e) => handleInputChange('Biography', e.target.value)}
             placeholder="✨ Розкажіть про себе щось цікаве... Ваші хобі, інтереси, досягнення або просто те, що робить вас унікальним! 🌟"
-            className="w-full p-3 border border-gray-300 rounded-lg resize-none h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:font-medium placeholder:text-gray-500"
+            className="w-full p-3 border border-gray-300 dark:border-teal-900 rounded-lg resize-none h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:font-medium placeholder:text-gray-500"
             maxLength={500}
           />
           <div className="character-counter">
