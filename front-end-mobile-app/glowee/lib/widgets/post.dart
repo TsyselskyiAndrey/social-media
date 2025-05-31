@@ -9,30 +9,29 @@ class Post extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: 375.w,
-          height: 64.h,
+          width: double.infinity,
+          height: 55.h,
           color: Colors.white,
           child: Center(
             child: ListTile(
               leading: ClipOval(
                 child: SizedBox(
-                  width: 40.w,
-                  height: 40.h,
+                  width: 45.w,
+                  height: 45.h,
                   child: Image.asset('assets/images/logo.png'),
                 ),
               ),
               title: Text(
                 'username',
                 style: TextStyle(
-                  fontSize: 13.sp,
+                  fontSize: 15.sp,
                 ),
               ),
-              trailing: Icon(Icons.more_horiz),
             ),
           ),
         ),
         Container(
-          width: 375.w,
+          width: double.infinity,
           height: 375.h,
           child: Image.asset(
             'assets/images/logo.png',
@@ -40,9 +39,10 @@ class Post extends StatelessWidget {
           ),
         ),
         Container(
-          width: 375.w,
+          width: double.infinity,
           color: Colors.white,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: 14.w),
               Row(
@@ -69,9 +69,9 @@ class Post extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.only(
-                  left: 19.w,
-                  top: 13.5.h,
-                  bottom: 5.h,
+                  left: 30.w,
+                  top: 4.h,
+                  bottom: 8.h,
                 ),
                 child: Text(
                   '0',
