@@ -139,3 +139,82 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+html.dark .subscriptions-content {
+  background-color: #103444;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+html.dark .title {
+  color: #e6f4f1;
+}
+
+html.dark .loader {
+  color: #60d5a7;
+}
+
+
+
+html.dark .plan-card {
+  background-color: #0e3a48;
+  border-color: #08948c;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  color: #f9fafb;
+}
+
+html.dark .plan-card:hover {
+  transform: scale(1.03);
+}
+
+html.dark .plan-name {
+  color: #e6f4f1;
+}
+
+html.dark .plan-price {
+  color: #60d5a7;
+}
+
+html.dark .plan-description {
+  color: #d1d5db;
+}
+
+html.dark .plan-features {
+  color: #9ca3af;
+}
+
+html.dark .plan-features li {
+  color: #9ca3af;
+}
+
+html.dark .choose-button {
+  background-color: #08948c;
+  color: #ffffff;
+  box-shadow: 0 2px 4px rgba(147, 197, 253, 0.3);
+}
+
+html.dark .choose-button:hover:not(:disabled) {
+  background-color: #077973;
+  box-shadow: 0 4px 8px rgba(147, 197, 253, 0.4);
+}
+
+html.dark .choose-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #083444;
+  color: #9ca3af;
+}
+
+html.dark .cancel-button {
+  background-color: #e53e3e;
+  color: #ffffff;
+}
+
+html.dark .cancel-button:hover {
+  background-color: #c53030;
+}
+
+html.dark .cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
