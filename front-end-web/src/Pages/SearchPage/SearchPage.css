@@ -221,3 +221,12 @@ input[type="text"]:focus {
 input[type="text"]:hover {
   border-color: #9ca3af;
 }
+
+html.dark .search-bar {
+  height: 56px;
+  border: none !important;
+
+  background-color: #164e63;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
