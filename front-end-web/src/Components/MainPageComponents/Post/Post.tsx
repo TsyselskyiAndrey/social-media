@@ -85,7 +85,18 @@ const Post: React.FC<PostProps> = ({ post }) => {
           <Avatar src={post.authorIconUrl} />
           <Typography fontWeight="bold">{post.authorName}</Typography>
         </Box>
-        <IconButton onClick={handleMenuClick} aria-label="settings" size="small">
+        <IconButton 
+          onClick={handleMenuClick} 
+          aria-label="settings" 
+          size="small"
+          sx={{
+            transition: 'transform 0.2s',
+            '&:hover': {
+              transform: 'scale(1.1)',
+              color: 'primary.main'
+            }
+          }}
+        >
           <MoreVertIcon />
         </IconButton>
         <Menu
@@ -94,9 +105,57 @@ const Post: React.FC<PostProps> = ({ post }) => {
           onClose={handleMenuClose}
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
+          sx={{
+            '& .MuiPaper-root': {
+              borderRadius: 2,
+              minWidth: 180,
+              boxShadow: '0px 5px 15px rgba(0,0,0,0.15)',
+              mt: 1.5,
+              '& .MuiMenu-list': {
+                padding: '8px 0',
+              },
+            },
+          }}
+          TransitionProps={{
+            enter: true,
+            appear: true,
+            timeout: 250,
+          }}
         >
-          <MenuItem onClick={() => alert("Редагувати пост")}>Редагувати</MenuItem>
-          <MenuItem onClick={() => alert("Видалити пост")}>Видалити</MenuItem>
+          <MenuItem 
+            onClick={() => alert("Редагувати пост")}
+            sx={{
+              mx: 1,
+              borderRadius: 1,
+              fontWeight: 'bold',
+              fontSize: '0.95rem',
+              py: 1.2,
+              '&:hover': {
+                bgcolor: 'action.hover',
+                transition: 'all 0.2s',
+              },
+            }}
+          >
+            Редагувати
+          </MenuItem>
+          <MenuItem 
+            onClick={() => alert("Видалити пост")}
+            sx={{
+              mx: 1,
+              borderRadius: 1,
+              fontWeight: 'bold',
+              fontSize: '0.95rem',
+              py: 1.2,
+              color: 'error.main',
+              '&:hover': {
+                bgcolor: 'error.light',
+                color: 'error.dark',
+                transition: 'all 0.2s',
+              },
+            }}
+          >
+            Видалити
+          </MenuItem>
         </Menu>
       </Box>
 

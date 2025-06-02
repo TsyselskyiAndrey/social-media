@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import DropzoneStep from "./DropzoneStep";
 import ConfirmStep from "./ConfirmStep";
 import PreviewStep from "./PreviewStep";
-import SuccessStep from "./SuccessStep";
 import Agent from "../../../API/agent";
+import { useToast } from "../../../Contexts/ToastContext";
 
 type PostMediaFile = File & { previewUrl: string };
 
@@ -15,12 +15,13 @@ const MAX_FILES = 10;
 
 const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
   const [step, setStep] = useState<
-    "dropzone" | "confirm" | "preview" | "success"
+    "dropzone" | "confirm" | "preview"
   >("dropzone");
   const [postMedias, setPostMedias] = useState<PostMediaFile[]>([]);
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const { showSuccess, showError } = useToast();
 
   const addFiles = (files: FileList | File[]) => {
     const availableSlots = MAX_FILES - postMedias.length;
@@ -62,7 +63,7 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
           addFiles={addFiles}
           removeFile={removeFile}
           onNext={() =>
-            postMedias.length > 0 ? setStep("confirm") : alert("Додайте файли")
+            postMedias.length > 0 ? setStep("confirm") : showError("Додайте файли")
           }
           maxFiles={MAX_FILES}
           onClose={onClose}
@@ -102,9 +103,11 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
                     postMedias,
                     thumbnail,
                   });
-                  setStep("success");
+                  showSuccess("Пост успішно створено! 🎉");
+                  reset();
+                  onClose();
                 } catch (error) {
-                  alert("Помилка при створенні поста");
+                  showError("Помилка при створенні поста");
                   console.error(error);
                 }
               }}
@@ -112,15 +115,6 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
             />
           </div>
         </div>
-      )}
-
-      {step === "success" && (
-        <SuccessStep
-          onReset={() => {
-            reset();
-            onClose();
-          }}
-        />
       )}
     </div>
   );

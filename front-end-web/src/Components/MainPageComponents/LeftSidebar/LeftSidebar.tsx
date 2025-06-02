@@ -31,7 +31,7 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
     {
       text: "Головна",
       icon: <HomeIcon sx={{ fontSize: 28 }} />,
-      onClick: () => navigate("/mainpage"),
+      onClick: () => navigate("/"),
     },
     { 
       text: "Пошук", 
