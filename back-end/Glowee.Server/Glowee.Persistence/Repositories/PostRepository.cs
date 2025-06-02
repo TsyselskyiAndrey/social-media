@@ -220,5 +220,50 @@ public class PostRepository : GenericRepository<Post, PostId>, IPostRepository
 
         return posts;
     }
+    
+    public async Task<Post?> GetFullPostByIdAsync(PostId postId)
+    {
+        return await _context.Posts
+            .Include(p => p.PostMedias)
+            .Include(p => p.LikedPosts)
+            .Include(p => p.SavedPosts)
+            .Include(p => p.Histories)
+            .Include(p => p.UninterestingPosts)
+            .Include(p => p.Reports)
+            .Include(p => p.Notifications)
+            .FirstOrDefaultAsync(p => p.Id == postId);
+    }
+    
+    public async Task DeleteWithDependenciesAsync(PostId id, UserId userId)
+    {
+        var post = await GetFullPostByIdAsync(id);
 
+        if (post == null)
+            return;
+
+        if(post.UserId != userId)
+            throw new BadRequestException("You cannot delete this post. You must create a post in order to delete this post.");
+        
+        foreach (var media in post.PostMedias)
+        {
+            if (!string.IsNullOrEmpty(media.MediaPath))
+                await _blobStorageService.RemoveBlobAsync(BlobContainerType.PostMedia, media.MediaPath);
+
+            if (!string.IsNullOrEmpty(media.ThumbnailPath))
+                await _blobStorageService.RemoveBlobAsync(BlobContainerType.PostMedia, media.ThumbnailPath);
+        }
+
+        await _commentsRepository.DeleteByPostIdAsync(id);
+
+        _context.RemoveRange(post.LikedPosts);
+        _context.RemoveRange(post.SavedPosts);
+        _context.RemoveRange(post.Histories);
+        _context.RemoveRange(post.PostMedias);
+        _context.RemoveRange(post.UninterestingPosts);
+        _context.RemoveRange(post.Reports);
+        _context.RemoveRange(post.Notifications);
+        _context.Remove(post);
+
+        await _context.SaveChangesAsync();
+    }
 }

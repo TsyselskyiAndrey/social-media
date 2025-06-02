@@ -3,6 +3,7 @@ using Glowee.Application.Contracts.Identity;
 using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Contracts.Storage;
 using Glowee.Application.Features.User.Commands.Follow;
+using Glowee.Application.Features.User.Commands.UserProfile;
 using Glowee.Application.Features.User.Commands.UserSettings;
 using Glowee.Application.Features.User.Queries.Profile;
 using Glowee.Application.Features.User.Queries.UserSettings;
@@ -59,6 +60,24 @@ public class UserController : ControllerBase
         return Ok(result);
     }
 
+    [HttpPut("updateUserProfileInfo")]
+    public async Task<IActionResult> UpdateUserProfileInfo ([FromForm] UpdateUserProfileInfoRequest updateUserProfileInfoRequest)
+    {
+        var command = new UpdateUserProfileInfoCommand()
+        {
+            FirstName = updateUserProfileInfoRequest.FirstName,
+            LastName = updateUserProfileInfoRequest.LastName,
+            Birthday = updateUserProfileInfoRequest.Birthday,
+            Username = updateUserProfileInfoRequest.Username,
+            Biography = updateUserProfileInfoRequest.Biography,
+            ProfilePhoto = updateUserProfileInfoRequest.ProfilePhoto,
+        };
+        var handler = new UpdateUserProfileInfoCommandHandler(_userService, _userRepository, _profileImageStorageService);
+        
+        await handler.Handle(command, CancellationToken.None);
+        return Ok();
+    }
+    
     [HttpGet("getUserGeneralSettings")]
     public async Task<IActionResult> GetUserGeneralSettings()
     {
