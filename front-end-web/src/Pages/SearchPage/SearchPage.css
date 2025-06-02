@@ -205,7 +205,7 @@ input[type="text"] {
   min-width: 0;
   box-sizing: border-box;
   padding: 0.2rem 3.2px 0.5rem;
-  border: 1px solid #d1d5db;
+  border: none;
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s ease;
