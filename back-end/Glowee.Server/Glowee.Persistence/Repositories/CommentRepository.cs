@@ -93,7 +93,7 @@ public class CommentRepository : GenericRepository<Comment, CommentId>, IComment
     public async Task<IEnumerable<Comment>> GetIncludedPostComments(PostId postId)
     {
         return await _context.Comments
-            .Where(x => x.PostId.Value == postId.Value && x.ParentCommentId == null)
+            .Where(c => c.PostId == postId && c.ParentCommentId == null)
             .AsNoTracking()
             .Include(c => c.ChildComments)
                  .ThenInclude(x => x.CommentStatuses)
@@ -110,5 +110,18 @@ public class CommentRepository : GenericRepository<Comment, CommentId>, IComment
         {
             throw new NotFoundException($"Comment with id {id} does not exist");
         }
+    }
+
+    public async Task<Comment?> GetIncludedById(CommentId commentId)
+    {
+        return await _context.Comments
+           .Where(c => c.Id == commentId)
+           .AsNoTracking()
+           .Include(c => c.ChildComments)
+                .ThenInclude(x => x.CommentStatuses)
+           .Include(c => c.ChildComments)
+                .ThenInclude(x => x.User)
+           .Include(c => c.CommentStatuses)
+           .Include(c => c.User).FirstOrDefaultAsync();
     }
 }

@@ -29,6 +29,9 @@ namespace Glowee.Application.MappingProfiles
                             ? _profileImageStorageService.GetProfileImageUrl(comment.User.ProfileImagePath)
                             : null
                 },
+                ChildComments = comment.ChildComments?
+                     .Select(child => MapCommentToCommentDto(child, currentUserId))
+                     .ToList() ?? new List<CommentDto>(),
                 IsLiked = currentUserId is not null &&
                       comment.CommentStatuses.Any(x => x.UserId == currentUserId),
                 Likes = comment.CommentStatuses.Count

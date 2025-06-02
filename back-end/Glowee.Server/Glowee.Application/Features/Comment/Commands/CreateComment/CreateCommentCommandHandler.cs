@@ -1,6 +1,8 @@
 ﻿using Glowee.Application.Contracts.Identity;
+using Glowee.Application.Contracts.Mappers;
 using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Exceptions;
+using Glowee.Application.Features.Comment.Queries;
 using Glowee.Domain.Entities.Comments;
 using Glowee.Domain.Entities.Posts;
 using Glowee.Domain.Entities.Users;
@@ -9,22 +11,24 @@ using UnauthorizedAccessException = Glowee.Application.Exceptions.UnauthorizedAc
 
 namespace Glowee.Application.Features.Comment.Commands.CreateComment;
 
-public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand>
+public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, CommentDto>
 {
     private readonly IUserService _userService;
     private readonly IPostRepository _postRepository;
     private readonly ICommentRepository _commentsRepository;
+    private readonly ICommentMapper _commentMapper;
 
     public CreateCommentCommandHandler(IUserService userService,
-        IPostRepository postRepository, ICommentRepository commentsRepository)
+        IPostRepository postRepository, ICommentRepository commentsRepository, ICommentMapper commentMapper)
     {
         _userService = userService;
         _postRepository = postRepository;
         _commentsRepository = commentsRepository;
+        _commentMapper = commentMapper;
     }
 
 
-    public async Task Handle(CreateCommentCommand request, CancellationToken cancellationToken)
+    public async Task<CommentDto> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
     {
         var validator = new CreateCommentCommandValidator();
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -52,5 +56,14 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand>
         }
 
         await _commentsRepository.CreateAsync(newComment);
+
+        var createdComment = await _commentsRepository.GetIncludedById(newComment.Id);
+
+        if (createdComment == null)
+        {
+            throw new InternalServerException();
+        }
+
+        return _commentMapper.MapCommentToCommentDto(createdComment, new UserId(userId));
     }
 }

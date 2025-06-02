@@ -9,5 +9,6 @@ public interface ICommentRepository : IGenericRepository<Comment, CommentId>
     Task DeleteByPostIdAsync(PostId postId);
     Task DeleteByUserIdAsync(UserId userId);
     Task<IEnumerable<Comment>> GetIncludedPostComments(PostId postId);
+    Task<Comment?> GetIncludedById(CommentId commentId);
     void CommentExists(CommentId id);
 }
