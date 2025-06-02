@@ -26,6 +26,7 @@ import Saved from "./Pages/Settings/SavedPosts";
 import SearchPage from "./Pages/SearchPage/SearchPage";
 import { ToastProvider } from "./Contexts/ToastContext";
 import MuiThemeProvider from "./Contexts/MuiThemeProvider";
+import DownloadAppPage from './Pages/Settings/DownloadAppPage';
 
 function App() {
   const interceptorsReady = useAxiosWithToken();
@@ -50,6 +51,7 @@ function App() {
           <Route path="settings/activity" element={<ActivityPage />} />
           <Route path="settings/notifications" element={<NotificationsPage />} />
           <Route path="settings/saved" element={<Saved />} />
+          <Route path="settings/download" element={<DownloadAppPage />} />
        </Route>
         <Route path="*" element={<NotFound />} />
       </Route>
