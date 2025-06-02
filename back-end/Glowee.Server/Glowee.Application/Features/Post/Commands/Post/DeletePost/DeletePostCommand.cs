@@ -1,8 +1,6 @@
-﻿using MediatR;
+﻿using Glowee.Domain.Entities.Posts;
+using MediatR;
 
 namespace Glowee.Application.Features.Post.Commands.Post.DeletePost;
 
-public class DeletePostCommand : IRequest
-{
-    public long PostId { get; set; }
-}
+public record DeletePostCommand(PostId PostId) : IRequest;

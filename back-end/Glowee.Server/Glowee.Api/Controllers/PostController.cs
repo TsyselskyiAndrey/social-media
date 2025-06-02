@@ -6,6 +6,8 @@ using Glowee.Application.Contracts.Persistence;
 using Glowee.Application.Contracts.Storage;
 using Glowee.Application.Features.Post.Commands.Likes;
 using Glowee.Application.Features.Post.Commands.Post.CreatePost;
+using Glowee.Application.Features.Post.Commands.Post.DeletePost;
+using Glowee.Application.Features.Post.Commands.Post.UpdatePost;
 using Glowee.Application.Features.Post.Commands.SavedPosts;
 using Glowee.Application.Features.Post.Queries.Posts;
 using Glowee.Domain.Entities.Posts;
@@ -32,8 +34,7 @@ public class PostController : ControllerBase
     private readonly ISavedPostRepository _savedPostRepository;
     private readonly IAppLogger<PostController> _logger;
     private readonly IUserRepository _userRepository;
-
-
+    
     public PostController(IPostRepository postRepository, IPostMapper postMapper, IUserService userService,
     ITagRepository tagRepository, IPostMediaRepository postMediaRepository, IPostMediaStorageService postMediaStorageService,
     ILikeRepository likeRepository, ISavedPostRepository savedPostRepository, IUserRepository userRepository,IAppLogger<PostController> logger)
@@ -100,6 +101,35 @@ public class PostController : ControllerBase
         return Ok();
     }
 
+    [HttpPut("updatePost")]
+    public async Task<IActionResult> UpdatePost([FromForm] UpdatePostRequest request)
+    {
+        var command = new EditPostCommand()
+        {
+            Id = request.Id,
+            Caption = request.Caption,
+            Tags = request.Tags,
+            PostMedias = request.PostMedias,
+            Thumbnail = request.Thumbnail,
+        };
+
+        var handler = new EditPostCommandHandler(_postRepository, _postMediaStorageService, _tagRepository, _userService);
+        
+        await handler.Handle(command, new CancellationToken());
+        return Ok();
+    }
+    
+    [HttpDelete("deletePost/{postId}")]
+    public async Task<IActionResult> UpdatePost(long postId)
+    {
+        var command = new DeletePostCommand(new PostId(postId));
+
+        var handler = new DeletePostCommandHandler(_postRepository, _userService);
+        
+        await handler.Handle(command, new CancellationToken());
+        return Ok();
+    }
+    
     [HttpPost("like")]
     public async Task<IActionResult> LikePostAsync([FromBody] LikePostRequest likeRequest)
     {
