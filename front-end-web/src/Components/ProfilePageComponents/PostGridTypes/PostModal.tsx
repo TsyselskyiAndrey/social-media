@@ -1,28 +1,77 @@
 import React, { useState } from "react";
 import { Dialog, DialogPanel } from "@headlessui/react";
 import { Post } from "../../../API/agent";
+import { Box, IconButton, Avatar, Typography, Menu, MenuItem } from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import SendIcon from "@mui/icons-material/Send";
+
+import Like from "../../MainPageComponents/Post/Like/Like";
+import Comments from "../../MainPageComponents/Post/Comment/Comment";
+import Bookmark from "../../MainPageComponents/Post/Bookmark/Bookmark";
+import Agent from "../../../API/agent";
 
 interface PostModalProps {
   isOpen: boolean;
   onClose: () => void;
   post: Post;
+  onPostUpdate?: (updatedPost: Post) => void;
 }
 
-const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, post }) => {
-  const [likes, setLikes] = useState(0);
-  const [comments, setComments] = useState<string[]>([]);
-  const [commentText, setCommentText] = useState("");
+const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, post, onPostUpdate }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [showComments, setShowComments] = useState(false);
+  const [currentPost, setCurrentPost] = useState<Post>(post);
 
-  const handleLike = () => setLikes((prev) => prev + 1);
-
-  const handleAddComment = () => {
-    if (commentText.trim() === "") return;
-    setComments((prev) => [...prev, commentText.trim()]);
-    setCommentText("");
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    setAnchorEl(event.currentTarget);
   };
 
-  const media = post.postMedias[0];
-  const isVideo = media?.format.startsWith("video");
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleCommentIconClick = () => {
+    setShowComments((prev) => !prev);
+  };
+
+  const handleLike = async () => {
+    try {
+      const result = await Agent.Posts.likePost(post.id);
+      setCurrentPost(prev => ({
+        ...prev,
+        isLiked: result.data,
+        likes: prev.likes + (result.data ? 1 : -1)
+      }));
+      return result.data;
+    } catch (error) {
+      console.error("Помилка при лайку поста", error);
+      return currentPost.isLiked;
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const result = await Agent.Posts.savePost(post.id);
+      const updatedPost = {
+        ...currentPost,
+        isSaved: result.data
+      };
+      setCurrentPost(updatedPost);
+
+      if (onPostUpdate) {
+        onPostUpdate(updatedPost);
+      }
+      return result.data;
+    } catch (error) {
+      console.error("Помилка при збереженні поста", error);
+      return currentPost.isSaved;
+    }
+  };
+
+  const media = currentPost.postMedias[0];
+  const isVideo = media?.postMediaType.startsWith("Video");
 
   return (
     <Dialog
@@ -32,82 +81,162 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, post }) => {
     >
       <div className="fixed inset-0 bg-black/60" aria-hidden="true" />
 
-      <DialogPanel className="relative bg-white rounded-lg shadow-lg max-w-md w-full max-h-[80vh] flex flex-col overflow-hidden">
+      <DialogPanel className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 text-3xl font-bold leading-none"
+          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white text-3xl font-bold leading-none z-10"
           aria-label="Close modal"
         >
           &times;
         </button>
 
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            p: 2,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Avatar src={currentPost.authorIconUrl} />
+            <Typography fontWeight="bold">{currentPost.authorName}</Typography>
+          </Box>
+          <IconButton 
+            onClick={handleMenuClick} 
+            aria-label="settings" 
+            size="small"
+            sx={{
+              transition: 'transform 0.2s',
+              '&:hover': {
+                transform: 'scale(1.1)',
+                color: 'primary.main'
+              }
+            }}
+          >
+            <MoreVertIcon />
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+            sx={{
+              '& .MuiPaper-root': {
+                borderRadius: 2,
+                minWidth: 180,
+                boxShadow: '0px 5px 15px rgba(0,0,0,0.15)',
+                mt: 1.5,
+                '& .MuiMenu-list': {
+                  padding: '8px 0',
+                },
+              },
+            }}
+            TransitionProps={{
+              enter: true,
+              appear: true,
+              timeout: 250,
+            }}
+          >
+            <MenuItem 
+              onClick={() => alert("Редагувати пост")}
+              sx={{
+                mx: 1,
+                borderRadius: 1,
+                fontWeight: 'bold',
+                fontSize: '0.95rem',
+                py: 1.2,
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                  transition: 'all 0.2s',
+                },
+              }}
+            >
+              Редагувати
+            </MenuItem>
+            <MenuItem 
+              onClick={() => alert("Видалити пост")}
+              sx={{
+                mx: 1,
+                borderRadius: 1,
+                fontWeight: 'bold',
+                fontSize: '0.95rem',
+                py: 1.2,
+                color: 'error.main',
+                '&:hover': {
+                  bgcolor: 'error.light',
+                  color: 'error.dark',
+                  transition: 'all 0.2s',
+                },
+              }}
+            >
+              Видалити
+            </MenuItem>
+          </Menu>
+        </Box>
+
         {isVideo ? (
           <video
             src={media.mediaUrl}
             controls
-            className="w-full max-h-72 object-contain bg-black"
+            className="w-full max-h-[50vh] object-contain bg-black"
+            poster={media.thumbnailUrl ?? undefined}
           />
         ) : (
           <img
             src={media.mediaUrl}
             alt="Post"
-            className="w-full h-auto object-cover max-h-72"
+            className="w-full max-h-[50vh] object-contain"
           />
         )}
 
-        <div className="p-4 flex flex-col gap-3 flex-grow overflow-auto">
-          <h3 className="font-semibold">{post.authorName}</h3>
-          {post.caption && (
-            <p className="text-gray-700 text-sm">{post.caption}</p>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: 2,
+            py: 1.5,
+            borderTop: "1px solid",
+            borderColor: "divider",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Like
+              initialCount={currentPost.likes}
+              initiallyLiked={currentPost.isLiked}
+              onLike={handleLike}
+            />
+
+            <IconButton 
+              aria-label="comment" 
+              onClick={handleCommentIconClick} 
+              size="small"
+            >
+              <ChatBubbleOutlineIcon />
+            </IconButton>
+            <IconButton aria-label="share" size="small">
+              <SendIcon />
+            </IconButton>
+          </Box>
+          <Bookmark
+            initiallySaved={currentPost.isSaved}
+            onSave={handleSave}
+          />
+        </Box>
+
+        <Box sx={{ px: 2, pb: 1 }}>
+          <Typography component="span">{currentPost.caption}</Typography>
+        </Box>
+
+        <Box sx={{ px: 2, pb: 2, maxHeight: "30vh", overflowY: "auto" }}>
+          {showComments && (
+            <Comments initialComments={[]} showCommentInput={showComments} />
           )}
-
-          <button
-            onClick={handleLike}
-            className="self-start text-red-600 hover:text-red-700 font-semibold"
-            aria-label="Like post"
-          >
-            ❤️ {likes > 0 ? `Лайки: ${likes}` : "Поставити лайк"}
-          </button>
-
-          <div className="flex flex-col gap-2">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Напиши коментар..."
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                className="flex-grow border rounded px-2 py-1 focus:outline-blue-500"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAddComment();
-                  }
-                }}
-              />
-              <button
-                onClick={handleAddComment}
-                className="bg-blue-600 text-white px-3 rounded hover:bg-blue-700 transition"
-              >
-                Надіслати
-              </button>
-            </div>
-
-            <div className="max-h-36 overflow-auto text-gray-800 text-sm">
-              {comments.length === 0 ? (
-                <p className="italic text-gray-400">Немає коментарів</p>
-              ) : (
-                comments.map((c, i) => (
-                  <p
-                    key={i}
-                    className="border-b border-gray-200 pb-1 last:border-0"
-                  >
-                    {c}
-                  </p>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
+        </Box>
       </DialogPanel>
     </Dialog>
   );
