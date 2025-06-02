@@ -103,6 +103,40 @@ interface PostMedia {
   position: number;
 }
 
+export interface CommentUser {
+  id: number;
+  userName: string;
+  profileImageUrl: string | null;
+}
+
+export interface Comment {
+  id: number;
+  author: CommentUser;
+  content: string;
+  childComments: Comment[];
+  isLiked: boolean;
+  likes: number;
+}
+
+export interface CreateCommentRequest {
+  postId: number;
+  content: string;
+  parentCommentId?: number | null;
+}
+
+export interface EditCommentRequest {
+  commentId: number;
+  content: string;
+}
+
+export interface DeleteCommentRequest {
+  commentId: number;
+}
+
+export interface LikeCommentRequest {
+  commentId: number;
+}
+
 const Auth = {
   login: (loginData: LoginData) =>
     axios.post<AuthResponse>("/api/auth/login", loginData, {
@@ -275,6 +309,53 @@ const Posts = {
   },
 };
 
+const Comments = {
+  getComments: async (postId: number) => {
+    return await axiosWithToken.get<Comment[]>("/api/comment/getComments", {
+      params: { postId },
+      withCredentials: true,
+    });
+  },
+
+  createComment: async (data: CreateCommentRequest) => {
+    const formData = new FormData();
+    formData.append("Content", data.content);
+    formData.append("PostId", data.postId.toString());
+    if (data.parentCommentId !== undefined && data.parentCommentId !== null) {
+      formData.append("ParentCommentId", data.parentCommentId.toString());
+    }
+
+    const response = await axiosWithToken.post("/api/comment/createComment", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+
+    return response.data as Comment;
+  },
+
+  editComment: async (data: EditCommentRequest) => {
+    return await axiosWithToken.patch("/api/comment/editComment", data, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+  },
+
+  deleteComment: async (data: DeleteCommentRequest) => {
+    return await axiosWithToken.delete("/api/comment/deleteComment", {
+      data,
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+  },
+
+  likeComment: async (data: LikeCommentRequest) => {
+    return await axiosWithToken.patch<boolean>("/api/comment/likeComment", data, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+  },
+};
+
 const Tags = {
   getAllTags: async () => {
     return await axiosWithToken.get<Tag[]>("/api/post/getAllTags");
@@ -291,6 +372,7 @@ const Agent = {
   Auth,
   Payment,
   Posts,
+  Comments,
   Tags,
   User,
 };

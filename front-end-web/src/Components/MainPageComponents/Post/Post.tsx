@@ -7,7 +7,7 @@ import SendIcon from "@mui/icons-material/Send";
 import Like from "./Like/Like";
 import Comments from "./Comment/Comment";
 import Bookmark from "./Bookmark/Bookmark";
-import { Post as PostType} from "../../../API/agent";
+import { Post as PostType } from "../../../API/agent";
 import Agent from "../../../API/agent";
 
 interface PostProps {
@@ -85,16 +85,16 @@ const Post: React.FC<PostProps> = ({ post }) => {
           <Avatar src={post.authorIconUrl} />
           <Typography fontWeight="bold">{post.authorName}</Typography>
         </Box>
-        <IconButton 
-          onClick={handleMenuClick} 
-          aria-label="settings" 
+        <IconButton
+          onClick={handleMenuClick}
+          aria-label="settings"
           size="small"
           sx={{
-            transition: 'transform 0.2s',
-            '&:hover': {
-              transform: 'scale(1.1)',
-              color: 'primary.main'
-            }
+            transition: "transform 0.2s",
+            "&:hover": {
+              transform: "scale(1.1)",
+              color: "primary.main",
+            },
           }}
         >
           <MoreVertIcon />
@@ -106,13 +106,13 @@ const Post: React.FC<PostProps> = ({ post }) => {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
           sx={{
-            '& .MuiPaper-root': {
+            "& .MuiPaper-root": {
               borderRadius: 2,
               minWidth: 180,
-              boxShadow: '0px 5px 15px rgba(0,0,0,0.15)',
+              boxShadow: "0px 5px 15px rgba(0,0,0,0.15)",
               mt: 1.5,
-              '& .MuiMenu-list': {
-                padding: '8px 0',
+              "& .MuiMenu-list": {
+                padding: "8px 0",
               },
             },
           }}
@@ -122,35 +122,35 @@ const Post: React.FC<PostProps> = ({ post }) => {
             timeout: 250,
           }}
         >
-          <MenuItem 
+          <MenuItem
             onClick={() => alert("Редагувати пост")}
             sx={{
               mx: 1,
               borderRadius: 1,
-              fontWeight: 'bold',
-              fontSize: '0.95rem',
+              fontWeight: "bold",
+              fontSize: "0.95rem",
               py: 1.2,
-              '&:hover': {
-                bgcolor: 'action.hover',
-                transition: 'all 0.2s',
+              "&:hover": {
+                bgcolor: "action.hover",
+                transition: "all 0.2s",
               },
             }}
           >
             Редагувати
           </MenuItem>
-          <MenuItem 
+          <MenuItem
             onClick={() => alert("Видалити пост")}
             sx={{
               mx: 1,
               borderRadius: 1,
-              fontWeight: 'bold',
-              fontSize: '0.95rem',
+              fontWeight: "bold",
+              fontSize: "0.95rem",
               py: 1.2,
-              color: 'error.main',
-              '&:hover': {
-                bgcolor: 'error.light',
-                color: 'error.dark',
-                transition: 'all 0.2s',
+              color: "error.main",
+              "&:hover": {
+                bgcolor: "error.light",
+                color: "error.dark",
+                transition: "all 0.2s",
               },
             }}
           >
@@ -160,20 +160,11 @@ const Post: React.FC<PostProps> = ({ post }) => {
       </Box>
 
       {media && media.postMediaType === "Photo" && (
-        <img
-          src={media.mediaUrl}
-          alt="Post"
-          style={{ width: "100%", height: "auto", objectFit: "cover" }}
-        />
+        <img src={media.mediaUrl} alt="Post" style={{ width: "100%", height: "auto", objectFit: "cover" }} />
       )}
 
       {media && media.postMediaType === "Video" && (
-        <video
-          controls
-          poster={media.thumbnailUrl ?? undefined}
-          src={media.mediaUrl}
-          style={{ width: "100%", height: "auto", objectFit: "cover" }}
-        />
+        <video controls poster={media.thumbnailUrl ?? undefined} src={media.mediaUrl} style={{ width: "100%", height: "auto", objectFit: "cover" }} />
       )}
 
       <Box
@@ -188,11 +179,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Like
-            initialCount={likesCount}
-            initiallyLiked={isLiked}
-            onLike={handleLike}
-          />
+          <Like initialCount={likesCount} initiallyLiked={isLiked} onLike={handleLike} />
 
           <IconButton aria-label="comment" onClick={handleCommentIconClick} size="small">
             <ChatBubbleOutlineIcon />
@@ -201,21 +188,14 @@ const Post: React.FC<PostProps> = ({ post }) => {
             <SendIcon />
           </IconButton>
         </Box>
-        <Bookmark
-          initiallySaved={isSaved}
-          onSave={handleSave}
-        />
+        <Bookmark initiallySaved={isSaved} onSave={handleSave} />
       </Box>
 
       <Box sx={{ px: 2, pb: 1 }}>
         <Typography component="span">{post.caption}</Typography>
       </Box>
 
-      <Box sx={{ px: 3, pb: 2 }}>
-        {showComments && (
-          <Comments initialComments={[]} showCommentInput={showComments} />
-        )}
-      </Box>
+      <Box sx={{ px: 3, pb: 2 }}>{showComments && <Comments showCommentInput={showComments} postId={post.id} />}</Box>
     </Box>
   );
 };
