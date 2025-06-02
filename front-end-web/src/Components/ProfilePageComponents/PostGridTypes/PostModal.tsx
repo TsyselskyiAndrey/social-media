@@ -59,7 +59,7 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, post, onPostUpda
         isSaved: result.data
       };
       setCurrentPost(updatedPost);
-
+      // Додаємо виклик функції оновлення поста в списку
       if (onPostUpdate) {
         onPostUpdate(updatedPost);
       }
@@ -84,7 +84,7 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, post, onPostUpda
       <DialogPanel className="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden">
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white text-3xl font-bold leading-none z-10"
+          className="absolute top-1 right-2 text-red-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white text-3xl font-bold leading-none z-10"
           aria-label="Close modal"
         >
           &times;
@@ -234,7 +234,7 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, post, onPostUpda
 
         <Box sx={{ px: 2, pb: 2, maxHeight: "30vh", overflowY: "auto" }}>
           {showComments && (
-            <Comments initialComments={[]} showCommentInput={showComments} />
+            <Comments postId={currentPost.id} showCommentInput={showComments} />
           )}
         </Box>
       </DialogPanel>

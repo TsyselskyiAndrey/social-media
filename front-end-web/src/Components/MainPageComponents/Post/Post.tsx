@@ -195,7 +195,11 @@ const Post: React.FC<PostProps> = ({ post }) => {
         <Typography component="span">{post.caption}</Typography>
       </Box>
 
-      <Box sx={{ px: 3, pb: 2 }}>{showComments && <Comments showCommentInput={showComments} postId={post.id} />}</Box>
+      <Box sx={{ px: 3, pb: 2 }}>
+        {showComments && (
+          <Comments postId={post.id} showCommentInput={showComments} />
+        )}
+      </Box>
     </Box>
   );
 };

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Agent from "../../../API/agent";
 import { Post } from "../../../API/agent";
 import PostModal from "./PostModal";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 
 interface SavedTabProps {
   viewMode?: "grid" | "list";
@@ -76,6 +77,12 @@ const SavedTab: React.FC<SavedTabProps> = ({ viewMode = "grid" }) => {
             style={{ animationDelay: `${index * 50}ms` }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+            
+            {/* Додаємо іконку закладки */}
+            <div className="absolute top-3 left-3 bg-blue-600 bg-opacity-90 rounded-full p-2 z-20">
+              <BookmarkIcon className="w-4 h-4 text-white" />
+            </div>
+            
             {media.postMediaType.startsWith("Video") ? (
               <>
                 <video
@@ -146,6 +153,12 @@ const SavedTab: React.FC<SavedTabProps> = ({ viewMode = "grid" }) => {
           >
             <div className="relative w-40 h-40 sm:w-48 sm:h-48 flex-shrink-0 overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+              
+              {/* Додаємо іконку закладки для list view */}
+              <div className="absolute top-2 left-2 bg-blue-600 bg-opacity-90 rounded-full p-1.5 z-20">
+                <BookmarkIcon className="w-3.5 h-3.5 text-white" />
+              </div>
+              
               {media.postMediaType.startsWith("Video") ? (
                 <div className="relative w-full h-full">
                   <video

@@ -6,6 +6,7 @@ import Agent from "../../API/agent";
 import { Tag, Post } from "../../API/agent";
 import "./SearchPage.css";
 import { useToast } from '../../Contexts/ToastContext';
+import PostModal from '../../Components/ProfilePageComponents/PostGridTypes/PostModal';
 
 interface User {
   id: number;
@@ -27,6 +28,8 @@ const SearchPage: React.FC = () => {
   const [isAnimatingOut, setIsAnimatingOut] = useState(false);
   const [popularTags, setPopularTags] = useState<Tag[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   // Заглушка для користувачів (в реальному проекті API виклик)
   const mockUsers = [
@@ -39,6 +42,23 @@ const SearchPage: React.FC = () => {
 
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
 
+  const openModal = (post: Post) => {
+    setSelectedPost(post);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedPost(null);
+  };
+
+  const updatePostInList = (updatedPost: Post) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post.id === updatedPost.id ? updatedPost : post
+      )
+    );
+  };
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -287,7 +307,7 @@ const SearchPage: React.FC = () => {
             </Box>
           )}
 
-          <Box className="posts-grid" sx={{ minHeight: '300px', width: '100%' }}>
+          <Box className="posts-grid" sx={{ minHeight: '300px', width: '100%' }}>            
             {isLoading ? (
               <Box sx={{ textAlign: 'center', py: 4 }}>
                 <Typography>Завантаження...</Typography>
@@ -295,7 +315,11 @@ const SearchPage: React.FC = () => {
             ) : posts.length > 0 ? (
               <div className="grid grid-cols-3 gap-1 md:gap-2">
                 {posts.map((post) => (
-                  <div key={post.id} className="aspect-square overflow-hidden bg-gray-100 rounded-md">
+                  <div 
+                    key={post.id} 
+                    className="aspect-square overflow-hidden bg-gray-100 rounded-md cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => openModal(post)}
+                  >
                     {post.postMedias && post.postMedias.length > 0 && (
                       post.postMedias[0].format.startsWith('video') ? (
                         <div className="relative w-full h-full">
@@ -338,6 +362,15 @@ const SearchPage: React.FC = () => {
           </Box>
         </Box>
       </Box>
+      
+      {selectedPost && (
+        <PostModal
+          isOpen={modalOpen}
+          onClose={closeModal}
+          post={selectedPost}
+          onPostUpdate={updatePostInList}
+        />
+      )}
     </>
   );
 };
