@@ -8,7 +8,6 @@ import 'package:glowee/bloc/post_bloc/post_states.dart';
 import 'package:glowee/model/post.dart';
 import 'package:glowee/util/error_dialog.dart';
 import 'package:glowee/util/image_cached.dart';
-import 'package:glowee/widgets/follow_button.dart';
 import 'package:glowee/widgets/navigation_menu.dart';
 
 class RecommendationScreen extends StatefulWidget {
@@ -19,10 +18,6 @@ class RecommendationScreen extends StatefulWidget {
 }
 
 class _RecommendationScreenState extends State<RecommendationScreen> {
-  final _searchController = TextEditingController();
-  final _searchFocusNode = FocusNode();
-  bool _isFocused = false;
-
   List<Post> _posts = [];
   final ScrollController _scrollController = ScrollController();
   bool _hasMore = true;
@@ -32,11 +27,6 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
   @override
   void initState() {
     super.initState();
-    _searchFocusNode.addListener(() {
-      setState(() {
-        _isFocused = _searchFocusNode.hasFocus;
-      });
-    });
 
     context.read<PostBloc>().add(LoadPostsEvent(postAmount: postAmount));
 
@@ -55,8 +45,6 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
 
   @override
   void dispose() {
-    _searchController.dispose();
-    _searchFocusNode.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -116,80 +104,7 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
                         ),
                       )
                     else
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12.w,
-                            vertical: 25.h,
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (_isFocused) ...[
-                                Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 8.w),
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      _searchFocusNode.unfocus();
-                                    },
-                                    child: const Icon(Icons.arrow_back_ios),
-                                  ),
-                                ),
-                              ],
-                              Expanded(
-                                child: Container(
-                                  width: double.infinity,
-                                  height: 45.h,
-                                  decoration: BoxDecoration(
-                                    color:
-                                        const Color.fromRGBO(238, 238, 238, 1),
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(10.r),
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 5.w),
-                                    child: Row(
-                                      children: [
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 8.w),
-                                          child: const Icon(
-                                            Icons.search,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                        SizedBox(width: 10.w),
-                                        Expanded(
-                                          child: TextField(
-                                            controller: _searchController,
-                                            focusNode: _searchFocusNode,
-                                            textAlignVertical:
-                                                TextAlignVertical.center,
-                                            decoration: const InputDecoration(
-                                              isCollapsed: true,
-                                              hintText: 'Search',
-                                              hintStyle: TextStyle(
-                                                color: Colors.black,
-                                              ),
-                                              enabledBorder: InputBorder.none,
-                                              focusedBorder: InputBorder.none,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    _isFocused
-                        ? _buildSuggestionsList()
-                        : _buildRecommendation(),
+                      _buildRecommendation(),
                   ],
                 ),
               ),
@@ -205,18 +120,15 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
       delegate: SliverChildBuilderDelegate(
         (context, index) {
           if (index < _posts.length) {
-            return GestureDetector(
-              child: CachedImage(_posts[index].postMedia.first.mediaUrl),
+            return CachedImage(_posts[index].postMedia.first.mediaUrl);
+          }
+          if (_hasMore) {
+            return Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
             );
-          } else {
-            if (_hasMore) {
-              return Padding(
-                padding: EdgeInsets.all(16.w),
-                child: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
           }
         },
         childCount: _posts.length,
@@ -231,30 +143,6 @@ class _RecommendationScreenState extends State<RecommendationScreen> {
           const QuiltedGridTile(2, 2),
           const QuiltedGridTile(1, 1),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSuggestionsList() {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-        (BuildContext context, int index) {
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 5.h, horizontal: 5.w),
-            child: ListTile(
-              leading: CircleAvatar(
-                radius: 20,
-                backgroundImage: null,
-              ),
-              title: Text(
-                'User $index',
-                style: TextStyle(fontSize: 18.sp),
-              ),
-              trailing: const FollowButton(),
-            ),
-          );
-        },
-        childCount: 10,
       ),
     );
   }
