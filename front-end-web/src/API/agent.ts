@@ -224,7 +224,13 @@ const Auth = {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
-};
+  
+  logout: () =>
+      axiosWithToken.post("/api/auth/logout",
+        {},
+        { withCredentials: true,}
+      ),
+  };
 
 const Payment = {
   getConfig: async () => {
@@ -244,6 +250,18 @@ const Payment = {
         withCredentials: true,
       })
       .then((res) => res.data),
+  upgradeSubscription: (body: { priceId: string }) =>
+        axiosWithToken
+          .post("/api/subscription/upgrade", body, {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          })
+          .then((res) => res.data),
+  cancelSubscription: (body: { priceId: string }) =>
+        axiosWithToken.post("/api/subscription/cancel", body, {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }),
 };
 
 const Posts = {
@@ -343,6 +361,53 @@ const Posts = {
   }
 };
 
+const Comments = {
+  getComments: async (postId: number) => {
+    return await axiosWithToken.get<Comment[]>("/api/comment/getComments", {
+      params: { postId },
+      withCredentials: true,
+    });
+  },
+
+  createComment: async (data: CreateCommentRequest) => {
+    const formData = new FormData();
+    formData.append("Content", data.content);
+    formData.append("PostId", data.postId.toString());
+    if (data.parentCommentId !== undefined && data.parentCommentId !== null) {
+      formData.append("ParentCommentId", data.parentCommentId.toString());
+    }
+
+    const response = await axiosWithToken.post("/api/comment/createComment", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
+    });
+
+    return response.data as Comment;
+  },
+
+  editComment: async (data: EditCommentRequest) => {
+    return await axiosWithToken.patch("/api/comment/editComment", data, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+  },
+
+  deleteComment: async (data: DeleteCommentRequest) => {
+    return await axiosWithToken.delete("/api/comment/deleteComment", {
+      data,
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+  },
+
+  likeComment: async (data: LikeCommentRequest) => {
+    return await axiosWithToken.patch<boolean>("/api/comment/likeComment", data, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+  },
+};
+
 const Tags = {
   getAllTags: async () => {
     return await axiosWithToken.get<Tag[]>("/api/post/getAllTags");
@@ -376,6 +441,7 @@ const Agent = {
   Auth,
   Payment,
   Posts,
+  Comments,
   Tags,
   User,
 };
