@@ -5,6 +5,8 @@ import { Box, IconButton, Avatar, Typography, Menu, MenuItem } from "@mui/materi
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import SendIcon from "@mui/icons-material/Send";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 import Like from "../../MainPageComponents/Post/Like/Like";
 import Comments from "../../MainPageComponents/Post/Comment/Comment";
@@ -22,6 +24,7 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, post, onPostUpda
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [showComments, setShowComments] = useState(false);
   const [currentPost, setCurrentPost] = useState<Post>(post);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
@@ -70,8 +73,21 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, post, onPostUpda
     }
   };
 
-  const media = currentPost.postMedias[0];
+  const handlePrevMedia = () => {
+    if (currentMediaIndex > 0) {
+      setCurrentMediaIndex(prev => prev - 1);
+    }
+  };
+
+  const handleNextMedia = () => {
+    if (currentMediaIndex < currentPost.postMedias.length - 1) {
+      setCurrentMediaIndex(prev => prev + 1);
+    }
+  };
+
+  const media = currentPost.postMedias[currentMediaIndex];
   const isVideo = media?.postMediaType.startsWith("Video");
+  const hasMultipleMedia = currentPost.postMedias.length > 1;
 
   return (
     <Dialog
@@ -178,20 +194,52 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, post, onPostUpda
           </Menu>
         </Box>
 
-        {isVideo ? (
-          <video
-            src={media.mediaUrl}
-            controls
-            className="w-full max-h-[50vh] object-contain bg-black"
-            poster={media.thumbnailUrl ?? undefined}
-          />
-        ) : (
-          <img
-            src={media.mediaUrl}
-            alt="Post"
-            className="w-full max-h-[50vh] object-contain"
-          />
-        )}
+        <div className="relative">
+          {isVideo ? (
+            <video
+              src={media.mediaUrl}
+              controls
+              className="w-full max-h-[50vh] object-contain bg-black"
+              poster={media.thumbnailUrl ?? undefined}
+            />
+          ) : (
+            <img
+              src={media.mediaUrl}
+              alt="Post"
+              className="w-full max-h-[50vh] object-contain"
+            />
+          )}
+          
+          {hasMultipleMedia && (
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1">
+              {currentPost.postMedias.map((_, index) => (
+                <div 
+                  key={index} 
+                  className={`w-2 h-2 rounded-full ${index === currentMediaIndex ? 'bg-blue-500' : 'bg-gray-300'}`}
+                  onClick={() => setCurrentMediaIndex(index)}
+                />
+              ))}
+            </div>
+          )}
+          
+          {hasMultipleMedia && currentMediaIndex > 0 && (
+            <button
+              onClick={handlePrevMedia}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/70 dark:bg-black/70 rounded-full p-1 hover:bg-white/90 dark:hover:bg-black/90 transition-colors"
+            >
+              <ArrowBackIosNewIcon fontSize="small" />
+            </button>
+          )}
+          
+          {hasMultipleMedia && currentMediaIndex < currentPost.postMedias.length - 1 && (
+            <button
+              onClick={handleNextMedia}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/70 dark:bg-black/70 rounded-full p-1 hover:bg-white/90 dark:hover:bg-black/90 transition-colors"
+            >
+              <ArrowForwardIosIcon fontSize="small" />
+            </button>
+          )}
+        </div>
 
         <Box
           sx={{

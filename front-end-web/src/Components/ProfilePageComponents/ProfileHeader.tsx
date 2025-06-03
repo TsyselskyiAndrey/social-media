@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useNavigate } from "react-router-dom";
 import { UserProfileInfo } from "../../API/agent";
@@ -9,6 +9,7 @@ interface Props {
 
 const ProfileHeader: React.FC<Props> = ({ profile }) => {
   const navigate = useNavigate();
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const goToSettings = () => {
     navigate("/settings");
@@ -16,6 +17,11 @@ const ProfileHeader: React.FC<Props> = ({ profile }) => {
 
   const goToEditProfile = () => {
     navigate("/editpage");
+  };
+
+  const toggleFollow = () => {
+    setIsFollowing(prev => !prev);
+    // TODO: Додати API виклик для підписки/відписки
   };
 
   return (
@@ -50,6 +56,14 @@ const ProfileHeader: React.FC<Props> = ({ profile }) => {
         </div>
         <div className="flex flex-col items-end gap-3">
           <button
+            aria-label="Налаштування профілю"
+            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 hover:rotate-12 hover:scale-110 active:scale-95"
+            title="Налаштування"
+            onClick={goToSettings}
+          >
+            <SettingsIcon className="text-gray-700 dark:text-gray-200" />
+          </button>
+          <button
             onClick={goToEditProfile}
             className="px-5 py-1.5 border border-teal-600 bg-teal-600 text-white rounded-lg text-sm font-semibold 
             hover:bg-blue-700 hover:scale-105 hover:shadow-lg active:scale-95 
@@ -59,13 +73,15 @@ const ProfileHeader: React.FC<Props> = ({ profile }) => {
           >
             Редагувати профіль
           </button>
+          <div className="h-2"></div> {/* Пусте місце між кнопками */}
           <button
-            aria-label="Налаштування профілю"
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-300 hover:rotate-12 hover:scale-110 active:scale-95"
-            title="Налаштування"
-            onClick={goToSettings}
+            onClick={toggleFollow}
+            className={`px-5 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out
+            ${isFollowing 
+              ? "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600" 
+              : "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"}`}
           >
-            <SettingsIcon className="text-gray-700 dark:text-gray-200" />
+            {isFollowing ? "Відписатись" : "Підписатись"}
           </button>
         </div>
       </div>

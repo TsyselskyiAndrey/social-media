@@ -9,6 +9,8 @@ import Comments from "./Comment/Comment";
 import Bookmark from "./Bookmark/Bookmark";
 import { Post as PostType } from "../../../API/agent";
 import Agent from "../../../API/agent";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 interface PostProps {
   post: PostType;
@@ -20,6 +22,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
   const [isLiked, setIsLiked] = React.useState(post.isLiked);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [showComments, setShowComments] = React.useState(false);
+  const [currentMediaIndex, setCurrentMediaIndex] = React.useState(0);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -56,7 +59,22 @@ const Post: React.FC<PostProps> = ({ post }) => {
     }
   };
 
-  const media = post.postMedias[0];
+  // Додати функції для навігації між медіа
+  const handlePrevMedia = () => {
+    if (currentMediaIndex > 0) {
+      setCurrentMediaIndex(prev => prev - 1);
+    }
+  };
+  
+  const handleNextMedia = () => {
+    if (currentMediaIndex < post.postMedias.length - 1) {
+      setCurrentMediaIndex(prev => prev + 1);
+    }
+  };
+  
+  // Замінити const media = post.postMedias[0]; на:
+  const media = post.postMedias[currentMediaIndex];
+  const hasMultipleMedia = post.postMedias.length > 1;
 
   return (
     <Box
@@ -159,13 +177,55 @@ const Post: React.FC<PostProps> = ({ post }) => {
         </Menu>
       </Box>
 
-      {media && media.postMediaType === "Photo" && (
-        <img src={media.mediaUrl} alt="Post" style={{ width: "100%", height: "auto", objectFit: "cover" }} />
-      )}
-
-      {media && media.postMediaType === "Video" && (
-        <video controls poster={media.thumbnailUrl ?? undefined} src={media.mediaUrl} style={{ width: "100%", height: "auto", objectFit: "cover" }} />
-      )}
+      {/* Замінюємо блок з відображенням медіа на карусель */}
+      <div className="relative">
+        {media && media.postMediaType === "Photo" && (
+          <img 
+            src={media.mediaUrl} 
+            alt="Post" 
+            style={{ width: "100%", height: "auto", objectFit: "cover" }} 
+          />
+        )}
+      
+        {media && media.postMediaType === "Video" && (
+          <video 
+            controls 
+            poster={media.thumbnailUrl ?? undefined} 
+            src={media.mediaUrl} 
+            style={{ width: "100%", height: "auto", objectFit: "cover" }} 
+          />
+        )}
+        
+        {hasMultipleMedia && (
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1">
+            {post.postMedias.map((_, index) => (
+              <div 
+                key={index} 
+                className={`w-2 h-2 rounded-full ${index === currentMediaIndex ? 'bg-blue-500' : 'bg-gray-300'}`}
+                onClick={() => setCurrentMediaIndex(index)}
+              />
+            ))}
+          </div>
+        )}
+        
+        {hasMultipleMedia && currentMediaIndex > 0 && (
+          <button
+            onClick={handlePrevMedia}
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/70 dark:bg-black/70 rounded-full p-1 hover:bg-white/90 dark:hover:bg-black/90 transition-colors"
+          >
+            <ArrowBackIosNewIcon fontSize="small" />
+          </button>
+        )}
+        
+        {hasMultipleMedia && currentMediaIndex < post.postMedias.length - 1 && (
+          <button
+            onClick={handleNextMedia}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/70 dark:bg-black/70 rounded-full p-1 hover:bg-white/90 dark:hover:bg-black/90 transition-colors"
+          >
+            <ArrowForwardIosIcon fontSize="small" />
+          </button>
+        )}
+      </div>
 
       <Box
         sx={{
