@@ -440,10 +440,10 @@ const User = {
     });
   },
 
-  followUser: async (userId: number) => {
+  followUser: async (username: string) => {
     return await axiosWithToken.post(
       `/api/user/follow`,
-      { targetId: userId },
+      { targetUserName: username },
       {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
