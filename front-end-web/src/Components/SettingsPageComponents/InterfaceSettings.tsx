@@ -1,9 +1,10 @@
 import React from "react";
 import { useTheme } from "../../Contexts/ThemeContext";
+import useAuth from "../../Hooks/useAuth";
 
 const InterfaceSettings: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
-
+  const { auth } = useAuth();
   return (
     <div className="bg-white dark:bg-cyan-950 p-6 rounded-lg shadow space-y-6">
       <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
@@ -19,19 +20,20 @@ const InterfaceSettings: React.FC = () => {
             Перемикання між світлою та темною темами
           </p>
         </div>
-
-        <button
-          onClick={toggleTheme}
-          className={`relative w-14 h-8 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 ${
-            theme === "dark" ? "bg-teal-600" : "bg-gray-300"
-          }`}
-        >
-          <span
-            className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-all duration-300 ease-in-out ${
-              theme === "dark" ? "translate-x-6" : ""
-            }`}
-          ></span>
-        </button>
+          <button
+            onClick={toggleTheme}
+            disabled={!auth || auth.subscriptions.length === 0}
+            className={`relative w-14 h-8 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 
+              ${theme === "dark" ? "bg-teal-600" : "bg-gray-300"} 
+              ${!auth || auth.subscriptions.length === 0 ? "opacity-50 cursor-not-allowed hover:scale-100" : ""}
+            `}
+          >
+            <span
+              className={`absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-all duration-300 ease-in-out 
+                ${theme === "dark" ? "translate-x-6" : ""}
+              `}
+            ></span>
+          </button>
       </div>
     </div>
   );
