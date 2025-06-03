@@ -10,7 +10,7 @@ const Feed = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await Agent.Posts.getPosts(null, 10, null, null, null);
+        const response = await Agent.Posts.getPosts(null, 1000, null, null, null);
         setPosts(response.data);
       } catch (error) {
         console.error("Помилка при завантаженні постів", error);
