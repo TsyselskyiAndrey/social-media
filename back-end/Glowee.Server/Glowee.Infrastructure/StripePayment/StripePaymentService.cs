@@ -88,8 +88,8 @@ namespace Glowee.Infrastructure.StripePayment
                         Quantity = 1,
                     },
                 },
-                SuccessUrl = "http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}",
-                CancelUrl = "http://localhost:3000/payment-cancel",
+                SuccessUrl = "https://glowee-client-h7guetdrh5cjcwa6.northeurope-01.azurewebsites.net/payment-success?session_id={CHECKOUT_SESSION_ID}",
+                CancelUrl = "https://glowee-client-h7guetdrh5cjcwa6.northeurope-01.azurewebsites.net/payment-cancel",
             };
 
             var service = new SessionService();
@@ -126,8 +126,8 @@ namespace Glowee.Infrastructure.StripePayment
                         Quantity = 1
                     }
                 },
-                SuccessUrl = "http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}",
-                CancelUrl = "http://localhost:3000/payment-cancel",
+                SuccessUrl = "https://glowee-client-h7guetdrh5cjcwa6.northeurope-01.azurewebsites.net/payment-success?session_id={CHECKOUT_SESSION_ID}",
+                CancelUrl = "https://glowee-client-h7guetdrh5cjcwa6.northeurope-01.azurewebsites.net/payment-cancel",
                 Metadata = new Dictionary<string, string>
                 {
                     { "oldSubscriptionId", currentSub.StripeSubscriptionId }
