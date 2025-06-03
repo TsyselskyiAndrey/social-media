@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import DropzoneStep from './DropzoneStep';
-import ConfirmStep from './ConfirmStep';
-import PreviewStep from './PreviewStep';
-import SuccessStep from './SuccessStep';
-import Agent from '../../../API/agent';
+import React, { useState } from "react";
+import DropzoneStep from "./DropzoneStep";
+import ConfirmStep from "./ConfirmStep";
+import PreviewStep from "./PreviewStep";
+import Agent from "../../../API/agent";
+import { useToast } from "../../../Contexts/ToastContext";
 
 type PostMediaFile = File & { previewUrl: string };
 
@@ -14,11 +14,14 @@ type CreatePostProps = {
 const MAX_FILES = 10;
 
 const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
-  const [step, setStep] = useState<'dropzone' | 'confirm' | 'preview' | 'success'>('dropzone');
+  const [step, setStep] = useState<
+    "dropzone" | "confirm" | "preview"
+  >("dropzone");
   const [postMedias, setPostMedias] = useState<PostMediaFile[]>([]);
-  const [caption, setCaption] = useState('');
+  const [caption, setCaption] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const { showSuccess, showError } = useToast();
 
   const addFiles = (files: FileList | File[]) => {
     const availableSlots = MAX_FILES - postMedias.length;
@@ -46,26 +49,28 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
   const reset = () => {
     postMedias.forEach((file) => URL.revokeObjectURL(file.previewUrl));
     setPostMedias([]);
-    setCaption('');
+    setCaption("");
     setTags([]);
     setThumbnail(null);
-    setStep('dropzone');
+    setStep("dropzone");
   };
 
   return (
-    <div>
-      {step === 'dropzone' && (
+    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-6 rounded-lg">
+      {step === "dropzone" && (
         <DropzoneStep
           postMedias={postMedias}
           addFiles={addFiles}
           removeFile={removeFile}
-          onNext={() => (postMedias.length > 0 ? setStep('confirm') : alert('Додайте файли'))}
+          onNext={() =>
+            postMedias.length > 0 ? setStep("confirm") : showError("Додайте файли")
+          }
           maxFiles={MAX_FILES}
           onClose={onClose}
         />
       )}
 
-      {step === 'confirm' && (
+      {step === "confirm" && (
         <ConfirmStep
           caption={caption}
           setCaption={setCaption}
@@ -73,13 +78,13 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
           setTags={setTags}
           thumbnail={thumbnail}
           setThumbnail={setThumbnail}
-          onBack={() => setStep('dropzone')}
-          onNext={() => setStep('preview')}
+          onBack={() => setStep("dropzone")}
+          onNext={() => setStep("preview")}
           onClose={onClose}
         />
       )}
-      
-      {step === 'preview' && (
+
+      {step === "preview" && (
         <div className="w-full flex justify-center">
           <div className="min-w-[900px] max-w-[1200px] w-full">
             <PreviewStep
@@ -87,35 +92,29 @@ const CreatePost: React.FC<CreatePostProps> = ({ onClose }) => {
               caption={caption}
               tags={tags}
               thumbnail={thumbnail}
-                addFiles={addFiles}
-                onRemoveMedia={removeMedia}  
-                onBack={() => setStep('confirm')}
-                onSubmit={async () => {
-                  try {
-                    await Agent.Posts.createPost({
-                      caption,
-                      tags,
-                      postMedias,
-                      thumbnail,
+              addFiles={addFiles}
+              onRemoveMedia={removeMedia}
+              onBack={() => setStep("confirm")}
+              onSubmit={async () => {
+                try {
+                  await Agent.Posts.createPost({
+                    caption,
+                    tags,
+                    postMedias,
+                    thumbnail,
                   });
-                    setStep('success');
-                  } catch (error) {
-                    alert('Помилка при створенні поста');
-                    console.error(error);
-                  }
-                }}
-                onClose={onClose}
+                  showSuccess("Пост успішно створено! 🎉");
+                  reset();
+                  onClose();
+                } catch (error) {
+                  showError("Помилка при створенні поста");
+                  console.error(error);
+                }
+              }}
+              onClose={onClose}
             />
           </div>
         </div>
-      )}
-      {step === 'success' && (
-        <SuccessStep
-          onReset={() => {
-            reset();
-            onClose();
-          }}
-        />
       )}
     </div>
   );

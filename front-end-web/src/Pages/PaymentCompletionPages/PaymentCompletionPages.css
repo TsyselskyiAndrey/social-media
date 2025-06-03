@@ -51,3 +51,42 @@
 .back-link:hover {
   text-decoration: underline;
 }
+
+html.dark .payment-container {
+  background: #0c4c5c;
+  color: #f9fafb;
+}
+
+html.dark .payment-container.cancel {
+  background: #5a1a1a;
+}
+
+html.dark .payment-card {
+  background: #103444;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  color: #f9fafb;
+}
+
+html.dark .payment-card .icon {
+  color: #60d5a7;
+}
+
+html.dark .payment-card h1 {
+  color: #e6f4f1;
+}
+
+html.dark .payment-card p {
+  color: #d1d5db;
+}
+
+html.dark .back-link {
+  color: #60d5a7;
+}
+
+html.dark .payment-container.cancel .back-link {
+  color: #f87171;
+}
+
+html.dark .back-link:hover {
+  text-decoration: underline;
+}

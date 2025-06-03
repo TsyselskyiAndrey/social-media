@@ -48,3 +48,35 @@
   flex: 1;
   border-bottom: 2px solid #7a7a7a;
 }
+
+/* === DARK MODE for External Service Login === */
+html.dark .externalServiceLogin {
+  background-color: #0c4c5c;
+  color: #f9fafb;
+  border: 2px solid #083444;
+}
+
+html.dark .externalServiceLogin:disabled,
+html.dark .externalServiceLogin[disabled] {
+  background-color: #374151;
+  color: #9ca3af;
+}
+
+html.dark .externalServiceLogin:not(:disabled):hover {
+  background-color: #155e75;
+  border: 2px solid #60a5fa;
+}
+
+html.dark .externalServiceLogin:not(:disabled):active {
+  background-color: #164e63;
+}
+
+/* Dark mode for external service logo spacing can stay as-is, unless you'd like to tweak it */
+
+html.dark .divider {
+  color: #9ca3af;
+}
+
+html.dark .line {
+  border-bottom: 2px solid #374151;
+}

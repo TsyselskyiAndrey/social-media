@@ -5,9 +5,11 @@ import Feed from '../../Components/MainPageComponents/Feed/Feed';
 import RightSidebar from '../../Components/MainPageComponents/RightSidebar/RightSidebar';
 import CreatePost from '../../Components/MainPageComponents/CreatePost/CreatePost';
 import './MainPage.css';
+import { useTheme } from "../../Contexts/ThemeContext";
 
 const MainPage = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const { theme } = useTheme(); // <- just used to re-render on theme change
 
   useEffect(() => {
     if (showCreatePost) {
@@ -57,7 +59,7 @@ const MainPage = () => {
         <Box
           sx={{
             flex: 1,
-            flexBasis: { xs: "100%", md: "55%",  lg: "56%" },
+            flexBasis: { xs: "100%", md: "55%", lg: "56%" },
             minWidth: 700,
           }}
         >

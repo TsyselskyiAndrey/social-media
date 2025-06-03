@@ -100,15 +100,49 @@ export interface Post{
 }
 
 export interface PostMedia{
-  id : number;
-  mediaUrl : string;
-  postMediaType : string;
-  thumbnailUrl : string | null;
-  duration : number | null;
-  format : string;
-  size : number;
-  isUploaded : boolean;
-  position : number;
+  id: number;
+  mediaUrl: string;
+  postMediaType: string;
+  thumbnailUrl: string | null;
+  duration: number | null;
+  format: string;
+  size: number;
+  isUploaded: boolean;
+  position: number;
+}
+
+export interface CommentUser {
+  id: number;
+  userName: string;
+  profileImageUrl: string | null;
+}
+
+export interface Comment {
+  id: number;
+  author: CommentUser;
+  content: string;
+  childComments: Comment[];
+  isLiked: boolean;
+  likes: number;
+}
+
+export interface CreateCommentRequest {
+  postId: number;
+  content: string;
+  parentCommentId?: number | null;
+}
+
+export interface EditCommentRequest {
+  commentId: number;
+  content: string;
+}
+
+export interface DeleteCommentRequest {
+  commentId: number;
+}
+
+export interface LikeCommentRequest {
+  commentId: number;
 }
 
 export interface UpdateUserProfileInfo  {

@@ -1,5 +1,7 @@
+import React from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 import useAxiosWithToken from "./Hooks/useAxiosWithToken";
 import NotFound from "./Pages/NotFoundPage/NotFoundPage";
 import MainPage from "./Pages/MainPage/MainPage";
@@ -21,6 +23,11 @@ import PaymentSuccessPage from "./Pages/PaymentCompletionPages/PaymentSuccessPag
 import PaymentCancelPage from "./Pages/PaymentCompletionPages/PaymentCancelPage";
 import EditPage from "./Pages/EditPage/EditPage";
 import Saved from "./Pages/Settings/SavedPosts";
+import SearchPage from "./Pages/SearchPage/SearchPage";
+import { ToastProvider } from "./Contexts/ToastContext";
+import MuiThemeProvider from "./Contexts/MuiThemeProvider";
+import DownloadAppPage from './Pages/Settings/DownloadAppPage';
+
 function App() {
   const interceptorsReady = useAxiosWithToken();
 
@@ -32,8 +39,9 @@ function App() {
         <Route path="forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="resetpassword" element={<ResetPasswordPage />} />
         <Route element={<ProtectedRoutes />}>
-          <Route path="mainpage" element={<MainPage />} />
+          <Route index element={<MainPage />} />
           <Route path="editpage" element={<EditPage />} />
+          <Route path="search" element={<SearchPage />} />
           <Route path="subscriptions" element={<SubscriptionsPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
           <Route path="payment-cancel" element={<PaymentCancelPage />} />
@@ -43,18 +51,33 @@ function App() {
           <Route path="settings/activity" element={<ActivityPage />} />
           <Route path="settings/notifications" element={<NotificationsPage />} />
           <Route path="settings/saved" element={<Saved />} />
-        </Route>
+          <Route path="settings/download" element={<DownloadAppPage />} />
+       </Route>
         <Route path="*" element={<NotFound />} />
       </Route>
     )
   );
 
-  if (!interceptorsReady) return null; //Вместо null можно добавить страничку загрузк если есть желания. Но тут нет долгой операции
+  if (!interceptorsReady) return null;
 
   return (
     <ThemeProviderCustom>
-      <RouterProvider router={router} />
-      <ToastContainer position="top-right" autoClose={3000} />
+      <ToastProvider>
+        <RouterProvider router={router} />
+        
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+      </ToastProvider>
     </ThemeProviderCustom>
   );
 }

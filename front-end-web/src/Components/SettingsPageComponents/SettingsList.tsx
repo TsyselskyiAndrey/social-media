@@ -8,9 +8,13 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import useAuth from "../../Hooks/useAuth";
+import Agent from "../../API/agent";
+import { AxiosError } from "axios";
 
 const SettingsList: React.FC = () => {
   const navigate = useNavigate();
+  const { setAuth } = useAuth();
 
   const options = [
     { label: "Активність", icon: <AccessTimeIcon /> },
@@ -22,34 +26,56 @@ const SettingsList: React.FC = () => {
     { label: "Інтерфейс", icon: <AccessibilityNewIcon /> },
   ];
 
-const handleClick = (label: string) => {
-  switch (label) {
-    case "Активність":
-      navigate("/settings/activity");
-      break;
-    case "Сповіщення":
-      navigate("/settings/notifications");
-      break;
-    case "Збережені":
-      navigate("/settings/saved");
-      break;
-    case "Підписки":
-      navigate("../subscriptions");
-      break;
-    case "Акаунт":
-      navigate("/settings/account");
-      break;
-    case "Допомога":
-      navigate("/settings/help");
-      break;
-    case "Інтерфейс":
-      navigate("/settings/interface");
-      break;
-    default:
-      break;
-  }
-};
+  const handleClick = (label: string) => {
+    switch (label) {
+      case "Активність":
+        navigate("/settings/activity");
+        break;
+      case "Сповіщення":
+        navigate("/settings/notifications");
+        break;
+      case "Збережені":
+        navigate("/settings/saved");
+        break;
+      case "Підписки":
+        navigate("../subscriptions");
+        break;
+      case "Акаунт":
+        navigate("/settings/account");
+        break;
+      case "Допомога":
+        navigate("/settings/help");
+        break;
+      case "Інтерфейс":
+        navigate("/settings/interface");
+        break;
+      default:
+        break;
+    }
+  };
 
+  async function handleSignOut() {
+    if (!localStorage.getItem("accessToken")) {
+      setAuth(null);
+      return;
+    }
+
+    try {
+      const response = await Agent.Auth.logout();
+      if (response.status === 200) {
+        setAuth(null);
+        localStorage.removeItem("accessToken");
+        navigate("/");
+      }
+    } catch (err) {
+      const error = err as AxiosError;
+      if (!error.response) {
+        console.log("No Server Response");
+      } else {
+        console.error("Error during logging out:", error.response?.data || error.message);
+      }
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -57,25 +83,28 @@ const handleClick = (label: string) => {
         <div
           key={idx}
           onClick={() => handleClick(item.label)}
-          className="flex items-center justify-between bg-white p-5 rounded-xl shadow-md hover:shadow-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 ease-in-out cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 border border-gray-100 hover:border-blue-200"
+          className="flex items-center justify-between bg-white dark:bg-cyan-950 p-5 rounded-xl shadow-md hover:shadow-lg hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-300 ease-in-out cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 border border-gray-100 dark:border-cyan-900 hover:border-blue-200 dark:hover:border-teal-400"
         >
           <div className="flex items-center gap-5">
-            <div className="text-gray-700 hover:text-blue-600 transition-colors duration-300 transform hover:scale-110">
+            <div className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-teal-400 transition-colors duration-300 transform hover:scale-110">
               {item.icon}
             </div>
-            <span className="text-xl font-bold text-gray-900 hover:text-blue-700 transition-colors duration-300">
+            <span className="text-xl font-bold text-gray-900 dark:text-gray-100 hover:text-blue-700 dark:hover:text-teal-400 transition-colors duration-300">
               {item.label}
             </span>
           </div>
-          <ChevronRightIcon className="text-gray-500 hover:text-blue-600 transition-all duration-300 transform hover:translate-x-1" />
+          <ChevronRightIcon className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-teal-400 transition-all duration-300 transform hover:translate-x-1" />
         </div>
       ))}
 
-      <div className="flex items-center justify-between bg-white p-5 rounded-xl shadow-md hover:shadow-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-300 ease-in-out cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 border border-gray-100 hover:border-red-200">
-        <span className="text-xl font-bold text-red-600 hover:text-red-700 transition-colors duration-300">
+      <div
+        onClick={handleSignOut}
+        className="flex items-center justify-between bg-white dark:bg-cyan-950 p-5 rounded-xl shadow-md hover:shadow-lg hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 dark:hover:from-gray-700 dark:hover:to-gray-600 transition-all duration-300 ease-in-out cursor-pointer transform hover:scale-[1.02] hover:-translate-y-1 border border-gray-100 dark:border-cyan-900 hover:border-red-200 dark:hover:border-red-400"
+      >
+        <span className="text-xl font-bold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors duration-300">
           Log out
         </span>
-        <ChevronRightIcon className="text-red-500 hover:text-red-600 transition-all duration-300 transform hover:translate-x-1" />
+        <ChevronRightIcon className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 transition-all duration-300 transform hover:translate-x-1" />
       </div>
     </div>
   );

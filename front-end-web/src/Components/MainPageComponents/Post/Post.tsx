@@ -7,7 +7,7 @@ import MediaCarousel from "./Carousel/MediaCarousel";
 import Like from "./Like/Like";
 import Comments from "./Comment/Comment";
 import Bookmark from "./Bookmark/Bookmark";
-import { Post as PostType} from "../../../API/agent";
+import { Post as PostType } from "../../../API/agent";
 import Agent from "../../../API/agent";
 import AutoPlayVideo from "./Video/AutoplayVideo";
 import EditPostForm from "./../EditPost/EditPostForm";
@@ -110,7 +110,18 @@ const Post: React.FC<PostProps> = ({ post }) => {
           <Avatar src={post.authorIconUrl} />
           <Typography fontWeight="bold">{post.authorName}</Typography>
         </Box>
-        <IconButton onClick={handleMenuClick} aria-label="settings" size="small">
+        <IconButton
+          onClick={handleMenuClick}
+          aria-label="settings"
+          size="small"
+          sx={{
+            transition: "transform 0.2s",
+            "&:hover": {
+              transform: "scale(1.1)",
+              color: "primary.main",
+            },
+          }}
+        >
           <MoreVertIcon />
         </IconButton>
         <Menu
@@ -119,6 +130,22 @@ const Post: React.FC<PostProps> = ({ post }) => {
           onClose={handleMenuClose}
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
+          sx={{
+            "& .MuiPaper-root": {
+              borderRadius: 2,
+              minWidth: 180,
+              boxShadow: "0px 5px 15px rgba(0,0,0,0.15)",
+              mt: 1.5,
+              "& .MuiMenu-list": {
+                padding: "8px 0",
+              },
+            },
+          }}
+          TransitionProps={{
+            enter: true,
+            appear: true,
+            timeout: 250,
+          }}
         >
           <MenuItem
           onClick={() => {
@@ -133,19 +160,19 @@ const Post: React.FC<PostProps> = ({ post }) => {
         </Menu>
       </Box>
 
-      {post.postType === "Photo" && post.postMedias[0] && (
+      {media && media.postMediaType === "Photo" && (
         <img
-          src={post.postMedias[0].mediaUrl}
+          src={media.mediaUrl}
           alt="Post"
           style={{ width: "100%", height: "auto", objectFit: "cover" }}
         />
       )}
 
-      {post.postType === "Video" && post.postMedias[0] && (
-        <AutoPlayVideo
-          src={post.postMedias[0].mediaUrl}
-          poster={post.postMedias[0].thumbnailUrl ?? undefined}
+      {media && media.postMediaType === "Video" && (
+        <video
           controls
+          poster={media.thumbnailUrl ?? undefined}
+          src={media.mediaUrl}
           style={{ width: "100%", height: "auto", objectFit: "cover" }}
         />
       )}
@@ -169,11 +196,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <Like
-            initialCount={likesCount}
-            initiallyLiked={isLiked}
-            onLike={handleLike}
-          />
+          <Like initialCount={likesCount} initiallyLiked={isLiked} onLike={handleLike} />
 
           <IconButton aria-label="comment" onClick={handleCommentIconClick} size="small">
             <ChatBubbleOutlineIcon />
@@ -182,10 +205,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
             <SendIcon />
           </IconButton>
         </Box>
-        <Bookmark
-          initiallySaved={isSaved}
-          onSave={handleSave}
-        />
+        <Bookmark initiallySaved={isSaved} onSave={handleSave} />
       </Box>
 
       <Box sx={{ px: 2, pb: 1 }}>
@@ -194,7 +214,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
 
       <Box sx={{ px: 3, pb: 2 }}>
         {showComments && (
-          <Comments initialComments={[]} showCommentInput={showComments} />
+          <Comments postId={post.id} showCommentInput={showComments} />
         )}
       </Box>
     </Box>

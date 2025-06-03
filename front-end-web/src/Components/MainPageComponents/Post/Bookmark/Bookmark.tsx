@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import IconButton from '@mui/material/IconButton';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
@@ -10,6 +10,11 @@ interface BookmarkProps {
 
 const Bookmark: React.FC<BookmarkProps> = ({ initiallySaved, onSave }) => {
   const [saved, setSaved] = useState(initiallySaved);
+  
+  // Оновлюємо стан, коли змінюється initiallySaved
+  useEffect(() => {
+    setSaved(initiallySaved);
+  }, [initiallySaved]);
 
   React.useEffect(() => {
     setSaved(initiallySaved ?? false);
@@ -25,7 +30,19 @@ const Bookmark: React.FC<BookmarkProps> = ({ initiallySaved, onSave }) => {
   };
 
   return (
-    <IconButton aria-label="save" onClick={handleToggle} size="small">
+    <IconButton 
+      aria-label="save" 
+      onClick={handleToggle} 
+      size="small"
+      sx={{
+        color: saved ? 'primary.main' : 'inherit',
+        backgroundColor: saved ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
+        '&:hover': {
+          backgroundColor: saved ? 'rgba(25, 118, 210, 0.15)' : 'rgba(0, 0, 0, 0.04)',
+        },
+        transition: 'all 0.2s'
+      }}
+    >
       {saved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
     </IconButton>
   );
