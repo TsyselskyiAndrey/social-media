@@ -9,8 +9,8 @@ import Comments from "./Comment/Comment";
 import Bookmark from "./Bookmark/Bookmark";
 import { Post as PostType } from "../../../API/agent";
 import Agent from "../../../API/agent";
-import AutoPlayVideo from "./Video/AutoplayVideo";
 import EditPostForm from "./../EditPost/EditPostForm";
+import AutoPlayVideo from "./Video/AutoplayVideo";
 
 interface PostProps {
   post: PostType;
@@ -160,23 +160,22 @@ const Post: React.FC<PostProps> = ({ post }) => {
         </Menu>
       </Box>
 
-      {media && media.postMediaType === "Photo" && (
+      {post.postMedias[0] && post.postMedias[0].postMediaType === "Photo" && (
         <img
-          src={media.mediaUrl}
+          src={post.postMedias[0].mediaUrl}
           alt="Post"
           style={{ width: "100%", height: "auto", objectFit: "cover" }}
         />
       )}
 
-      {media && media.postMediaType === "Video" && (
-        <video
+      {post.postMedias[0] && post.postMedias[0].postMediaType === "Video" && (
+        <AutoPlayVideo
+          src={post.postMedias[0].mediaUrl}
+          poster={post.postMedias[0].thumbnailUrl ?? undefined}
           controls
-          poster={media.thumbnailUrl ?? undefined}
-          src={media.mediaUrl}
           style={{ width: "100%", height: "auto", objectFit: "cover" }}
         />
       )}
-
 
       {post.postType === "Carousel" && post.postMedias.length > 0 && (
         <Box sx={{ width: "100%", position: "relative" }}>

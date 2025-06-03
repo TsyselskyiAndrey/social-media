@@ -14,8 +14,9 @@ const EditPostForm: React.FC<EditPostFormProps> = ({ post, onCancel, onUpdated }
   const [tags, setTags] = useState<string[]>(post.tags || []);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [allTags, setAllTags] = useState<Tag[]>([]);
-  const [existingMedia, setExistingMedia] = useState(post.postMedia ?? []);
+  const [existingMedia, setExistingMedia] = useState(post.postMedias ?? []);
   const [postMedias, setPostMedias] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchTags = async () => {
