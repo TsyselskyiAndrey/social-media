@@ -21,7 +21,7 @@ namespace Glowee.Api
 
             builder.Services.AddCors(options =>
             {
-                var allowedOrigins = new[] { "https://glowee-client-h7guetdrh5cjcwa6.northeurope-01.azurewebsites.net", "http://localhost:3000" };
+                var allowedOrigins = new[] { "http://localhost:3000", "https://localhost:3000", "https://glowee-client-h7guetdrh5cjcwa6.northeurope-01.azurewebsites.net" };
 
                 options.AddPolicy("AllowAllOrigins", policy =>
                 {
