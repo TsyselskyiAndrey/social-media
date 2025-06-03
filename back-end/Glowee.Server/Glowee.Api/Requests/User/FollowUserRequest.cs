@@ -2,5 +2,5 @@
 
 public class FollowUserRequest
 {
-    public long TargetId { get; set; }
+    public string TargetUserName { get; set; }
 }

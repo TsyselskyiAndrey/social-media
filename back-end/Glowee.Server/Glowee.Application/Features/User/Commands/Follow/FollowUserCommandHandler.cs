@@ -25,7 +25,7 @@ public class FollowUserCommandHandler : IRequestHandler<FollowUserCommand, bool>
         if (string.IsNullOrEmpty(_userService.UserId))
             throw new UnauthorizedAccessException("User must be authenticated to create a post.");
 
-        var targetUser = await _userRepository.GetByIdAsync(request.UserId);
+        var targetUser = await _userRepository.GetUserByUserNameAsync(request.UserName);
 
         if (targetUser == null)
             throw new BadRequestException("User was not found.");

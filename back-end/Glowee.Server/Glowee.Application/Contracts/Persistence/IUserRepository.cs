@@ -8,5 +8,6 @@ namespace Glowee.Application.Contracts.Persistence
         Task UpdateProfileImageAsync(UserId userId, string imagePath);
         Task<User?> GetUserPersonalInfoAsync(UserId userId);
         Task<User?> GetByStripeCustomerIdAsync(string customerId);
+        Task<User?> GetUserByUserNameAsync(string userName);
     }
 }
