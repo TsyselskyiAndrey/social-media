@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
       try {
         await Agent.Auth.forgotPassword({
           email: formControls.email.value,
-          clientUri: "http://localhost:3000/resetpassword",
+          clientUri: "https://glowee-client-h7guetdrh5cjcwa6.northeurope-01.azurewebsites.net/resetpassword",
         });
         toast.success("Password reset link has been sent. Check your email.");
         navigate("/login");
