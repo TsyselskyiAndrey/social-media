@@ -11,11 +11,12 @@ const ProfileBio: React.FC<Props> = ({ profile }) => {
   return (
     <div
       className="max-w-[1280px] mx-auto px-6 py-6 bg-white dark:bg-cyan-950 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600"
-      style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}
+      style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)", gap: "24px" }}
     >
-      <div className="space-y-4">
+      <div className="space-y-4 min-w-0">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Біографія</h3>
         {profile.biography && (
-          <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+          <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed overflow-y-auto max-h-48 overflow-x-hidden break-words">
             {profile.biography}
           </p>
         )}

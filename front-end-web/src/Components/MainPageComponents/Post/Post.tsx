@@ -10,9 +10,6 @@ import Bookmark from "./Bookmark/Bookmark";
 import { Post as PostType } from "../../../API/agent";
 import Agent from "../../../API/agent";
 import EditPostForm from "./../EditPost/EditPostForm";
-import AutoPlayVideo from "./Video/AutoplayVideo";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 interface PostProps {
   post: PostType;
@@ -45,7 +42,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
       alert("Пост успішно видалено");
     }
     catch (error) {
-      console.error("Ошибка при удалении поста", error);
+      console.error("Помилка при видаленні поста", error);
     }
   }
 
@@ -56,7 +53,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
       setLikesCount((prev) => prev + (result ? 1 : -1));
       return result.data;
     } catch (error) {
-      console.error("Ошибка при лайке поста", error);
+      console.error("Помилка при вподобайці поста", error);
       return isLiked;
     }
   };
@@ -67,7 +64,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
       setIsSaved(result.data);
       return result.data;
     } catch (error) {
-      console.error("Ошибка при сохранении поста", error);
+      console.error("Помилка збереження поста", error);
       return isSaved;
     }
   };
@@ -120,9 +117,9 @@ const Post: React.FC<PostProps> = ({ post }) => {
           aria-label="settings"
           size="small"
           sx={{
-            transition: "transform 0.2s",
+            transition: "all 0.3s ease",
             "&:hover": {
-              transform: "scale(1.1)",
+              transform: "scale(1.15) rotate(90deg)",
               color: "primary.main",
             },
           }}
@@ -139,8 +136,21 @@ const Post: React.FC<PostProps> = ({ post }) => {
             "& .MuiPaper-root": {
               borderRadius: 2,
               minWidth: 180,
-              boxShadow: "0px 5px 15px rgba(0,0,0,0.15)",
+              boxShadow: "0px 5px 15px rgba(0,0,0,0.2)",
               mt: 1.5,
+              overflow: "visible",
+              "&:before": {
+                content: '""',
+                display: "block",
+                position: "absolute",
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: "background.paper",
+                transform: "translateY(-50%) rotate(45deg)",
+                zIndex: 0,
+              },
               "& .MuiMenu-list": {
                 padding: "8px 0",
               },
@@ -153,24 +163,54 @@ const Post: React.FC<PostProps> = ({ post }) => {
           }}
         >
           <MenuItem
-          onClick={() => {
+            onClick={() => {
               setIsEditing(true);
               handleMenuClose();
             }}
+            sx={{
+              transition: "all 0.2s ease",
+              "&:hover": {
+                bgcolor: "primary.light",
+                color: "white",
+                pl: 2,
+              },
+            }}
           >
-            Редагувати
+            <span className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Редагувати
+            </span>
           </MenuItem>
 
-          <MenuItem onClick={async () => await handleDeletePost() }>Видалити</MenuItem>
+          <MenuItem 
+            onClick={async () => {
+              if (window.confirm("Ви впевнені, що хочете видалити цей пост?")) {
+                await handleDeletePost();
+              }
+            }}
+            sx={{
+              transition: "all 0.2s ease",
+              "&:hover": {
+                bgcolor: "error.light",
+                color: "white",
+                pl: 2,
+              },
+            }}
+          >
+            <span className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Видалити
+            </span>
+          </MenuItem>
         </Menu>
       </Box>
 
-      {media && media.postMediaType === "Photo" && (
-        <img src={media.mediaUrl} alt="Post" style={{ width: "100%", height: "auto", objectFit: "cover" }} />
-      )}
-
-      {media && media.postMediaType === "Video" && (
-        <video controls poster={media.thumbnailUrl ?? undefined} src={media.mediaUrl} style={{ width: "100%", height: "auto", objectFit: "cover" }} />
+      {post.postMedias && post.postMedias.length > 0 && (
+        <MediaCarousel medias={post.postMedias} />
       )}
 
       <Box
