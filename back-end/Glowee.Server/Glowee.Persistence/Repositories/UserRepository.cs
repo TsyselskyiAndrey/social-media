@@ -66,5 +66,10 @@ namespace Glowee.Persistence.Repositories
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.StripeCustomerId == customerId);
         }
+
+        public async Task<User?> GetUserByUserNameAsync(string userName)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+        }
     }
 }

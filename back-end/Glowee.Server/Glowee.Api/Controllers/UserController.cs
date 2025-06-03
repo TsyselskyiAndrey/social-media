@@ -52,7 +52,7 @@ public class UserController : ControllerBase
     [HttpPost("follow")]
     public async Task<IActionResult> FollowUser([FromBody] FollowUserRequest followUserRequest)
     {
-        var command = new FollowUserCommand(new UserId(followUserRequest.TargetId));
+        var command = new FollowUserCommand(followUserRequest.TargetUserName);
         var handler = new FollowUserCommandHandler(_userRepository, _userService, _followRepository);
 
         var result = await handler.Handle(command, CancellationToken.None);
