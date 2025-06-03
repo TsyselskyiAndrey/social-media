@@ -102,15 +102,6 @@ class _EmailEnterState extends State<EmailEnter> {
                             email_F,
                             'Email',
                             Icons.email,
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) return 'Email is required';
-                            //   final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
-                            //   if (!emailRegex.hasMatch(value)) return 'Invalid email format';
-                            //   if (widget.emailText != null && value != widget.emailText) {
-                            //     return 'Email does not match';
-                            //   }
-                            //   return null;
-                            // },
                           ),
                           SizedBox(height: 20.h),
                           SendEmailBtn(context),
