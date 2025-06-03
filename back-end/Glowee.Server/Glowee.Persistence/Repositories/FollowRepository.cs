@@ -21,7 +21,7 @@ namespace Glowee.Persistence.Repositories
 
         public async Task<Follow?> UserFollow(UserId user, UserId target)
         {
-            return await _context.Follows.FirstOrDefaultAsync(x => x.Follower.Id.Value == user.Value && x.Followed.Id.Value == target.Value);
+            return await _context.Follows.FirstOrDefaultAsync(x => x.FollowerId == user && x.FollowedId == target);
         }
     }
 }
