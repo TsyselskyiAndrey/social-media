@@ -5,12 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
+import 'package:glowee/bloc/post_bloc/post_bloc.dart';
 import 'package:glowee/screens/email_enter.dart';
 import 'package:glowee/screens/feed.dart';
 import 'package:glowee/screens/register.dart';
 import 'package:glowee/util/error_dialog.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-//import 'package:device_info_plus/device_info_plus.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onSignUpTap;
@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
             context,
             MaterialPageRoute(
               builder: (context) => BlocProvider(
-                create: (context) => AuthBloc(),
+                create: (context) => PostBloc(),
                 child: FeedScreen(),
               ),
             ),
@@ -95,7 +95,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             login, loginFocus, 'Username', Icons.email),
                         SizedBox(height: 15.h),
                         _buildTextField(
-                            password, passwordFocus, 'Password', Icons.lock),
+                          password,
+                          passwordFocus,
+                          'Password',
+                          Icons.lock,
+                          isPassword: true,
+                        ),
                         SizedBox(height: 15.h),
                         _buildForgotPassword(),
                         SizedBox(height: 15.h),
@@ -120,22 +125,14 @@ class _LoginScreenState extends State<LoginScreen> {
         print("User signed in with Google: ${googleUser.displayName}");
         final googleAuth = await googleUser.authentication;
         final idToken = googleAuth.idToken;
-        //final deviceId = await _getDeviceId();
-        context.read<AuthBloc>().add(LogInWithGoogleBtnClciked(
-              codeOrIdToken: idToken ?? "",
-              //deviceId: deviceId,
-            ));
+        context
+            .read<AuthBloc>()
+            .add(LogInWithGoogleBtnClciked(codeOrIdToken: idToken ?? ""));
       }
     } catch (error) {
       print("Google sign-in error: $error");
     }
   }
-
-  // Future<String> _getDeviceId() async {
-  //   final deviceInfo = DeviceInfoPlugin();
-  //   final androidInfo = await deviceInfo.androidInfo;
-  //   return androidInfo.id ?? 'unknown';
-  // }
 
   Widget _buildGoogleSignInButton() {
     return Padding(
@@ -247,13 +244,17 @@ class _LoginScreenState extends State<LoginScreen> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: InkWell(
-        onTap: () {
-          context.read<AuthBloc>().add(
-                LoginBtnClicked(
-                  login: login.text,
-                  password: password.text,
-                ),
-              );
+        onTap: () async {
+          if (login.text.isNotEmpty) {
+            context.read<AuthBloc>().add(
+                  LoginBtnClicked(
+                    login: login.text,
+                    password: password.text,
+                  ),
+                );
+          } else {
+            await showErrorDialog(context, ["Login can't be empty"]);
+          }
         },
         child: Container(
           alignment: Alignment.center,
@@ -283,17 +284,12 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildGreeting() {
     return Padding(
       padding: EdgeInsets.only(left: 20.w),
-      child: GestureDetector(
-        onTap: () {
-          print("Forgot password tapped");
-        },
-        child: Text(
-          'Sign up to see photos and videos of your friends.',
-          style: TextStyle(
-            fontSize: 13.sp,
-            color: Colors.white,
-            fontWeight: FontWeight.w500,
-          ),
+      child: Text(
+        'Sign up to see photos and videos of your friends.',
+        style: TextStyle(
+          fontSize: 13.sp,
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -303,8 +299,9 @@ class _LoginScreenState extends State<LoginScreen> {
     TextEditingController controller,
     FocusNode focusNode,
     String hint,
-    IconData icon,
-  ) {
+    IconData icon, {
+    bool isPassword = false,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
       child: Container(
@@ -317,6 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(fontSize: 18.sp, color: Colors.white),
           controller: controller,
           focusNode: focusNode,
+          obscureText: isPassword,
           decoration: InputDecoration(
             hintText: hint,
             prefixIcon: Icon(
