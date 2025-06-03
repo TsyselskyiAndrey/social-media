@@ -3,6 +3,7 @@ import { UserProfileInfo } from "../../API/agent";
 import Input from "../Input/Input";
 import { FormControl } from "../../Types/FormControl";
 import validateControl from "../../Utils/GeneralValidation";
+import Agent from "../../API/agent";
 
 interface EditProfileFormProps {
   userProfile: UserProfileInfo;
@@ -11,7 +12,7 @@ interface EditProfileFormProps {
 }
 
 type EditFormControls = {
-  [K in keyof Pick<UserProfileInfo, 'firstName' | 'lastName' | 'userName' | 'email' | 'biography' | 'birthDate'>]: FormControl;
+  [K in keyof Pick<UserProfileInfo, 'firstName' | 'lastName' | 'userName' |  'biography' | 'birthDate'>]: FormControl;
 };
 
 const EditProfileForm: React.FC<EditProfileFormProps> = ({ 
@@ -65,21 +66,6 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
         username: true,
         minLength: 3,
         maxLength: 30,
-        allowSpaces: false,
-      },
-      touched: false,
-      shake: false,
-    },
-    email: {
-      type: "email",
-      name: "Email",
-      label: "Email:",
-      errorMessage: "",
-      value: userProfile.email || "",
-      valid: true,
-      validation: {
-        required: true,
-        email: true,
         allowSpaces: false,
       },
       touched: false,
@@ -196,30 +182,26 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    
+
     if (!isFormValid()) {
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
-    const updatedProfile: UserProfileInfo = {
-      firstName: formControls.firstName.value,
-      lastName: formControls.lastName.value,
-      userName: formControls.userName.value,
-      email: formControls.email.value,
-      biography: formControls.biography.value || null,
-      birthDate: formControls.birthDate.value ? new Date(formControls.birthDate.value) : null,
-      profileImagePath: userProfile.profileImagePath,
-      followed: userProfile.followed,
-      followers: userProfile.followers,
-      postsAmount: userProfile.postsAmount
-    };
-      
-      onSave(updatedProfile, profileImage);
+      await Agent.User.updateUserProfileInfo({
+        firstName: formControls.firstName.value,
+        lastName: formControls.lastName.value,
+        birthday: new Date(formControls.birthDate.value),
+        username: formControls.userName.value,
+        biography: formControls.biography.value || null,
+        profilePhoto: profileImage,
+      });
+
+      onCancel();
     } catch (error) {
-      console.error("Помилка збереження профілю:", error);
+      console.error("Помилка при оновленні профілю:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -300,17 +282,6 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
               touched={formControls.userName.touched}
               shake={formControls.userName.shake}
               onChange={(e) => handleInputChange('UserName', e.target.value)}
-            />
-            <Input
-              type="email"
-              name="Email"
-              value={formControls.email.value}
-              label="Email"
-              errorMessage={formControls.email.errorMessage}
-              valid={formControls.email.valid}
-              touched={formControls.email.touched}
-              shake={formControls.email.shake}
-              onChange={(e) => handleInputChange('Email', e.target.value)}
             />
           </div>
           

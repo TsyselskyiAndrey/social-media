@@ -8,12 +8,16 @@ interface BookmarkProps {
   onSave?: () => Promise<boolean>;
 }
 
-const Bookmark: React.FC<BookmarkProps> = ({ initiallySaved = false, onSave }) => {
+const Bookmark: React.FC<BookmarkProps> = ({ initiallySaved, onSave }) => {
   const [saved, setSaved] = useState(initiallySaved);
   
   // Оновлюємо стан, коли змінюється initiallySaved
   useEffect(() => {
     setSaved(initiallySaved);
+  }, [initiallySaved]);
+
+  React.useEffect(() => {
+    setSaved(initiallySaved ?? false);
   }, [initiallySaved]);
 
   const handleToggle = async () => {

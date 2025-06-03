@@ -58,40 +58,48 @@ interface CreatePostRequest {
   thumbnail: File | null;
 }
 
+interface UpdatePostRequest {
+  id : number;
+  caption: string;
+  tags: string[];
+  postMedias: File[];
+  thumbnail: File | null;
+}
+
 export interface Tag {
   id: number;
   name: string;
 }
 
-export interface UserProfileInfo {
-  firstName: string;
-  lastName: string;
-  email: string;
-  userName: string;
-  biography: string | null;
-  profileImagePath: string | null;
-  birthDate: Date | null;
-  followed: number;
-  followers: number;
-  postsAmount: number;
+export interface UserProfileInfo{
+  firstName : string;
+  lastName  : string;
+  email : string
+  userName : string
+  biography : string | null;
+  profileImagePath : string | null;
+  birthDate : Date | null;
+  followed : number;
+  followers : number;
+  postsAmount : number;
 }
 
-export interface Post {
-  id: number;
-  authorName: string;
-  authorIconUrl: string;
-  caption: string | null;
-  postType: string;
-  tags: string[];
-  likes: number;
-  views: number;
-  isLiked: boolean;
-  isSaved: boolean;
-  isUninteresting: boolean;
-  postMedias: PostMedia[];
+export interface Post{
+  id : number; 
+  authorName : string;
+  authorIconUrl : string;
+  caption : string | null;
+  postType : string;
+  tags : string[];
+  likes : number;
+  views : number;
+  isLiked : boolean;
+  isSaved : boolean;
+  isUninteresting : boolean;
+  postMedias : PostMedia[]
 }
 
-interface PostMedia {
+export interface PostMedia{
   id: number;
   mediaUrl: string;
   postMediaType: string;
@@ -135,6 +143,15 @@ export interface DeleteCommentRequest {
 
 export interface LikeCommentRequest {
   commentId: number;
+}
+
+export interface UpdateUserProfileInfo  {
+  firstName : string;
+  lastName : string;
+  birthday : Date;
+  username : string;
+  biography : string | null;
+  profilePhoto : File | null;
 }
 
 const Auth = {
@@ -207,15 +224,6 @@ const Auth = {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
-
-  logout: () =>
-    axiosWithToken.post(
-      "/api/auth/logout",
-      {},
-      {
-        withCredentials: true,
-      }
-    ),
 };
 
 const Payment = {
@@ -236,22 +244,16 @@ const Payment = {
         withCredentials: true,
       })
       .then((res) => res.data),
-  upgradeSubscription: (body: { priceId: string }) =>
-    axiosWithToken
-      .post("/api/subscription/upgrade", body, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      })
-      .then((res) => res.data),
-  cancelSubscription: (body: { priceId: string }) =>
-    axiosWithToken.post("/api/subscription/cancel", body, {
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true,
-    }),
 };
 
 const Posts = {
-  getPosts: async (postTitle: string | null, postAmount: number, postId: number | null, tags: number[] | null, userId: number | null) => {
+   getPosts: async (
+    postTitle: string | null,
+    postAmount: number,
+    postId: number | null,
+    tags: number[] | null,
+    userId: number | null
+  ) => {
     const params: any = { postAmount };
 
     if (postTitle !== null) params.postTitle = postTitle;
@@ -286,6 +288,38 @@ const Posts = {
     });
   },
 
+  updatePost: async (postData: UpdatePostRequest) => {
+    const formData = new FormData();
+    formData.append("Id", postData.id.toString());
+    formData.append("Caption", postData.caption ?? "");
+
+    postData.tags.forEach(tag => {
+      formData.append("Tags", tag);
+    });
+
+    if (postData.thumbnail) {
+      formData.append("Thumbnail", postData.thumbnail);
+    }
+
+    postData.postMedias.forEach(file => {
+      formData.append("PostMedias", file);
+    });
+
+    return await axiosWithToken.put("/api/post/updatePost", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+  },
+
+  deletePost: async (postId: number) => {
+    return await axiosWithToken.delete(`/api/post/deletePost/${postId}`, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+  },
+
   likePost: async (postId: number) => {
     return await axiosWithToken.post<boolean>(
       `/api/post/like`,
@@ -306,54 +340,7 @@ const Posts = {
         withCredentials: true,
       }
     );
-  },
-};
-
-const Comments = {
-  getComments: async (postId: number) => {
-    return await axiosWithToken.get<Comment[]>("/api/comment/getComments", {
-      params: { postId },
-      withCredentials: true,
-    });
-  },
-
-  createComment: async (data: CreateCommentRequest) => {
-    const formData = new FormData();
-    formData.append("Content", data.content);
-    formData.append("PostId", data.postId.toString());
-    if (data.parentCommentId !== undefined && data.parentCommentId !== null) {
-      formData.append("ParentCommentId", data.parentCommentId.toString());
-    }
-
-    const response = await axiosWithToken.post("/api/comment/createComment", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-      withCredentials: true,
-    });
-
-    return response.data as Comment;
-  },
-
-  editComment: async (data: EditCommentRequest) => {
-    return await axiosWithToken.patch("/api/comment/editComment", data, {
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true,
-    });
-  },
-
-  deleteComment: async (data: DeleteCommentRequest) => {
-    return await axiosWithToken.delete("/api/comment/deleteComment", {
-      data,
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true,
-    });
-  },
-
-  likeComment: async (data: LikeCommentRequest) => {
-    return await axiosWithToken.patch<boolean>("/api/comment/likeComment", data, {
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true,
-    });
-  },
+  }
 };
 
 const Tags = {
@@ -366,13 +353,29 @@ const User = {
   getUserProfileInfo: async () => {
     return await axiosWithToken.get<UserProfileInfo>("/api/user/getUserProfileInfo");
   },
+
+  updateUserProfileInfo: async (data: UpdateUserProfileInfo) => {
+    const formData = new FormData();
+    formData.append("FirstName", data.firstName);
+    formData.append("LastName", data.lastName);
+    formData.append("Birthday", data.birthday.toISOString());
+    formData.append("Username", data.username);
+    if (data.biography) formData.append("Biography", data.biography);
+    if (data.profilePhoto) formData.append("ProfilePhoto", data.profilePhoto);
+
+    return await axiosWithToken.put("/api/user/updateUserProfileInfo", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+  },
 };
 
 const Agent = {
   Auth,
   Payment,
   Posts,
-  Comments,
   Tags,
   User,
 };
