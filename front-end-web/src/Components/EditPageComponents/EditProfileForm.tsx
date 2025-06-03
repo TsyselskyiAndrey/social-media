@@ -12,7 +12,7 @@ interface EditProfileFormProps {
 }
 
 type EditFormControls = {
-  [K in keyof Pick<UserProfileInfo, 'firstName' | 'lastName' | 'userName' |  'biography' | 'birthDate'>]: FormControl;
+    [K in keyof Pick<UserProfileInfo, 'firstName' | 'lastName' | 'userName' | 'biography' | 'birthDate' | 'email'>]: FormControl;
 };
 
 const EditProfileForm: React.FC<EditProfileFormProps> = ({ 
@@ -91,11 +91,31 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
       name: "BirthDate",
       label: "Дата народження:",
       errorMessage: "",
-      value: userProfile.birthDate ? new Date(userProfile.birthDate).toISOString().split('T')[0] : "",
-      valid: false,
+      value: userProfile.birthDate ? (() => {
+        const d = new Date(userProfile.birthDate);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      })() : "",
+      valid: true,
       validation: {
         required: true,
         date: true,
+      },
+      touched: false,
+      shake: false,
+    },
+    email: {
+      type: "email",
+      name: "Email",
+      label: "Електронна пошта:",
+      errorMessage: "",
+      value: userProfile.email || "",
+      valid: true,
+      validation: {
+        required: true,
+        email: true,
       },
       touched: false,
       shake: false,
@@ -129,16 +149,14 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Перевірка розміру файлу (максимум 5MB)
+    
       if (file.size > 5 * 1024 * 1024) {
         alert("Розмір файлу перевищує 5MB. Будь ласка, виберіть менший файл.");
         return;
       }
       
-      // Одразу встановлюємо файл як профільне зображення
       setProfileImage(file);
       
-      // Створюємо URL для попереднього перегляду
       const reader = new FileReader();
       reader.onload = (e) => {
         setProfileImagePreview(e.target?.result as string);
@@ -148,7 +166,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   };
 
   const isFormValid = () => {
-    // Перевіряємо, чи є зміни в формі або в зображенні профілю
+
     const hasChanges = profileImage !== null || Object.keys(formControls).some(key => {
       const fieldName = key as keyof EditFormControls;
       const control = formControls[fieldName];
@@ -163,12 +181,10 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
       return String(originalValue) !== String(currentValue);
     });
 
-    // Якщо єдина зміна - це нове фото профілю, вважаємо форму валідною
     if (profileImage !== null) {
       return true;
     }
 
-    // Перевіряємо, чи всі змінені поля валідні
     const allChangedFieldsValid = Object.keys(formControls).every(key => {
       const fieldName = key as keyof EditFormControls;
       const control = formControls[fieldName];
@@ -197,7 +213,6 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    // Перевіряємо, чи є зміни в формі або в зображенні профілю
     const hasChanges = profileImage !== null || Object.keys(formControls).some(key => {
       const fieldName = key as keyof EditFormControls;
       const control = formControls[fieldName];
@@ -205,7 +220,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
       const currentValue = control.value;
 
       if (fieldName === 'birthDate' && userProfile.birthDate) {
-        const originalDateStr = new Date(userProfile.birthDate).toISOString().split('T')[0];
+        const originalDateStr = new Date(userProfile.birthDate).toISOString();
         return originalDateStr !== currentValue;
       }
       
@@ -219,17 +234,16 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Відправляємо запит на оновлення профілю
+
       const response = await Agent.User.updateUserProfileInfo({
         firstName: formControls.firstName.value,
         lastName: formControls.lastName.value,
-        birthday: new Date(formControls.birthDate.value + 'T12:00:00'),
+        birthday: new Date(formControls.birthDate.value),
         username: formControls.userName.value,
         biography: formControls.biography.value || null,
-        profilePhoto: profileImage, // Передаємо нове зображення профілю
+        profilePhoto: profileImage,
       });
       
-      // Оновлюємо профіль користувача з новими даними
       const updatedProfile = {
         ...userProfile,
         firstName: formControls.firstName.value,
@@ -237,11 +251,10 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
         birthDate: new Date(formControls.birthDate.value),
         userName: formControls.userName.value,
         biography: formControls.biography.value || null,
-        // Якщо є відповідь від сервера з новим шляхом до зображення, використовуємо його
+
         profileImagePath: response?.data?.profileImagePath || userProfile.profileImagePath
       };
-      
-      // Викликаємо функцію onSave з оновленим профілем
+
       onSave(updatedProfile);
     } catch (error) {
       console.error("Помилка при оновленні профілю:", error);
@@ -315,11 +328,24 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
               shake={formControls.lastName.shake}
               onChange={(e) => handleInputChange('LastName', e.target.value)}
             />
+            
+            <Input
+              type="email"
+              name="Email"
+              value={formControls.email.value}
+              label="Електронна пошта"
+              errorMessage={formControls.email.errorMessage}
+              valid={formControls.email.valid}
+              touched={formControls.email.touched}
+              shake={formControls.email.shake}
+              onChange={(e) => handleInputChange('Email', e.target.value)}
+            />
+            
             <Input
               type="text"
               name="UserName"
               value={formControls.userName.value}
-              label="Username"
+              label="Ім'я користувача"
               errorMessage={formControls.userName.errorMessage}
               valid={formControls.userName.valid}
               touched={formControls.userName.touched}
