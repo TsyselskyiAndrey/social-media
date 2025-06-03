@@ -97,12 +97,6 @@ class _RegisterState extends State<Register> {
                             email_F,
                             'Email',
                             Icons.email,
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) return 'Email is required';
-                            //   final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
-                            //   if (!emailRegex.hasMatch(value)) return 'Invalid email format';
-                            //   return null;
-                            // },
                           ),
                           SizedBox(height: 25.h),
                           Textfild(
@@ -110,14 +104,6 @@ class _RegisterState extends State<Register> {
                             username_F,
                             'Username',
                             Icons.person,
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) return 'Username is required';
-                            //   if (RegExp(r'[@?,\*^]').hasMatch(value)) {
-                            //     return 'Username contains invalid characters';
-                            //   }
-                            //
-                            //   return null;
-                            // },
                           ),
                           SizedBox(height: 25.h),
                           Textfild(
@@ -125,14 +111,7 @@ class _RegisterState extends State<Register> {
                             password_F,
                             'Password',
                             Icons.lock,
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) return 'Password is required';
-                            //   if (value.length < 6) return 'Password must be at least 6 characters';
-                            //   if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Password must contain an uppercase letter';
-                            //   if (!RegExp(r'[0-9]').hasMatch(value)) return 'Password must contain a number';
-                            //   if (RegExp(r'[ @?,*^]').hasMatch(value)) return 'Password contains invalid characters';
-                            //   return null;
-                            // },
+                            isPassword: true,
                           ),
                           SizedBox(height: 25.h),
                           Textfild(
@@ -140,11 +119,7 @@ class _RegisterState extends State<Register> {
                             passwordConfirme_F,
                             'Confirm Password',
                             Icons.lock_outline,
-                            // validator: (value) {
-                            //   if (value == null || value.isEmpty) return 'Please confirm your password';
-                            //   if (value != password.text) return 'Passwords do not match';
-                            //   return null;
-                            // }
+                            isPassword: true,
                           ),
                           SizedBox(height: 20.h),
                           Next(context),
@@ -251,6 +226,7 @@ class _RegisterState extends State<Register> {
     String typename,
     IconData icon, {
     String? Function(String?)? validator,
+    bool isPassword = false,
   }) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.w),
@@ -258,6 +234,7 @@ class _RegisterState extends State<Register> {
         style: TextStyle(fontSize: 18.sp, color: Colors.black),
         controller: controll,
         focusNode: focusNode,
+        obscureText: isPassword,
         validator: validator,
         decoration: InputDecoration(
           hintText: typename,
