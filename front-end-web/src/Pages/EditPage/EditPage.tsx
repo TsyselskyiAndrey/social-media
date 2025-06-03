@@ -4,6 +4,7 @@ import LeftSidebar from "../../Components/MainPageComponents/LeftSidebar/LeftSid
 import EditProfileForm from "../../Components/EditPageComponents/EditProfileForm";
 import Agent from "../../API/agent";
 import { UserProfileInfo } from "../../API/agent";
+import { useToast } from "../../Contexts/ToastContext";
 import "./EditPage.css";
 
 const EditPage: React.FC = () => {
@@ -11,6 +12,7 @@ const EditPage: React.FC = () => {
   const [userProfile, setUserProfile] = useState<UserProfileInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -19,6 +21,7 @@ const EditPage: React.FC = () => {
         setUserProfile(response.data);
       } catch (error) {
         console.error("Помилка завантаження профілю:", error);
+        showError("Не вдалося завантажити дані профілю. Спробуйте пізніше.");
       } finally {
         setLoading(false);
       }
@@ -52,9 +55,8 @@ const EditPage: React.FC = () => {
           <EditProfileForm 
             userProfile={userProfile} 
             onSave={(updatedProfile) => {
-              // TODO: Додати API виклик для збереження профілю
-              console.log("Збереження профілю:", updatedProfile);
               setUserProfile(updatedProfile);
+              showSuccess("Профіль успішно оновлено!");
               navigate("/profile");
             }}
             onCancel={() => navigate("/profile")}

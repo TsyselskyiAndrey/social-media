@@ -129,7 +129,16 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Перевірка розміру файлу (максимум 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Розмір файлу перевищує 5MB. Будь ласка, виберіть менший файл.");
+        return;
+      }
+      
+      // Одразу встановлюємо файл як профільне зображення
       setProfileImage(file);
+      
+      // Створюємо URL для попереднього перегляду
       const reader = new FileReader();
       reader.onload = (e) => {
         setProfileImagePreview(e.target?.result as string);
@@ -139,9 +148,8 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   };
 
   const isFormValid = () => {
-    const isPhotoChanged = profileImage !== null;
-    
-    const hasChanges = isPhotoChanged || Object.keys(formControls).some(key => {
+    // Перевіряємо, чи є зміни в формі або в зображенні профілю
+    const hasChanges = profileImage !== null || Object.keys(formControls).some(key => {
       const fieldName = key as keyof EditFormControls;
       const control = formControls[fieldName];
       const originalValue = userProfile[fieldName] || "";
@@ -155,6 +163,12 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
       return String(originalValue) !== String(currentValue);
     });
 
+    // Якщо єдина зміна - це нове фото профілю, вважаємо форму валідною
+    if (profileImage !== null) {
+      return true;
+    }
+
+    // Перевіряємо, чи всі змінені поля валідні
     const allChangedFieldsValid = Object.keys(formControls).every(key => {
       const fieldName = key as keyof EditFormControls;
       const control = formControls[fieldName];
@@ -183,23 +197,52 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!isFormValid()) {
+    // Перевіряємо, чи є зміни в формі або в зображенні профілю
+    const hasChanges = profileImage !== null || Object.keys(formControls).some(key => {
+      const fieldName = key as keyof EditFormControls;
+      const control = formControls[fieldName];
+      const originalValue = userProfile[fieldName] || "";
+      const currentValue = control.value;
+
+      if (fieldName === 'birthDate' && userProfile.birthDate) {
+        const originalDateStr = new Date(userProfile.birthDate).toISOString().split('T')[0];
+        return originalDateStr !== currentValue;
+      }
+      
+      return String(originalValue) !== String(currentValue);
+    });
+
+    if (!hasChanges) {
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      await Agent.User.updateUserProfileInfo({
+      // Відправляємо запит на оновлення профілю
+      const response = await Agent.User.updateUserProfileInfo({
         firstName: formControls.firstName.value,
         lastName: formControls.lastName.value,
-        birthday: new Date(formControls.birthDate.value),
+        birthday: new Date(formControls.birthDate.value + 'T12:00:00'),
         username: formControls.userName.value,
         biography: formControls.biography.value || null,
-        profilePhoto: profileImage,
+        profilePhoto: profileImage, // Передаємо нове зображення профілю
       });
-
-      onCancel();
+      
+      // Оновлюємо профіль користувача з новими даними
+      const updatedProfile = {
+        ...userProfile,
+        firstName: formControls.firstName.value,
+        lastName: formControls.lastName.value,
+        birthDate: new Date(formControls.birthDate.value),
+        userName: formControls.userName.value,
+        biography: formControls.biography.value || null,
+        // Якщо є відповідь від сервера з новим шляхом до зображення, використовуємо його
+        profileImagePath: response?.data?.profileImagePath || userProfile.profileImagePath
+      };
+      
+      // Викликаємо функцію onSave з оновленим профілем
+      onSave(updatedProfile);
     } catch (error) {
       console.error("Помилка при оновленні профілю:", error);
     } finally {
@@ -307,10 +350,10 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             onChange={(e) => handleInputChange('Biography', e.target.value)}
             placeholder="✨ Розкажіть про себе щось цікаве... Ваші хобі, інтереси, досягнення або просто те, що робить вас унікальним! 🌟"
             className="w-full p-3 border border-gray-300 dark:border-teal-900 rounded-lg resize-none h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder:font-medium placeholder:text-gray-500"
-            maxLength={500}
+            maxLength={100}
           />
           <div className="character-counter">
-            {formControls.biography.value.length}/500 символів
+            {formControls.biography.value.length}/100 символів
           </div>
           {formControls.biography.errorMessage && (
             <div className="text-red-500 text-sm mt-1">

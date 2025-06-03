@@ -421,12 +421,12 @@ const User = {
 
   updateUserProfileInfo: async (data: UpdateUserProfileInfo) => {
     const formData = new FormData();
-    formData.append("FirstName", data.firstName);
-    formData.append("LastName", data.lastName);
-    formData.append("Birthday", data.birthday.toISOString());
-    formData.append("Username", data.username);
-    if (data.biography) formData.append("Biography", data.biography);
-    if (data.profilePhoto) formData.append("ProfilePhoto", data.profilePhoto);
+    formData.append("firstName", data.firstName); // Use camelCase or match backend
+    formData.append("lastName", data.lastName);
+    formData.append("birthday", data.birthday.toISOString());
+    formData.append("username", data.username);
+    if (data.biography) formData.append("biography", data.biography);
+    if (data.profilePhoto) formData.append("profilePhoto", data.profilePhoto); // Changed to camelCase
 
     return await axiosWithToken.put("/api/user/updateUserProfileInfo", formData, {
       headers: {
