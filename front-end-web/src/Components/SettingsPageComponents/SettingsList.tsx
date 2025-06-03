@@ -11,6 +11,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import useAuth from "../../Hooks/useAuth";
 import Agent from "../../API/agent";
 import { AxiosError } from "axios";
+import { DownloadIcon } from "lucide-react";
 
 const SettingsList: React.FC = () => {
   const navigate = useNavigate();
@@ -22,8 +23,8 @@ const SettingsList: React.FC = () => {
     { label: "Збережені", icon: <BookmarkBorderIcon /> },
     { label: "Підписки", icon: <PaymentIcon /> },
     { label: "Акаунт", icon: <AccountCircleIcon /> },
-    { label: "Допомога", icon: <HelpOutlineIcon /> },
     { label: "Інтерфейс", icon: <AccessibilityNewIcon /> },
+    { label: "Завантажити застосунок", icon: <DownloadIcon /> },
   ];
 
   const handleClick = (label: string) => {
@@ -43,8 +44,20 @@ const SettingsList: React.FC = () => {
       case "Акаунт":
         navigate("/settings/account");
         break;
-      case "Допомога":
-        navigate("/settings/help");
+      case "Завантажити застосунок":
+        Agent.Downloads.getAndroidInstaller()
+          .then((response) => {
+            const fileUrl = response.data;
+            const a = document.createElement("a");
+            a.href = fileUrl;
+            a.download = "";
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          })
+          .catch((error) => {
+            console.error("Помилка при завантаженні файлу:", error);
+          });
         break;
       case "Інтерфейс":
         navigate("/settings/interface");

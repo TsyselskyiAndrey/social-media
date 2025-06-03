@@ -59,7 +59,7 @@ interface CreatePostRequest {
 }
 
 interface UpdatePostRequest {
-  id : number;
+  id: number;
   caption: string;
   tags: string[];
   postMedias: File[];
@@ -71,35 +71,35 @@ export interface Tag {
   name: string;
 }
 
-export interface UserProfileInfo{
-  firstName : string;
-  lastName  : string;
-  email : string
-  userName : string
-  biography : string | null;
-  profileImagePath : string | null;
-  birthDate : Date | null;
-  followed : number;
-  followers : number;
-  postsAmount : number;
+export interface UserProfileInfo {
+  firstName: string;
+  lastName: string;
+  email: string;
+  userName: string;
+  biography: string | null;
+  profileImagePath: string | null;
+  birthDate: Date | null;
+  followed: number;
+  followers: number;
+  postsAmount: number;
 }
 
-export interface Post{
-  id : number; 
-  authorName : string;
-  authorIconUrl : string;
-  caption : string | null;
-  postType : string;
-  tags : string[];
-  likes : number;
-  views : number;
-  isLiked : boolean;
-  isSaved : boolean;
-  isUninteresting : boolean;
-  postMedias : PostMedia[]
+export interface Post {
+  id: number;
+  authorName: string;
+  authorIconUrl: string;
+  caption: string | null;
+  postType: string;
+  tags: string[];
+  likes: number;
+  views: number;
+  isLiked: boolean;
+  isSaved: boolean;
+  isUninteresting: boolean;
+  postMedias: PostMedia[];
 }
 
-export interface PostMedia{
+export interface PostMedia {
   id: number;
   mediaUrl: string;
   postMediaType: string;
@@ -145,13 +145,13 @@ export interface LikeCommentRequest {
   commentId: number;
 }
 
-export interface UpdateUserProfileInfo  {
-  firstName : string;
-  lastName : string;
-  birthday : Date;
-  username : string;
-  biography : string | null;
-  profilePhoto : File | null;
+export interface UpdateUserProfileInfo {
+  firstName: string;
+  lastName: string;
+  birthday: Date;
+  username: string;
+  biography: string | null;
+  profilePhoto: File | null;
 }
 
 const Auth = {
@@ -224,13 +224,17 @@ const Auth = {
       headers: { "Content-Type": "application/json" },
       withCredentials: true,
     }),
-  
-  logout: () =>
-      axiosWithToken.post("/api/auth/logout",
-        {},
-        { withCredentials: true,}
-      ),
-  };
+
+  logout: () => axiosWithToken.post("/api/auth/logout", {}, { withCredentials: true }),
+};
+
+const Downloads = {
+  getAndroidInstaller: async () => {
+    return await axiosWithToken.get<string>("/api/downloads/getAndroidInstaller", {
+      withCredentials: true,
+    });
+  },
+};
 
 const Payment = {
   getConfig: async () => {
@@ -251,27 +255,21 @@ const Payment = {
       })
       .then((res) => res.data),
   upgradeSubscription: (body: { priceId: string }) =>
-        axiosWithToken
-          .post("/api/subscription/upgrade", body, {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true,
-          })
-          .then((res) => res.data),
+    axiosWithToken
+      .post("/api/subscription/upgrade", body, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+      .then((res) => res.data),
   cancelSubscription: (body: { priceId: string }) =>
-        axiosWithToken.post("/api/subscription/cancel", body, {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }),
+    axiosWithToken.post("/api/subscription/cancel", body, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    }),
 };
 
 const Posts = {
-   getPosts: async (
-    postTitle: string | null,
-    postAmount: number,
-    postId: number | null,
-    tags: number[] | null,
-    userId: number | null
-  ) => {
+  getPosts: async (postTitle: string | null, postAmount: number, postId: number | null, tags: number[] | null, userId: number | null) => {
     const params: any = { postAmount };
 
     if (postTitle !== null) params.postTitle = postTitle;
@@ -317,7 +315,7 @@ const Posts = {
     formData.append("Id", postData.id.toString());
     formData.append("Caption", postData.caption ?? "");
 
-    postData.tags.forEach(tag => {
+    postData.tags.forEach((tag) => {
       formData.append("Tags", tag);
     });
 
@@ -325,7 +323,7 @@ const Posts = {
       formData.append("Thumbnail", postData.thumbnail);
     }
 
-    postData.postMedias.forEach(file => {
+    postData.postMedias.forEach((file) => {
       formData.append("PostMedias", file);
     });
 
@@ -364,7 +362,7 @@ const Posts = {
         withCredentials: true,
       }
     );
-  }
+  },
 };
 
 const Comments = {
@@ -446,6 +444,7 @@ const User = {
 const Agent = {
   Auth,
   Payment,
+  Downloads,
   Posts,
   Comments,
   Tags,
