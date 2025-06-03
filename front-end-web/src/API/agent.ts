@@ -291,6 +291,12 @@ const Posts = {
     });
   },
 
+  getPersonalPosts: async () => {
+    return await axiosWithToken.get<Post[]>("/api/Post/getPersonalPosts", {
+      withCredentials: true,
+    });
+  },
+
   createPost: async ({ caption, tags, postMedias, thumbnail }: CreatePostRequest) => {
     const formData = new FormData();
     formData.append("Caption", caption);
