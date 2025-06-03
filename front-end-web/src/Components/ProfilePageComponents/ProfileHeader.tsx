@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useNavigate } from "react-router-dom";
 import { UserProfileInfo } from "../../API/agent";
+import Agent from "../../API/agent";
+import useAuth from "../../Hooks/useAuth";
 
 interface Props {
   profile: UserProfileInfo;
@@ -9,7 +11,15 @@ interface Props {
 
 const ProfileHeader: React.FC<Props> = ({ profile }) => {
   const navigate = useNavigate();
+  const { auth } = useAuth();
+  const isOwnProfile = auth?.userName === profile.userName;
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [profileData, setProfileData] = useState(profile);
+
+  useEffect(() => {
+    setProfileData(profile);
+  }, [profile]);
 
   const goToSettings = () => {
     navigate("/settings");
@@ -19,9 +29,25 @@ const ProfileHeader: React.FC<Props> = ({ profile }) => {
     navigate("/editpage");
   };
 
-  const toggleFollow = () => {
-    setIsFollowing(prev => !prev);
-    // TODO: Додати API виклик для підписки/відписки
+  const toggleFollow = async () => {
+    try {
+      setIsLoading(true);
+
+      await Agent.User.followUser(profile.userName);
+
+      const newIsFollowing = !isFollowing;
+      setIsFollowing(newIsFollowing);
+
+      setProfileData(prev => ({
+        ...prev,
+        followers: newIsFollowing ? prev.followers + 1 : prev.followers - 1
+      }));
+      
+    } catch (error) {
+      console.error("Помилка при підписці/відписці", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -41,15 +67,15 @@ const ProfileHeader: React.FC<Props> = ({ profile }) => {
           </div>
           <div className="flex gap-6 text-gray-700 dark:text-gray-300 font-semibold text-sm">
             <div className="flex flex-col items-start bg-white dark:bg-cyan-900 rounded-md px-6 py-3 shadow-sm w-28">
-              <div className="text-lg text-gray-900 dark:text-white font-bold">{profile.postsAmount}</div>
+              <div className="text-lg text-gray-900 dark:text-white font-bold">{profileData.postsAmount}</div>
               <div className="text-gray-600 dark:text-gray-400">дописи</div>
             </div>
             <div className="flex flex-col items-start bg-white dark:bg-cyan-900 rounded-md px-6 py-3 shadow-sm w-28">
-              <div className="text-lg text-gray-900 dark:text-white font-bold">{profile.followers}</div>
+              <div className="text-lg text-gray-900 dark:text-white font-bold">{profileData.followers}</div>
               <div className="text-gray-600 dark:text-gray-400">підписників</div>
             </div>
             <div className="flex flex-col items-start bg-white dark:bg-cyan-900 rounded-md px-6 py-3 shadow-sm w-28">
-              <div className="text-lg text-gray-900 dark:text-white font-bold">{profile.followed}</div>
+              <div className="text-lg text-gray-900 dark:text-white font-bold">{profileData.followed}</div>
               <div className="text-gray-600 dark:text-gray-400">підписок</div>
             </div>
           </div>
@@ -73,7 +99,7 @@ const ProfileHeader: React.FC<Props> = ({ profile }) => {
           >
             Редагувати профіль
           </button>
-          <div className="h-2"></div> {/* Пусте місце між кнопками */}
+          <div className="h-2"></div>
           <button
             onClick={toggleFollow}
             className={`px-5 py-1.5 rounded-lg text-sm font-semibold transition-all duration-300 ease-in-out

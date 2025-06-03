@@ -1,5 +1,5 @@
 import axios from "axios";
-const BASE_URL = "https://glowee-server-dbaeh4f7hcftd4dq.northeurope-01.azurewebsites.net";
+const BASE_URL = "https://localhost:7048";
 
 export default axios.create({
   baseURL: BASE_URL,
