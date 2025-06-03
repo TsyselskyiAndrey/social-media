@@ -1,4 +1,5 @@
 import 'package:glowee/model/post.dart';
+import 'package:glowee/model/tag.dart';
 
 abstract class PostState {}
 
@@ -22,4 +23,10 @@ class PostError extends PostState {
   final List<String> messages;
 
   PostError({required this.messages});
+}
+
+class TagsLoaded extends PostState {
+  final List<Tag> tags;
+
+  TagsLoaded({required this.tags});
 }

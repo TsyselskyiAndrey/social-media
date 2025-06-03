@@ -38,6 +38,10 @@ class LikePostBtnClicked extends PostEvent {
   LikePostBtnClicked({required this.postId});
 }
 
+class LoadPersonalPostsBtnClicked extends PostEvent {
+  LoadPersonalPostsBtnClicked();
+}
+
 class SavePostBtnClicked extends PostEvent {
   final int postId;
 
@@ -45,3 +49,7 @@ class SavePostBtnClicked extends PostEvent {
 }
 
 class LoadSavedPostsEvent extends PostEvent {}
+
+class LoadAllTags extends PostEvent {
+  LoadAllTags();
+}
