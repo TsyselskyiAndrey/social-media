@@ -439,6 +439,17 @@ const User = {
       withCredentials: true,
     });
   },
+
+  followUser: async (userId: number) => {
+    return await axiosWithToken.post(
+      `/api/user/follow`,
+      { targetId: userId },
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      }
+    );
+  },
 };
 
 const Agent = {
