@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:glowee/bloc/comment_bloc/comment_bloc.dart';
 import 'package:glowee/bloc/post_bloc/post_bloc.dart';
 import 'package:glowee/bloc/post_bloc/post_events.dart';
 import 'package:glowee/model/post.dart';
@@ -147,7 +148,10 @@ class _PostWidgetState extends State<PostWidget> {
                               initialChildSize: 0.5,
                               minChildSize: 0.2,
                               builder: (context, scrollController) {
-                                return CommentSection();
+                                return BlocProvider(
+                                  create: (context) => CommentBloc(),
+                                  child: CommentSection(postId: widget.post.id),
+                                );
                               },
                             ),
                           );
