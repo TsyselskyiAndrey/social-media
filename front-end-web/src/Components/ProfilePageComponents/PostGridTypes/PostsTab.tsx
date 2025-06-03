@@ -14,9 +14,9 @@ const PostsTab: React.FC = () => {
     const fetchUserPosts = async () => {
       try {
         setLoading(true);
-
-        const response = await Agent.Posts.getPosts(null, 50, null, null, null);
+        const response = await Agent.Posts.getPersonalPosts();
         setUserPosts(response.data);
+        console.log("Пости користувача:", response.data);
       } catch (error) {
         console.error("Помилка при завантаженні постів користувача:", error);
       } finally {
@@ -59,7 +59,6 @@ const PostsTab: React.FC = () => {
     );
   }
 
-  // Відображення сітки постів
   const renderGrid = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
       {userPosts.map((post) => {
