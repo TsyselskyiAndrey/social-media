@@ -24,6 +24,7 @@ namespace Glowee.Infrastructure.Storage
                 BlobContainerType.ChatLogos => _options.ChatLogos,
                 BlobContainerType.Thumbnails => _options.Thumbnails,
                 BlobContainerType.ProfileImages => _options.ProfileImages,
+                BlobContainerType.Downloads => _options.Downloads,
                 _ => throw new InternalServerException()
             };
         }

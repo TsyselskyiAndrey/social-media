@@ -6,7 +6,8 @@
         PostMedia,
         ChatLogos,
         Thumbnails,
-        ProfileImages
+        ProfileImages,
+        Downloads
     }
 
 }
