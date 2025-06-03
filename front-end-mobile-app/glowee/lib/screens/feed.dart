@@ -26,8 +26,7 @@ class _FeedScreenState extends State<FeedScreen> {
   @override
   void initState() {
     super.initState();
-
-    context.read<PostBloc>().add(LoadPostsEvent(postAmount: 10));
+    context.read<PostBloc>().add(LoadPostsEvent(postAmount: postAmount));
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
@@ -67,6 +66,7 @@ class _FeedScreenState extends State<FeedScreen> {
           bottomNavigationBar: const NavigationMenu(),
           appBar: AppBar(
             elevation: 0,
+            automaticallyImplyLeading: false,
             title: SizedBox(
               width: 105.w,
               height: 30.h,
@@ -105,7 +105,7 @@ class _FeedScreenState extends State<FeedScreen> {
                               hasScrollBody: false,
                               child: Center(
                                 child: Text(
-                                  'Постів немає',
+                                  'There are no posts',
                                   style: TextStyle(
                                     fontSize: 25.sp,
                                     color: Colors.black,
