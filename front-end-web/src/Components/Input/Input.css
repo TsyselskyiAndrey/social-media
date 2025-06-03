@@ -168,9 +168,9 @@
 
 .edit-form-container .inp input[type="date"] {
   width: 100%;
-  max-width: 100%;
+  max-width: 98%;
   box-sizing: border-box;
-  padding: 16px 12px 0 0.2rem;
+  padding: 0.2rem 0.5rem;
   min-width: 0;
 }
 

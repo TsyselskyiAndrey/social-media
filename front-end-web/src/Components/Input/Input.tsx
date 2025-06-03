@@ -152,7 +152,7 @@ export default function Input(props: InputProps) {
     return (
       <label htmlFor={id} className={"inp "}>
         <input
-          type={showPassword || props.type === "date" ? "text" : props.type}
+          type={props.type === "date" ? "text" : props.type === "password" ? (showPassword ? "text" : "password") : props.type}
           id={id}
           name={props.name}
           placeholder="&nbsp;"
