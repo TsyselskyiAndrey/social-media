@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
-import 'package:glowee/screens/email_enter.dart';
 import 'package:glowee/screens/login_screen.dart';
 import 'package:glowee/screens/profile.dart';
 import 'package:glowee/util/error_dialog.dart';
@@ -95,59 +94,63 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           SizedBox(height: 20.h),
                           Center(child: Image.asset('assets/images/logo.png')),
                           SizedBox(height: 30.h),
-                          headerText(),
-                          SizedBox(height: 20.h),
                           EnterEmailText(),
                           SizedBox(height: 15.h),
                           DisplayedEmail(),
                           SizedBox(height: 25.h),
                           SizedBox(height: 20.h),
-                          TextFormField(
-                            controller: email,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              labelStyle: TextStyle(
-                                color: Colors.deepPurple,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                              hintText: 'Введите ваш email',
-                              hintStyle:
-                                  TextStyle(color: Colors.deepPurple.shade200),
-                              filled: true,
-                              fillColor: Colors.deepPurple.shade50,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.deepPurple,
-                                  width: 2,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.deepPurpleAccent,
-                                  width: 3,
-                                ),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.red,
-                                  width: 2,
-                                ),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.redAccent,
-                                  width: 3,
-                                ),
-                              ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 15.h,
                             ),
-                            style: TextStyle(
-                              color: Colors.deepPurple.shade900,
-                              fontWeight: FontWeight.w600,
+                            child: TextFormField(
+                              controller: email,
+                              decoration: InputDecoration(
+                                labelText: 'Code',
+                                labelStyle: TextStyle(
+                                  color: Colors.deepPurple,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                                hintText: 'Enter your code',
+                                hintStyle: TextStyle(
+                                    color: Colors.deepPurple.shade200),
+                                filled: true,
+                                fillColor: Colors.deepPurple.shade50,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurple,
+                                    width: 2,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Colors.deepPurpleAccent,
+                                    width: 3,
+                                  ),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Colors.red,
+                                    width: 2,
+                                  ),
+                                ),
+                                focusedErrorBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Colors.redAccent,
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
+                              style: TextStyle(
+                                color: Colors.deepPurple.shade900,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                           SendEmailBtn(context),
@@ -160,21 +163,6 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 ),
               );
       },
-    );
-  }
-
-  Widget headerText() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 50.w),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(
-            "Create An Account and Sign Up",
-            style: TextStyle(fontSize: 18.sp, color: Colors.white),
-          ),
-        ],
-      ),
     );
   }
 
