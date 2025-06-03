@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:glowee/bloc/post_bloc/post_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'package:glowee/screens/addpost_text.dart';
@@ -18,26 +20,9 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final ImagePicker _picker = ImagePicker();
   int _currentPage = 0;
 
-  List<String> _tags = [];
-  String? _selectedTag;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTagsFromBackend();
-  }
-
-  Future<void> _loadTagsFromBackend() async {
-
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      _tags = ['Nature', 'Travel', 'Food', 'Art', 'Technology'];
-      _selectedTag = _tags.first;
-    });
-  }
-
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         final file = File(pickedFile.path);
@@ -64,14 +49,20 @@ class _AddPostScreenState extends State<AddPostScreen> {
               child: GestureDetector(
                 onTap: () {
                   if (_selectedFile != null) {
-                    Navigator.of(context).push(
+                    Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
-                        builder: (context) => AddPostTextScreen(_selectedFile!),
+                        builder: (context) => BlocProvider(
+                          create: (context) => PostBloc(),
+                          child: AddPostTextScreen(_selectedFile!),
+                        ),
                       ),
                     );
                   }
                 },
-                child: Text('Next', style: TextStyle(fontSize: 15.sp, color: Colors.blue)),
+                child: Text(
+                  'Next',
+                  style: TextStyle(fontSize: 15.sp, color: Colors.blue),
+                ),
               ),
             ),
           ),
@@ -86,78 +77,13 @@ class _AddPostScreenState extends State<AddPostScreen> {
               child: const Text('Choose photo from gallery'),
             ),
             SizedBox(height: 10.h),
-
-            if (_images.isNotEmpty)
-              Stack(
-                alignment: Alignment.topRight,
-                children: [
-                  SizedBox(
-                    height: 375.h,
-                    child: PageView.builder(
-                      itemCount: _images.length,
-                      onPageChanged: (index) {
-                        setState(() {
-                          _currentPage = index;
-                          _selectedFile = _images[index];
-                        });
-                      },
-                      itemBuilder: (context, index) {
-                        return Image.file(
-                          _images[index],
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        );
-                      },
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.all(12.w),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.w,
-                      vertical: 5.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      '${_currentPage + 1}/${_images.length}',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14.sp,
-                      ),
-                    ),
-                  ),
-                ],
+            if (_selectedFile != null)
+              Container(
+                height: 375.h,
+                width: double.infinity,
+                child: Image.file(_selectedFile!, fit: BoxFit.cover),
               ),
-
             SizedBox(height: 10.h),
-
-            if (_tags.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                child: Row(
-                  children: [
-                    Text('Tag:', style: TextStyle(fontSize: 15.sp)),
-                    SizedBox(width: 10.w),
-                    DropdownButton<String>(
-                      value: _selectedTag,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedTag = value;
-                        });
-                      },
-                      items: _tags
-                          .map((tag) => DropdownMenuItem(
-                        value: tag,
-                        child: Text(tag),
-                      ))
-                          .toList(),
-                    ),
-                  ],
-                ),
-              ),
-
             Container(
               width: double.infinity,
               height: 40.h,
@@ -169,7 +95,6 @@ class _AddPostScreenState extends State<AddPostScreen> {
                 style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
               ),
             ),
-
             Expanded(
               child: GridView.builder(
                 padding: EdgeInsets.all(10.w),
