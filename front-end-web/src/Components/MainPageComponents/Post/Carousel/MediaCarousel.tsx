@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { PostMedia } from "../../../../API/agent";
 import AutoPlayVideo from "../Video/AutoplayVideo";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 interface MediaCarouselProps {
   medias: PostMedia[];
@@ -50,31 +52,30 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({ medias }) => {
             onClick={() =>
               setCurrentIndex((i) => (i - 1 + count) % count)
             }
-            className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black/50 text-white rounded-full p-2 z-10 select-none"
+            className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 z-10 select-none transition-all duration-300 ease-in-out"
             aria-label="Previous media"
           >
-            ←
+            <ArrowBackIosNewIcon fontSize="small" />
           </button>
           <button
             onClick={() =>
               setCurrentIndex((i) => (i + 1) % count)
             }
-            className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black/50 text-white rounded-full p-2 z-10 select-none"
+            className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 z-10 select-none transition-all duration-300 ease-in-out"
             aria-label="Next media"
           >
-            →
+            <ArrowForwardIosIcon fontSize="small" />
           </button>
         </>
       )}
 
       {count > 1 && (
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1 z-10">
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-10">
           {medias.map((_, i) => (
             <div
               key={i}
-              className={`w-2 h-2 rounded-full ${
-                i === currentIndex ? "bg-white" : "bg-gray-400"
-              }`}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${i === currentIndex ? "bg-white scale-125" : "bg-gray-400 hover:bg-gray-300"}`}
+              onClick={() => setCurrentIndex(i)}
             />
           ))}
         </div>
