@@ -1,5 +1,4 @@
 ﻿using Glowee.Identity.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,20 +8,20 @@ namespace Glowee.Identity.Configurations
     {
         public void Configure(EntityTypeBuilder<AuthUser> builder)
         {
-            var hasher = new PasswordHasher<AuthUser>();
-            builder.HasData(
-                 new AuthUser
-                 {
-                     Id = -1,
-                     Email = "tsyselskyiandrey@gmail.com",
-                     NormalizedEmail = "TSYSELSKYIANDREY@GMAIL.COM",
-                     UserName = "AdminProMax",
-                     NormalizedUserName = "ADMINPROMAX",
-                     PasswordHash = hasher.HashPassword(null, "Q1w2e3r4t5y6"),
-                     EmailConfirmed = true,
-                     SecurityStamp = Guid.NewGuid().ToString()
-                 }
-            );
+            //var hasher = new PasswordHasher<AuthUser>();
+            //builder.HasData(
+            //     new AuthUser
+            //     {
+            //         Id = -1,
+            //         Email = "tsyselskyiandrey@gmail.com",
+            //         NormalizedEmail = "TSYSELSKYIANDREY@GMAIL.COM",
+            //         UserName = "AdminProMax",
+            //         NormalizedUserName = "ADMINPROMAX",
+            //         PasswordHash = hasher.HashPassword(null, "Q1w2e3r4t5y6"),
+            //         EmailConfirmed = true,
+            //         SecurityStamp = Guid.NewGuid().ToString()
+            //     }
+            //);
 
 
             builder.HasKey(u => u.Id);
