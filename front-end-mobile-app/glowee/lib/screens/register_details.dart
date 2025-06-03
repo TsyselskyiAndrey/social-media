@@ -8,7 +8,6 @@ import 'package:glowee/screens/login_screen.dart';
 
 import 'package:glowee/screens/otp_verification.dart';
 import 'package:glowee/util/error_dialog.dart';
-import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
@@ -57,60 +56,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
     }
   }
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) {
-      final formattedDate = DateFormat('MM/dd/yyyy').format(picked);
-      setState(() {
-        _birthDateController.text = formattedDate;
-      });
-    }
-  }
-
-  String? _validateFirstName(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'First name is required';
-    }
-    if (value.length < 2) {
-      return 'Too short';
-    }
-    return null;
-  }
-
-  String? _validateLastName(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Last name is required';
-    }
-    if (value.length < 2) {
-      return 'Too short';
-    }
-    return null;
-  }
-
-  String? _validateBirthDate(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Birth date is required';
-    }
-    return null;
-  }
-
-  void _handleRegistration(BuildContext context) async {
-    if (_formKey.currentState!.validate()) {
-      context.read<AuthBloc>().add(
-            Register2BtnClicked(
-              firstName: _firstNameController.text,
-              lastName: _lastNameController.text,
-              birthDate: _birthDateController.text, // Already a string
-            ),
-          );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AuthBloc, AuthState>(
@@ -137,6 +82,7 @@ class _RegisterDetailsState extends State<RegisterDetails> {
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.white,
           body: Container(
+            height: MediaQuery.of(context).size.height,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -225,7 +171,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                             ),
                             SizedBox(height: 15.h),
 
-                            // Birth Date
                             InkWell(
                               onTap: () async {
                                 final pickedDate = await showDatePicker(
@@ -265,7 +210,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                             ),
                             SizedBox(height: 25.h),
 
-                            // Next Button
                             ElevatedButton(
                               onPressed: () async {
                                 if (_formKey.currentState!.validate() &&
@@ -291,8 +235,9 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                                 } else if (_birthDate == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                        content: Text(
-                                            'Please select your birth date')),
+                                      content:
+                                          Text('Please select your birth date'),
+                                    ),
                                   );
                                 }
                               },
@@ -300,7 +245,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
                             ),
                             SizedBox(height: 15.h),
 
-                            // Login Link
                             TextButton(
                               onPressed: () {
                                 Navigator.pushReplacement(
@@ -323,152 +267,6 @@ class _RegisterDetailsState extends State<RegisterDetails> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildDateField(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
-      child: TextFormField(
-        controller: _birthDateController,
-        focusNode: _birthDateFocusNode,
-        readOnly: true,
-        onTap: () => _selectDate(context),
-        validator: _validateBirthDate,
-        decoration: InputDecoration(
-          hintText: 'Birth Date (YYYY-MM-DD)',
-          prefixIcon: Icon(Icons.calendar_today,
-              color: _birthDateFocusNode.hasFocus
-                  ? Colors.black
-                  : Colors.grey[600]),
-          contentPadding:
-              EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-          filled: true,
-          fillColor: Colors.white,
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.r),
-            borderSide: BorderSide(width: 1.w, color: Colors.black),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.r),
-            borderSide: BorderSide(width: 2.w, color: Colors.black),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.r),
-            borderSide: BorderSide(width: 1.5.w, color: Colors.red),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.r),
-            borderSide: BorderSide(width: 2.w, color: Colors.red),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoginLink() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(
-            "Already have an account? ",
-            style: TextStyle(fontSize: 14.sp, color: Colors.black),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BlocProvider(
-                    create: (context) => AuthBloc(),
-                    child: const LoginScreen(),
-                  ),
-                ),
-              );
-            },
-            child: Text(
-              "Login",
-              style: TextStyle(
-                fontSize: 15.sp,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNextButton() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
-      child: InkWell(
-        onTap: () => _handleRegistration(context),
-        child: Container(
-          alignment: Alignment.center,
-          width: double.infinity,
-          height: 44.h,
-          decoration: BoxDecoration(
-            color: Colors.blue.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10.r),
-            border: Border.all(color: Colors.black, width: 1.w),
-          ),
-          child: Text(
-            'Next',
-            style: TextStyle(fontSize: 23.sp, color: Colors.black),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required FocusNode focusNode,
-    required String label,
-    required IconData icon,
-    bool obscureText = false,
-    bool enabled = true,
-    required String? Function(String?)? validator,
-  }) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10.w),
-      child: TextFormField(
-        controller: controller,
-        focusNode: focusNode,
-        obscureText: obscureText,
-        enabled: enabled,
-        validator: validator,
-        style: TextStyle(fontSize: 18.sp, color: Colors.black),
-        decoration: InputDecoration(
-          hintText: label,
-          prefixIcon: Icon(icon,
-              color: focusNode.hasFocus ? Colors.black : Colors.grey[600]),
-          contentPadding:
-              EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.h),
-          filled: true,
-          fillColor: enabled ? Colors.white : Colors.grey[200],
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.r),
-            borderSide: BorderSide(width: 1.w, color: Colors.black),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.r),
-            borderSide: BorderSide(width: 2.w, color: Colors.black),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.r),
-            borderSide: BorderSide(width: 1.5.w, color: Colors.red),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(5.r),
-            borderSide: BorderSide(width: 2.w, color: Colors.red),
-          ),
-        ),
-      ),
     );
   }
 }
