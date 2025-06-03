@@ -3,12 +3,14 @@ import { Box, IconButton, Avatar, Typography, Menu, MenuItem } from "@mui/materi
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import SendIcon from "@mui/icons-material/Send";
-
+import MediaCarousel from "./Carousel/MediaCarousel";
 import Like from "./Like/Like";
 import Comments from "./Comment/Comment";
 import Bookmark from "./Bookmark/Bookmark";
 import { Post as PostType} from "../../../API/agent";
 import Agent from "../../../API/agent";
+import AutoPlayVideo from "./Video/AutoplayVideo";
+import EditPostForm from "./../EditPost/EditPostForm";
 
 interface PostProps {
   post: PostType;
@@ -20,6 +22,7 @@ const Post: React.FC<PostProps> = ({ post }) => {
   const [isLiked, setIsLiked] = React.useState(post.isLiked);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [showComments, setShowComments] = React.useState(false);
+  const [isEditing, setIsEditing] = React.useState(false);
 
   const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -32,6 +35,16 @@ const Post: React.FC<PostProps> = ({ post }) => {
   const handleCommentIconClick = () => {
     setShowComments((prev) => !prev);
   };
+
+  const handleDeletePost = async () => {
+    try {
+      await Agent.Posts.deletePost(post.id);
+      alert("Пост успішно видалено");
+    }
+    catch (error) {
+      console.error("Ошибка при удалении поста", error);
+    }
+  }
 
   const handleLike = async () => {
     try {
@@ -56,8 +69,6 @@ const Post: React.FC<PostProps> = ({ post }) => {
     }
   };
 
-  const media = post.postMedias[0];
-
   return (
     <Box
       sx={{
@@ -71,6 +82,20 @@ const Post: React.FC<PostProps> = ({ post }) => {
         flexDirection: "column",
       }}
     >
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg max-h-[90vh] overflow-y-auto">
+            <EditPostForm
+              post={post}
+              onCancel={() => setIsEditing(false)}
+              onUpdated={() => {
+                setIsEditing(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       <Box
         sx={{
           display: "flex",
@@ -95,26 +120,41 @@ const Post: React.FC<PostProps> = ({ post }) => {
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           transformOrigin={{ vertical: "top", horizontal: "right" }}
         >
-          <MenuItem onClick={() => alert("Редагувати пост")}>Редагувати</MenuItem>
-          <MenuItem onClick={() => alert("Видалити пост")}>Видалити</MenuItem>
+          <MenuItem
+          onClick={() => {
+              setIsEditing(true);
+              handleMenuClose();
+            }}
+          >
+            Редагувати
+          </MenuItem>
+
+          <MenuItem onClick={async () => await handleDeletePost() }>Видалити</MenuItem>
         </Menu>
       </Box>
 
-      {media && media.postMediaType === "Photo" && (
+      {post.postType === "Photo" && post.postMedias[0] && (
         <img
-          src={media.mediaUrl}
+          src={post.postMedias[0].mediaUrl}
           alt="Post"
           style={{ width: "100%", height: "auto", objectFit: "cover" }}
         />
       )}
 
-      {media && media.postMediaType === "Video" && (
-        <video
+      {post.postType === "Video" && post.postMedias[0] && (
+        <AutoPlayVideo
+          src={post.postMedias[0].mediaUrl}
+          poster={post.postMedias[0].thumbnailUrl ?? undefined}
           controls
-          poster={media.thumbnailUrl ?? undefined}
-          src={media.mediaUrl}
           style={{ width: "100%", height: "auto", objectFit: "cover" }}
         />
+      )}
+
+
+      {post.postType === "Carousel" && post.postMedias.length > 0 && (
+        <Box sx={{ width: "100%", position: "relative" }}>
+          <MediaCarousel medias={post.postMedias} />
+        </Box>
       )}
 
       <Box

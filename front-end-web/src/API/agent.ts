@@ -58,6 +58,14 @@ interface CreatePostRequest {
   thumbnail: File | null;
 }
 
+interface UpdatePostRequest {
+  id : number;
+  caption: string;
+  tags: string[];
+  postMedias: File[];
+  thumbnail: File | null;
+}
+
 export interface Tag {
   id: number;
   name: string;
@@ -91,7 +99,7 @@ export interface Post{
   postMedias : PostMedia[]
 }
 
-interface PostMedia{
+export interface PostMedia{
   id : number;
   mediaUrl : string;
   postMediaType : string;
@@ -101,6 +109,15 @@ interface PostMedia{
   size : number;
   isUploaded : boolean;
   position : number;
+}
+
+export interface UpdateUserProfileInfo  {
+  firstName : string;
+  lastName : string;
+  birthday : Date;
+  username : string;
+  biography : string | null;
+  profilePhoto : File | null;
 }
 
 const Auth = {
@@ -237,6 +254,38 @@ const Posts = {
     });
   },
 
+  updatePost: async (postData: UpdatePostRequest) => {
+    const formData = new FormData();
+    formData.append("Id", postData.id.toString());
+    formData.append("Caption", postData.caption ?? "");
+
+    postData.tags.forEach(tag => {
+      formData.append("Tags", tag);
+    });
+
+    if (postData.thumbnail) {
+      formData.append("Thumbnail", postData.thumbnail);
+    }
+
+    postData.postMedias.forEach(file => {
+      formData.append("PostMedias", file);
+    });
+
+    return await axiosWithToken.put("/api/post/updatePost", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
+  },
+
+  deletePost: async (postId: number) => {
+    return await axiosWithToken.delete(`/api/post/deletePost/${postId}`, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+  },
+
   likePost: async (postId: number) => {
     return await axiosWithToken.post<boolean>(
       `/api/post/like`,
@@ -269,6 +318,23 @@ const Tags = {
 const User = {
   getUserProfileInfo: async () => {
     return await axiosWithToken.get<UserProfileInfo>("/api/user/getUserProfileInfo");
+  },
+
+  updateUserProfileInfo: async (data: UpdateUserProfileInfo) => {
+    const formData = new FormData();
+    formData.append("FirstName", data.firstName);
+    formData.append("LastName", data.lastName);
+    formData.append("Birthday", data.birthday.toISOString());
+    formData.append("Username", data.username);
+    if (data.biography) formData.append("Biography", data.biography);
+    if (data.profilePhoto) formData.append("ProfilePhoto", data.profilePhoto);
+
+    return await axiosWithToken.put("/api/user/updateUserProfileInfo", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+      withCredentials: true,
+    });
   },
 };
 
