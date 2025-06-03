@@ -2,7 +2,7 @@ import 'package:glowee/model/post_media.dart';
 
 class Post {
   int id;
-  int authorName;
+  String authorName;
   String authorIconUrl;
   String? caption;
   String postType;
@@ -12,7 +12,7 @@ class Post {
   bool isLiked;
   bool isSaved;
   bool isUninteresting;
-  List<PostMedia> postMediaDtos;
+  List<PostMedia> postMedia;
 
   Post({
     required this.id,
@@ -26,23 +26,26 @@ class Post {
     required this.isLiked,
     required this.isSaved,
     required this.isUninteresting,
-    required this.postMediaDtos,
+    required this.postMedia,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
     return Post(
       id: json['id'] as int,
-      authorName: json['authorName'] as int,
+      authorName: json['authorName'] as String,
       authorIconUrl: json['authorIconUrl'] as String,
       caption: json['caption'] as String?,
       postType: json['postType'] as String,
-      tags: json['tags'] as List<String>,
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
       likes: json['likes'] as int,
       views: json['views'] as int,
       isLiked: json['isLiked'] as bool,
       isSaved: json['isSaved'] as bool,
       isUninteresting: json['isUninteresting'] as bool,
-      postMediaDtos: json['postMediaDtos'] as List<PostMedia>,
+      postMedia: (json['postMedias'] as List?)
+              ?.map((item) => PostMedia.fromJson(item as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
