@@ -10,7 +10,7 @@ import 'package:glowee/screens/feed.dart';
 import 'package:glowee/screens/register.dart';
 import 'package:glowee/util/error_dialog.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+//import 'package:device_info_plus/device_info_plus.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onSignUpTap;
@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) async {
         if (state is Authorized) {
           Navigator.pushReplacement(
@@ -58,49 +58,58 @@ class _LoginScreenState extends State<LoginScreen> {
           await showErrorDialog(context, state.messages);
         }
       },
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(17, 140, 140, 1.0),
-                Color.fromRGBO(38, 75, 198, 1.0),
-                Color.fromRGBO(242, 188, 23, 1.0)
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+      builder: (context, state) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(17, 140, 140, 1.0),
+                  Color.fromRGBO(38, 75, 198, 1.0),
+                  Color.fromRGBO(242, 188, 23, 1.0)
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
+            child: (state is Authorizing || state is Authorized)
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  )
+                : SafeArea(
+                    child: Column(
+                      children: [
+                        SizedBox(width: 96.w, height: 100.h),
+                        Center(
+                          child: Image.asset('assets/images/logo.png'),
+                        ),
+                        SizedBox(height: 15.h),
+                        _buildGreeting(),
+                        SizedBox(height: 50.h),
+                        _buildTextField(
+                            login, loginFocus, 'Username', Icons.email),
+                        SizedBox(height: 15.h),
+                        _buildTextField(
+                            password, passwordFocus, 'Password', Icons.lock),
+                        SizedBox(height: 15.h),
+                        _buildForgotPassword(),
+                        SizedBox(height: 15.h),
+                        _buildLoginButton(context),
+                        SizedBox(height: 15.h),
+                        _buildGoogleSignInButton(),
+                        SizedBox(height: 80.h),
+                        _buildSignUpPrompt(),
+                      ],
+                    ),
+                  ),
           ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                SizedBox(width: 96.w, height: 100.h),
-                Center(
-                  child: Image.asset('assets/images/logo.png'),
-                ),
-                SizedBox(height: 15.h),
-                _buildGreeting(),
-                SizedBox(height: 50.h),
-                _buildTextField(login, loginFocus, 'Username', Icons.email),
-                SizedBox(height: 15.h),
-                _buildTextField(
-                    password, passwordFocus, 'Password', Icons.lock),
-                SizedBox(height: 15.h),
-                _buildForgotPassword(),
-                SizedBox(height: 15.h),
-                _buildLoginButton(context),
-                SizedBox(height: 15.h),
-                _buildGoogleSignInButton(),
-                SizedBox(height: 80.h),
-                _buildSignUpPrompt(),
-              ],
-            ),
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -111,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
         print("User signed in with Google: ${googleUser.displayName}");
         final googleAuth = await googleUser.authentication;
         final idToken = googleAuth.idToken;
-        final deviceId = await _getDeviceId();
+        //final deviceId = await _getDeviceId();
         context.read<AuthBloc>().add(LogInWithGoogleBtnClciked(
               codeOrIdToken: idToken ?? "",
               //deviceId: deviceId,
@@ -122,11 +131,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<String> _getDeviceId() async {
-    final deviceInfo = DeviceInfoPlugin();
-    final androidInfo = await deviceInfo.androidInfo;
-    return androidInfo.id ?? 'unknown';
-  }
+  // Future<String> _getDeviceId() async {
+  //   final deviceInfo = DeviceInfoPlugin();
+  //   final androidInfo = await deviceInfo.androidInfo;
+  //   return androidInfo.id ?? 'unknown';
+  // }
 
   Widget _buildGoogleSignInButton() {
     return Padding(

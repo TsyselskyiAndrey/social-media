@@ -5,6 +5,7 @@ import 'package:glowee/bloc/auth_bloc/auth_bloc.dart';
 import 'package:glowee/bloc/auth_bloc/auth_events.dart';
 import 'package:glowee/bloc/auth_bloc/auth_states.dart';
 import 'package:glowee/screens/email_password_text_comfirmation_screen.dart';
+import 'package:glowee/screens/login_screen.dart';
 import 'package:glowee/util/error_dialog.dart';
 
 class EmailEnter extends StatefulWidget {
@@ -47,7 +48,7 @@ class _EmailEnterState extends State<EmailEnter> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) async {
         if (state is AuthStepSucess && state.flow == AuthFlow.EmailSent) {
           Navigator.pushReplacement(
@@ -63,57 +64,65 @@ class _EmailEnterState extends State<EmailEnter> {
           await showErrorDialog(context, state.messages);
         }
       },
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.white,
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(17, 140, 140, 1.0),
-                Color.fromRGBO(38, 75, 198, 1.0),
-                Color.fromRGBO(242, 188, 23, 1.0)
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: SafeArea(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  SizedBox(height: 20.h),
-                  Center(child: Image.asset('assets/images/logo.png')),
-                  SizedBox(height: 30.h),
-                  EnterEmailText(),
-                  SizedBox(height: 35.h),
-                  SizedBox(height: 25.h),
-                  Textfild(
-                    email,
-                    email_F,
-                    'Email',
-                    Icons.email,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) return 'Email is required';
-                    //   final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
-                    //   if (!emailRegex.hasMatch(value)) return 'Invalid email format';
-                    //   if (widget.emailText != null && value != widget.emailText) {
-                    //     return 'Email does not match';
-                    //   }
-                    //   return null;
-                    // },
-                  ),
-                  SizedBox(height: 20.h),
-                  SendEmailBtn(context),
-                  SizedBox(height: 15.h),
-                  BackBtn(),
+      builder: (context, state) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: Colors.white,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(17, 140, 140, 1.0),
+                  Color.fromRGBO(38, 75, 198, 1.0),
+                  Color.fromRGBO(242, 188, 23, 1.0)
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
+            child: (state is Authorizing || state is AuthStepSucess)
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  )
+                : SafeArea(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          SizedBox(height: 20.h),
+                          Center(child: Image.asset('assets/images/logo.png')),
+                          SizedBox(height: 30.h),
+                          EnterEmailText(),
+                          SizedBox(height: 35.h),
+                          SizedBox(height: 25.h),
+                          Textfild(
+                            email,
+                            email_F,
+                            'Email',
+                            Icons.email,
+                            // validator: (value) {
+                            //   if (value == null || value.isEmpty) return 'Email is required';
+                            //   final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
+                            //   if (!emailRegex.hasMatch(value)) return 'Invalid email format';
+                            //   if (widget.emailText != null && value != widget.emailText) {
+                            //     return 'Email does not match';
+                            //   }
+                            //   return null;
+                            // },
+                          ),
+                          SizedBox(height: 20.h),
+                          SendEmailBtn(context),
+                          SizedBox(height: 15.h),
+                          BackBtn(),
+                        ],
+                      ),
+                    ),
+                  ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -152,7 +161,7 @@ class _EmailEnterState extends State<EmailEnter> {
                 MaterialPageRoute(
                   builder: (context) => BlocProvider(
                     create: (context) => AuthBloc(),
-                    child: EmailPasswordConfirmationScreen(),
+                    child: LoginScreen(),
                   ),
                 ),
               );

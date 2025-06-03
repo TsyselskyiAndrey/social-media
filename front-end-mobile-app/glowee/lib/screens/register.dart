@@ -45,7 +45,7 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) async {
         if (state is AuthStepSucess && state.flow == AuthFlow.RegisterStep1) {
           Navigator.pushReplacement(
@@ -61,94 +61,102 @@ class _RegisterState extends State<Register> {
           await showErrorDialog(context, state.messages);
         }
       },
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: Colors.white,
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                Color.fromRGBO(17, 140, 140, 0.7),
-                Color.fromRGBO(242, 188, 23, 0.5)
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-          child: SafeArea(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  SizedBox(height: 20.h),
-                  Center(child: Image.asset('assets/images/logo.png')),
-                  SizedBox(height: 30.h),
-                  createAccountText(),
-                  SizedBox(height: 35.h),
-                  Textfild(
-                    email,
-                    email_F,
-                    'Email',
-                    Icons.email,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) return 'Email is required';
-                    //   final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
-                    //   if (!emailRegex.hasMatch(value)) return 'Invalid email format';
-                    //   return null;
-                    // },
-                  ),
-                  SizedBox(height: 25.h),
-                  Textfild(
-                    username,
-                    username_F,
-                    'Username',
-                    Icons.person,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) return 'Username is required';
-                    //   if (RegExp(r'[@?,\*^]').hasMatch(value)) {
-                    //     return 'Username contains invalid characters';
-                    //   }
-                    //
-                    //   return null;
-                    // },
-                  ),
-                  SizedBox(height: 25.h),
-                  Textfild(
-                    password,
-                    password_F,
-                    'Password',
-                    Icons.lock,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) return 'Password is required';
-                    //   if (value.length < 6) return 'Password must be at least 6 characters';
-                    //   if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Password must contain an uppercase letter';
-                    //   if (!RegExp(r'[0-9]').hasMatch(value)) return 'Password must contain a number';
-                    //   if (RegExp(r'[ @?,*^]').hasMatch(value)) return 'Password contains invalid characters';
-                    //   return null;
-                    // },
-                  ),
-                  SizedBox(height: 25.h),
-                  Textfild(
-                    passwordConfirme,
-                    passwordConfirme_F,
-                    'Confirm Password',
-                    Icons.lock_outline,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) return 'Please confirm your password';
-                    //   if (value != password.text) return 'Passwords do not match';
-                    //   return null;
-                    // }
-                  ),
-                  SizedBox(height: 20.h),
-                  Next(context),
-                  SizedBox(height: 15.h),
-                  Have(),
+      builder: (context, state) {
+        return Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: Colors.white,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color.fromRGBO(17, 140, 140, 0.7),
+                  Color.fromRGBO(242, 188, 23, 0.5)
                 ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
+            child: (state is Authorizing || state is AuthStepSucess)
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  )
+                : SafeArea(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          SizedBox(height: 20.h),
+                          Center(child: Image.asset('assets/images/logo.png')),
+                          SizedBox(height: 30.h),
+                          createAccountText(),
+                          SizedBox(height: 35.h),
+                          Textfild(
+                            email,
+                            email_F,
+                            'Email',
+                            Icons.email,
+                            // validator: (value) {
+                            //   if (value == null || value.isEmpty) return 'Email is required';
+                            //   final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
+                            //   if (!emailRegex.hasMatch(value)) return 'Invalid email format';
+                            //   return null;
+                            // },
+                          ),
+                          SizedBox(height: 25.h),
+                          Textfild(
+                            username,
+                            username_F,
+                            'Username',
+                            Icons.person,
+                            // validator: (value) {
+                            //   if (value == null || value.isEmpty) return 'Username is required';
+                            //   if (RegExp(r'[@?,\*^]').hasMatch(value)) {
+                            //     return 'Username contains invalid characters';
+                            //   }
+                            //
+                            //   return null;
+                            // },
+                          ),
+                          SizedBox(height: 25.h),
+                          Textfild(
+                            password,
+                            password_F,
+                            'Password',
+                            Icons.lock,
+                            // validator: (value) {
+                            //   if (value == null || value.isEmpty) return 'Password is required';
+                            //   if (value.length < 6) return 'Password must be at least 6 characters';
+                            //   if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Password must contain an uppercase letter';
+                            //   if (!RegExp(r'[0-9]').hasMatch(value)) return 'Password must contain a number';
+                            //   if (RegExp(r'[ @?,*^]').hasMatch(value)) return 'Password contains invalid characters';
+                            //   return null;
+                            // },
+                          ),
+                          SizedBox(height: 25.h),
+                          Textfild(
+                            passwordConfirme,
+                            passwordConfirme_F,
+                            'Confirm Password',
+                            Icons.lock_outline,
+                            // validator: (value) {
+                            //   if (value == null || value.isEmpty) return 'Please confirm your password';
+                            //   if (value != password.text) return 'Passwords do not match';
+                            //   return null;
+                            // }
+                          ),
+                          SizedBox(height: 20.h),
+                          Next(context),
+                          SizedBox(height: 15.h),
+                          Have(),
+                        ],
+                      ),
+                    ),
+                  ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
