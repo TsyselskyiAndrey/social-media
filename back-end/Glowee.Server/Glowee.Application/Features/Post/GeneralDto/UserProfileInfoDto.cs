@@ -8,10 +8,7 @@ public class UserProfileInfoDto{
     public string? Biography { get; set; }
     public string? ProfileImagePath { get; set; }
     public DateTime? BirthDate { get; set; }
-    
     public int Followed { get; set; }
-    
     public int Followers { get; set; }
-    
     public int PostsAmount { get; set; }
 }

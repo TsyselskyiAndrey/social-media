@@ -220,7 +220,23 @@ public class PostRepository : GenericRepository<Post, PostId>, IPostRepository
 
         return posts;
     }
-    
+
+    public async Task<IEnumerable<Post>> GetUsersPersonalPostsAsync(UserId userId)
+    {
+        return await _context.Posts
+            .Where(p => p.UserId == userId)
+            .Include(p => p.User)
+            .Include(x => x.LikedPosts)
+            .Include(x => x.Tags)
+            .Include(x => x.PostType)
+            .Include(x => x.UninterestingPosts)
+            .Include(x => x.SavedPosts)
+            .Include(x => x.PostMedias)
+            .ThenInclude(x => x.PostMediaType)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
     public async Task<Post?> GetFullPostByIdAsync(PostId postId)
     {
         return await _context.Posts

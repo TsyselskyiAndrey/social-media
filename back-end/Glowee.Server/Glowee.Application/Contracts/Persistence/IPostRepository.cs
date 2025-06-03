@@ -26,6 +26,8 @@ public interface IPostRepository : IGenericRepository<Post, PostId>
         PostTypeId postTypeId);
     
     Task<IEnumerable<Post>> GetUsersSavedPostsAsync(UserId  userId);
+    
+    Task<IEnumerable<Post>> GetUsersPersonalPostsAsync(UserId userId);
 
     Task<Post?> GetFullPostByIdAsync(PostId postId);
 

@@ -52,7 +52,7 @@ public class PostMapper : IPostMapper
                     ? _thumbnailStorageService.GetThumbnailUrl(media.ThumbnailPath)
                     : null,
                 PostMediaType = media.PostMediaType.Name,
-                Duration = media.Duration,
+                Duration = media.Duration ?? TimeSpan.Zero,
                 Format = media.Format,
                 Size = media.Size,
                 IsUploaded = media.IsUploaded,

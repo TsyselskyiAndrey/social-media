@@ -34,10 +34,13 @@ public class PostController : ControllerBase
     private readonly ISavedPostRepository _savedPostRepository;
     private readonly IAppLogger<PostController> _logger;
     private readonly IUserRepository _userRepository;
-    
+    private readonly IThumbnailStorageService _thumbnailStorageService;
+    private readonly IProfileImageStorageService _profileImageStorageService;
+
     public PostController(IPostRepository postRepository, IPostMapper postMapper, IUserService userService,
     ITagRepository tagRepository, IPostMediaRepository postMediaRepository, IPostMediaStorageService postMediaStorageService,
-    ILikeRepository likeRepository, ISavedPostRepository savedPostRepository, IUserRepository userRepository,IAppLogger<PostController> logger)
+    ILikeRepository likeRepository, ISavedPostRepository savedPostRepository, IUserRepository userRepository,IAppLogger<PostController> logger,
+    IThumbnailStorageService thumbnailStorageService, IProfileImageStorageService profileImageStorageService)
     {
         _postRepository = postRepository;
         _userService = userService;
@@ -49,6 +52,8 @@ public class PostController : ControllerBase
         _savedPostRepository = savedPostRepository;
         _userRepository = userRepository;
         _logger = logger;
+        _thumbnailStorageService = thumbnailStorageService;
+        _profileImageStorageService = profileImageStorageService;
     }
 
     [HttpGet("getPosts")]
@@ -81,6 +86,18 @@ public class PostController : ControllerBase
         var handler = new GetSavedPostsQueryHandler(_postRepository, _postMapper, _userService);
         
         var result = await handler.Handle(request, CancellationToken.None);
+        return Ok(result);
+    }
+
+    [HttpGet("getPersonalPosts")]
+    public async Task<IActionResult> GetPersonalPostsAsync()
+    {
+        var request = new GetPersonalPostsQuery();
+        var handler = new GetPersonalPostsQueryHandler(_userService, _postRepository, _thumbnailStorageService, 
+            _postMediaStorageService, _profileImageStorageService);
+        
+        var result = await handler.Handle(request, CancellationToken.None);
+        
         return Ok(result);
     }
     
