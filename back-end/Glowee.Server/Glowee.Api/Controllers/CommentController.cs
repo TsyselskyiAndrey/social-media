@@ -56,10 +56,10 @@ namespace Glowee.Api.Controllers
                 ParentCommentId = commentDto.ParentCommentId,
             };
 
-            var handler = new CreateCommentCommandHandler(_userService, _postRepository, _commentRepository);
+            var handler = new CreateCommentCommandHandler(_userService, _postRepository, _commentRepository, _commentMapper);
 
-            await handler.Handle(command, new CancellationToken());
-            return Ok();
+            var result = await handler.Handle(command, new CancellationToken());
+            return Ok(result);
         }
 
         [HttpDelete("deleteComment")]
